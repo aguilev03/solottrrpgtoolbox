@@ -1,0 +1,15 @@
+{
+  "name": "contents",
+  "dice": "2d6",
+  "entries": [
+    { "min": 2, "max": 2, "type": "Dangerous Encounter", "description": "A lethal threat or formidable adversary lurks here." },
+    { "min": 3, "max": 3, "type": "Encounter", "description": "Denizens or hostile creatures occupy this area." },
+    { "min": 4, "max": 4, "type": "Hazard", "subtable": "hazards" },
+    { "min": 5, "max": 5, "type": "Curio", "subtable": "curios" },
+    { "min": 6, "max": 8, "type": "Empty", "description": "Quiet and deserted, leaving only echoes." },
+    { "min": 9, "max": 9, "type": "Hazard", "subtable": "hazards" },
+    { "min": 10, "max": 10, "type": "Curio", "subtable": "curios" },
+    { "min": 11, "max": 11, "type": "Treasure", "description": "Valuable spoils, relics, or hoarded supplies." },
+    { "min": 12, "max": 12, "type": "Puzzle Room", "subtable": "puzzles" }
+  ]
+}

@@ -1,0 +1,275 @@
+{
+  "name": "unique_rooms",
+  "dungeon_types": {
+    "Tomb": {
+      "dice": "d6",
+      "entries": [
+        {
+          "min": 1,
+          "max": 1,
+          "name": "Royal Burial Chamber",
+          "description": "A grand vaulted hall lined with towering funerary pillars.",
+          "feature": "A raised gilded bier draped in ceremonial silks.",
+          "possible_reward": "Ancient dynastic signet and golden burial mask.",
+          "possible_encounter": "Mummified royal guardians awakening from stasis.",
+          "possible_exit": "Stairs descending into the deeper necropolis vault."
+        },
+        {
+          "min": 2,
+          "max": 2,
+          "name": "Hall of the Honored Dead",
+          "description": "Colonnades of engraved marble tablets honor legendary warriors.",
+          "feature": "A glowing spectral brazier burning with blue flame.",
+          "possible_reward": "An ancestral weapon hung above the memorial dais.",
+          "possible_encounter": "Restless warrior phantoms testing the party's courage.",
+          "possible_exit": "A heavy stone archway leading down to the lower tier."
+        },
+        {
+          "min": 3,
+          "max": 3,
+          "name": "Sealed Necropolis",
+          "description": "An underground miniature city of mausoleums carved into cavern walls.",
+          "feature": "A central obelisk humming with warding resonance.",
+          "possible_reward": "Jeweled urns holding preserved sacred unguents.",
+          "possible_encounter": "A necro-priest and attendant ghouls.",
+          "possible_exit": "A cracked fissure opening onto the next descent."
+        },
+        {
+          "min": 4,
+          "max": 4,
+          "name": "Chamber of the First Ancestor",
+          "description": "The primordial heart of the catacomb, carved from black basalt.",
+          "feature": "A monolithic sarcophagus covered in proto-runes.",
+          "possible_reward": "A primordial focus talisman.",
+          "possible_encounter": "The tomb's ancient founding entity.",
+          "possible_exit": "A subterranean spiraling shaft."
+        },
+        {
+          "min": 5,
+          "max": 5,
+          "name": "Grand Mausoleum",
+          "description": "An ornate domed chamber echoing with ambient wind from unseen shafts.",
+          "feature": "Statues of weeping mourners ringing an elevated tomb.",
+          "possible_reward": "A chest of platinum funeral coins and tribute.",
+          "possible_encounter": "A tomb stalker coiled among the rafters.",
+          "possible_exit": "A stone stair hidden behind a kneeling effigy."
+        },
+        {
+          "min": 6,
+          "max": 6,
+          "name": "Forgotten King's Tomb",
+          "description": "A secluded subterranean sanctuary untouched for centuries.",
+          "feature": "An enthroned skeleton clad in tarnished silver armor.",
+          "possible_reward": "The ancient monarch's crown and sceptre.",
+          "possible_encounter": "The shade of the fallen king.",
+          "possible_exit": "A counterweighted floor slab opening downward."
+        }
+      ]
+    },
+    "Fort": {
+      "dice": "d6",
+      "entries": [
+        {
+          "min": 1,
+          "max": 1,
+          "name": "Commander's Hall",
+          "description": "A fortified inner office flanked by banners and iron battle shields.",
+          "feature": "A heavy oak tactical war table scattered with fortress blueprints.",
+          "possible_reward": "Fortress treasury keys and commanding officer's blade.",
+          "possible_encounter": "The garrison commander and elite bodyguards.",
+          "possible_exit": "A reinforced iron trapdoor descending to the lower redoubt."
+        },
+        {
+          "min": 2,
+          "max": 2,
+          "name": "War Room",
+          "description": "A strategic chamber dominated by relief maps and planning sand tables.",
+          "feature": "A brass wall map detailing subterranean siege tunnels.",
+          "possible_reward": "Secret campaign journals and signet seal.",
+          "possible_encounter": "Tactician officers or vigilant sentries.",
+          "possible_exit": "A secret passage behind a weapon rack."
+        },
+        {
+          "min": 3,
+          "max": 3,
+          "name": "Throne Hall",
+          "description": "An imposing assembly chamber with a massive stone dais and iron seat.",
+          "feature": "An iron throne overlooking tiered spectator galleries.",
+          "possible_reward": "Ceremonial regalia and a coffer of coin.",
+          "possible_encounter": "The usurper warlord holding court.",
+          "possible_exit": "A stone tunnel leading beneath the dais."
+        },
+        {
+          "min": 4,
+          "max": 4,
+          "name": "Inner Keep",
+          "description": "The central fortress citadel, engineered to withstand prolonged siege.",
+          "feature": "Portcullis winches and reinforced arrow loops.",
+          "possible_reward": "Masterwork siege armor and armory requisitions.",
+          "possible_encounter": "Garrison champions making a desperate stand.",
+          "possible_exit": "A spiral stair well leading down to the dungeons."
+        },
+        {
+          "min": 5,
+          "max": 5,
+          "name": "Treasury",
+          "description": "A vault reinforced with banded iron doors and double lockways.",
+          "feature": "Vault lock mechanisms and stacked tribute strongboxes.",
+          "possible_reward": "The collected payroll of the entire fortress.",
+          "possible_encounter": "An iron automaton guardian or vault warden.",
+          "possible_exit": "A smuggling escape shaft beneath floor tiles."
+        },
+        {
+          "min": 6,
+          "max": 6,
+          "name": "Dungeon Master's Chamber",
+          "description": "A grim subterranean sanctum controlling the fortress cells.",
+          "feature": "A rack of iron keys and surveillance speaking tubes.",
+          "possible_reward": "Universal cell key and enchanted warden's baton.",
+          "possible_encounter": "The Chief Inquisitor or Master Gaoler.",
+          "possible_exit": "Stairs descending into the forgotten deep cells."
+        }
+      ]
+    },
+    "Cave": {
+      "dice": "d6",
+      "entries": [
+        {
+          "min": 1,
+          "max": 2,
+          "name": "[Placeholder] Heart of the Cavern",
+          "description": "A colossal hollow where massive stalactites hang over a luminous subterranean lake.",
+          "feature": "Bioluminescent moss illuminating crystal formations.",
+          "possible_reward": "Raw gemstone cluster and ancient fossil relic.",
+          "possible_encounter": "An apex cavern beast in its lair.",
+          "possible_exit": "A deep chasm with a natural descending ledge."
+        },
+        {
+          "min": 3,
+          "max": 4,
+          "name": "[Placeholder] Crystal Geode Sanctum",
+          "description": "The cavern walls open into a spherical geode lined with giant violet crystals.",
+          "feature": "Resonant crystals humming when touched.",
+          "possible_reward": "Pristine resonating crystals.",
+          "possible_encounter": "Crystalline elementals.",
+          "possible_exit": "A fissure leading deeper underground."
+        },
+        {
+          "min": 5,
+          "max": 6,
+          "name": "[Placeholder] Abyssal Rift Chamber",
+          "description": "A shelf of stone overlooking an abyss where hot sulfurous vents breathe.",
+          "feature": "A natural stone arch bridging the yawning chasm.",
+          "possible_reward": "Rare alchemical minerals along the thermal vents.",
+          "possible_encounter": "Chasm flyers or subterranean ambushers.",
+          "possible_exit": "A steep descending tunnel carved by water."
+        }
+      ]
+    },
+    "Temple": {
+      "dice": "d6",
+      "entries": [
+        {
+          "min": 1,
+          "max": 2,
+          "name": "[Placeholder] Sanctum Sanctorum",
+          "description": "A soaring chamber lit by eternal unburning candles around a sacred dais.",
+          "feature": "A towering idol holding an offering chalice.",
+          "possible_reward": "A consecrated holy relic and blessed incense.",
+          "possible_encounter": "The Temple Hierophant and zealot initiates.",
+          "possible_exit": "A staircase descending beneath the altar."
+        },
+        {
+          "min": 3,
+          "max": 4,
+          "name": "[Placeholder] The Inner Reliquary",
+          "description": "Warded glass cases and gilded plinths house sacred fragments of the faith.",
+          "feature": "An illuminated central vault glowing with soft warmth.",
+          "possible_reward": "An ancient religious artifact.",
+          "possible_encounter": "A celestial or divine guardian construct.",
+          "possible_exit": "A stone corridor descending to the crypts below."
+        },
+        {
+          "min": 5,
+          "max": 6,
+          "name": "[Placeholder] High Altar of the Forgotten",
+          "description": "A secluded shrine hidden behind faded velvet tapestries and secret lintels.",
+          "feature": "A stone font filled with shimmering sacred oil.",
+          "possible_reward": "Ancient ritual scrolls and prayer beads.",
+          "possible_encounter": "A fanatical sect performing a dark rite.",
+          "possible_exit": "A secret descending door behind the font."
+        }
+      ]
+    },
+    "Ruins": {
+      "dice": "d6",
+      "entries": [
+        {
+          "min": 1,
+          "max": 2,
+          "name": "[Placeholder] Grand Throne of the Lost City",
+          "description": "A shattered marble throne sits beneath a collapsed ceiling open to the subterranean gloom.",
+          "feature": "A cracked imperial dais still bearing ancient sigils.",
+          "possible_reward": "A lost emperor's signet and jewel-encrusted chalice.",
+          "possible_encounter": "A warlord among the ruins or scavenging horrors.",
+          "possible_exit": "A broken tunnel descending beneath the throne."
+        },
+        {
+          "min": 3,
+          "max": 4,
+          "name": "[Placeholder] Forgotten Imperial Archive",
+          "description": "Stone book stacks survive where parchment has turned to dust, holding stone tablets.",
+          "feature": "A locked bronze scholar's chest.",
+          "possible_reward": "Ancient maps and historical treatises.",
+          "possible_encounter": "Constructs maintaining the ruins or animated armor.",
+          "possible_exit": "A spiral stone staircase leading down."
+        },
+        {
+          "min": 5,
+          "max": 6,
+          "name": "[Placeholder] The Ruined Arcane Core",
+          "description": "A circular room dominated by a cracked crystal sphere that sparks with residual energy.",
+          "feature": "Arcane conduits leaking faint magical light.",
+          "possible_reward": "Arcane power crystals and enchanted salvage.",
+          "possible_encounter": "An unstable magical entity.",
+          "possible_exit": "A scorched hole in the floor leading down."
+        }
+      ]
+    },
+    "Sewers": {
+      "dice": "d6",
+      "entries": [
+        {
+          "min": 1,
+          "max": 2,
+          "name": "[Placeholder] The Master Sluice",
+          "description": "A massive junction of iron floodgates and churning water wheels controlling city drainage.",
+          "feature": "A control platform with giant iron valve wheels.",
+          "possible_reward": "Smuggler's cache chained beneath the walkway.",
+          "possible_encounter": "A giant subterranean predator or sewer king.",
+          "possible_exit": "A drained outflow conduit leading downward."
+        },
+        {
+          "min": 3,
+          "max": 4,
+          "name": "[Placeholder] Sunken Smuggler's Haven",
+          "description": "A dry brick vault fitted with rope bridges, hammocks, and contraband crates.",
+          "feature": "A makeshift tavern bar and illicit supply cache.",
+          "possible_reward": "Stashed stolen loot and smuggler passkeys.",
+          "possible_encounter": "Hostile outlaw crew.",
+          "possible_exit": "A trapdoor leading to ancient forgotten sewers below."
+        },
+        {
+          "min": 5,
+          "max": 6,
+          "name": "[Placeholder] Forgotten Royal Aqueduct",
+          "description": "Arched stone viaducts of masterwork masonry far predating the newer city sewers.",
+          "feature": "A carved marble intake carved with regal crests.",
+          "possible_reward": "Ancient ornamental masonry pieces and dropped valuables.",
+          "possible_encounter": "An aquatic mutant or ooze colony.",
+          "possible_exit": "An aqueduct branch descending into deeper strata."
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "dungeon_types",
+  "dice": "d12",
+  "entries": [
+    { "min": 1, "max": 2, "value": "Cave" },
+    { "min": 3, "max": 4, "value": "Tomb" },
+    { "min": 5, "max": 6, "value": "Fort" },
+    { "min": 7, "max": 8, "value": "Temple" },
+    { "min": 9, "max": 10, "value": "Ruins" },
+    { "min": 11, "max": 12, "value": "Sewers" }
+  ]
+}

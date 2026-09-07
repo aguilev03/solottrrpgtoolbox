@@ -1,0 +1,18 @@
+{
+  "dungeon_type": "Tomb",
+  "dice": "d12",
+  "entries": [
+    { "min": 1, "max": 1, "value": "Entrance Hall" },
+    { "min": 2, "max": 2, "value": "Burial Chamber" },
+    { "min": 3, "max": 3, "value": "Crypt" },
+    { "min": 4, "max": 4, "value": "Ossuary" },
+    { "min": 5, "max": 5, "value": "Mourning Hall" },
+    { "min": 6, "max": 6, "value": "Sarcophagus Chamber" },
+    { "min": 7, "max": 7, "value": "Offering Chamber" },
+    { "min": 8, "max": 8, "value": "Antechamber" },
+    { "min": 9, "max": 9, "value": "Funeral Gallery" },
+    { "min": 10, "max": 10, "value": "Shrine" },
+    { "min": 11, "max": 11, "value": "Preparation Chamber" },
+    { "min": 12, "max": 12, "value": "Memorial Hall" }
+  ]
+}

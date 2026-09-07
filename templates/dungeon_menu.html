@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Dungeon Crawler — Solo TTRPG Tools{% endblock %}
+
+{% block header_nav %}
+<nav class="breadcrumb">
+    <a href="{{ url_for('index') }}">&larr; Main Menu</a>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="dungeon-menu-container">
+    <div class="section-header">
+        <h2 class="section-title">Dungeon Crawler</h2>
+        <a href="{{ url_for('dungeon_new') }}" class="btn btn-primary btn-lg">+ New Dungeon</a>
+    </div>
+
+    <div class="saved-dungeons-section">
+        <h3 class="subsection-title">Saved Dungeons</h3>
+
+        {% if dungeons %}
+            <div class="dungeon-list">
+                {% for d in dungeons %}
+                <div class="dungeon-card">
+                    <div class="dungeon-card-info">
+                        <h4 class="dungeon-card-name">{{ d.name }}</h4>
+                        <div class="dungeon-meta">
+                            <span class="meta-tag meta-type">{{ d.dungeon_type }}</span>
+                            <span class="meta-tag meta-level">Level {{ d.current_level }}</span>
+                            <span class="meta-tag meta-time">{{ d.explored_time_str }}</span>
+                            {% if d.is_complete %}
+                                <span class="meta-tag meta-complete">Completed</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="dungeon-card-actions">
+                        <a href="{{ url_for('dungeon_play', dungeon_id=d.id) }}" class="btn btn-primary">Resume</a>
+                        <button class="btn btn-danger" onclick="confirmDeleteDungeon({{ d.id }}, '{{ d.name }}')">Delete</button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <p>No dungeons recorded yet.</p>
+                <p class="text-muted">Begin your delve by creating a new dungeon above.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="delete-modal" class="modal-backdrop hidden" onclick="closeDeleteModal(event)">
+    <div class="modal-card modal-sm" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3>Confirm Deletion</h3>
+            <button class="btn-close" onclick="closeDeleteModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to delete <strong id="delete-dungeon-name"></strong>?</p>
+            <p class="text-muted text-sm">This will permanently erase the dungeon, its rooms, and all exploration logs.</p>
+        </div>
+        <div class="modal-footer">
+            <form id="delete-form" method="POST" action="">
+                <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+                <button type="submit" class="btn btn-danger">Permanently Delete</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

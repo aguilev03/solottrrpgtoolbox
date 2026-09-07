@@ -1,0 +1,78 @@
+{
+  "name": "puzzles",
+  "dice": "d8",
+  "entries": [
+    {
+      "min": 1,
+      "max": 1,
+      "name": "Inscribed Door",
+      "description": "A massive stone doorway is covered in glowing or carved unknown inscriptions arranged in concentric bands.",
+      "hint": "Certain recurring runes correspond to cardinal directions or elemental motifs.",
+      "possible_reward": "Access to a secluded vault or ancient cache.",
+      "possible_consequence": "Triggering a blinding flash or locking down the corridor."
+    },
+    {
+      "min": 2,
+      "max": 2,
+      "name": "Recessed Pedestal",
+      "description": "A central stone pedestal features a precisely shaped geometric recess (triangular or octagonal).",
+      "hint": "The weight or material of the inserted offering matters as much as the shape.",
+      "possible_reward": "A hidden compartment opens beneath the altar.",
+      "possible_consequence": "Poison gas hisses from vents around the pedestal base."
+    },
+    {
+      "min": 3,
+      "max": 3,
+      "name": "Movable Statues",
+      "description": "Several heavy guardian statues on grooved floor tracks can be rotated or slid into alignments.",
+      "hint": "The gazes of the statues may all need to focus on a central glyph or away from the door.",
+      "possible_reward": "Unlocks the main sealed passage forward.",
+      "possible_consequence": "The statues lock in place and darts fire from their eyes."
+    },
+    {
+      "min": 4,
+      "max": 4,
+      "name": "Rotating Ring Portal",
+      "description": "A circular stone doorway contains several rotating rings covered in unfamiliar astronomical symbols.",
+      "hint": "Aligning symbols representing planetary phases or seasons creates a continuous circuit.",
+      "possible_reward": "The door slides silently into the masonry.",
+      "possible_consequence": "The rings bind tightly, triggering a concussive shockwave."
+    },
+    {
+      "min": 5,
+      "max": 5,
+      "name": "Patterned Floor Tiles",
+      "description": "The chamber floor is paved with alternating patterned tiles depicting beasts, weapons, and celestial bodies.",
+      "hint": "Only tiles bearing a specific motif bear weight without sinking.",
+      "possible_reward": "Safe traverse to an elevated alcove with treasure.",
+      "possible_consequence": "Stepping on the wrong tile releases a trapdoor or floor spike."
+    },
+    {
+      "min": 6,
+      "max": 6,
+      "name": "Balance Scales of Judgement",
+      "description": "A set of oversized iron scales stands beside a sealed doorway, with one pan visibly weighted down by blackened stones.",
+      "hint": "Balancing the scales requires an equal sacrifice of weight or personal value.",
+      "possible_reward": "The counterweight mechanism lifts the iron portcullis.",
+      "possible_consequence": "The scales tip violently, dumping burning pitch onto the floor."
+    },
+    {
+      "min": 7,
+      "max": 7,
+      "name": "Mechanism Levers",
+      "description": "Several rusted iron levers protrude from a bronze wall console, each set at differing angles.",
+      "hint": "The sound of internal gears clicks at differing pitches when levers are pulled in order.",
+      "possible_reward": "Drains a flooded section or disables regional traps.",
+      "possible_consequence": "Jams the mechanism and activates a loud siren or alarm bell."
+    },
+    {
+      "min": 8,
+      "max": 8,
+      "name": "Concealed Mural Mechanism",
+      "description": "A faded fresco depicting a historic siege conceals subtle pressure points aligned with soldiers' shields.",
+      "hint": "Depressing the shields in chronological order of the battle depiction releases the latch.",
+      "possible_reward": "A hidden door swings open into a secret annex.",
+      "possible_consequence": "The wall panel vibrates and unleashes a cloud of blinding dust."
+    }
+  ]
+}

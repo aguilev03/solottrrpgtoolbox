@@ -1,0 +1,10 @@
+{
+  "name": "search_trouble",
+  "dice": "d6",
+  "entries": [
+    { "min": 1, "max": 2, "type": "Encounter", "description": "Your searching makes noise or attracts immediate hostile attention!" },
+    { "min": 3, "max": 4, "type": "Hazard", "subtable": "hazards", "description": "You disturb a hazardous condition in the chamber." },
+    { "min": 5, "max": 5, "type": "Trap", "subtable": "traps", "description": "You trigger an unnoticed defensive trap!" },
+    { "min": 6, "max": 6, "type": "Dungeon Complication", "description": "An unforeseen setback occurs: a light source sputters, a passage collapses behind, or gear is compromised." }
+  ]
+}

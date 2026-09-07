@@ -1,0 +1,90 @@
+{
+  "name": "curios",
+  "dice": "d12",
+  "entries": [
+    {
+      "min": 1,
+      "max": 1,
+      "name": "Strange fountain",
+      "description": "Murky or bioluminescent water trickles from a carved basin.",
+      "interaction_table": null
+    },
+    {
+      "min": 2,
+      "max": 2,
+      "name": "Ancient statue",
+      "description": "A weather-worn stone effigy holding an outstretched bowl or broken implement.",
+      "interaction_table": null
+    },
+    {
+      "min": 3,
+      "max": 3,
+      "name": "Sealed chest",
+      "description": "An iron-banded timber coffer secured with a heavy, rusted padlock.",
+      "interaction_table": null
+    },
+    {
+      "min": 4,
+      "max": 4,
+      "name": "Peculiar altar",
+      "description": "A slab of polished obsidian or carved granite bearing dark stains and runic grooves.",
+      "interaction_table": null
+    },
+    {
+      "min": 5,
+      "max": 5,
+      "name": "Inscribed stone",
+      "description": "A freestanding stele covered in weathered pictograms and ancient script.",
+      "interaction_table": null
+    },
+    {
+      "min": 6,
+      "max": 6,
+      "name": "Strange mirror",
+      "description": "A tarnished silvered glass that distorts reflections or hints at delayed movement.",
+      "interaction_table": null
+    },
+    {
+      "min": 7,
+      "max": 7,
+      "name": "Pile of bones",
+      "description": "A heaped mound of calcified skeletal remains arranged in an intentional pattern.",
+      "interaction_table": null
+    },
+    {
+      "min": 8,
+      "max": 8,
+      "name": "Ancient mechanism",
+      "description": "Interlocking bronze cogs and counterweights mounted against a wall recess.",
+      "interaction_table": null
+    },
+    {
+      "min": 9,
+      "max": 9,
+      "name": "Decorated sarcophagus",
+      "description": "An ornate stone casket featuring gold-leaf filigree and carved guardian faces.",
+      "interaction_table": null
+    },
+    {
+      "min": 10,
+      "max": 10,
+      "name": "Mysterious pool",
+      "description": "A tranquil, mirror-flat basin of unknown depth with an unearthly sheen.",
+      "interaction_table": null
+    },
+    {
+      "min": 11,
+      "max": 11,
+      "name": "Sealed cabinet",
+      "description": "A warped wooden armoire held shut by heavy lead sealing rivets.",
+      "interaction_table": null
+    },
+    {
+      "min": 12,
+      "max": 12,
+      "name": "Unidentified relic",
+      "description": "A curious artifact of brass, crystal, or bone that hums softly when approached.",
+      "interaction_table": null
+    }
+  ]
+}

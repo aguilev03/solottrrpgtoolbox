@@ -1,0 +1,18 @@
+{
+  "dungeon_type": "Cave",
+  "dice": "d12",
+  "entries": [
+    { "min": 1, "max": 1, "value": "Narrow Passage" },
+    { "min": 2, "max": 2, "value": "Fungal Cavern" },
+    { "min": 3, "max": 3, "value": "Underground Pool" },
+    { "min": 4, "max": 4, "value": "Jagged Cavern" },
+    { "min": 5, "max": 5, "value": "Echoing Chamber" },
+    { "min": 6, "max": 6, "value": "Beast Den" },
+    { "min": 7, "max": 7, "value": "Mineral Vein" },
+    { "min": 8, "max": 8, "value": "Sinkhole Chamber" },
+    { "min": 9, "max": 9, "value": "Low Cavern" },
+    { "min": 10, "max": 10, "value": "Chasm" },
+    { "min": 11, "max": 11, "value": "Great Cavern" },
+    { "min": 12, "max": 12, "value": "Natural Gallery" }
+  ]
+}

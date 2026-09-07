@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Solo TTRPG Tools{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-container">
+            <h1 class="site-title"><a href="{{ url_for('index') }}">SOLO TTRPG TOOLS</a></h1>
+            {% block header_nav %}{% endblock %}
+        </div>
+    </header>
+
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Global Modal for Log Viewing -->
+    <div id="log-modal" class="modal-backdrop hidden" onclick="closeLogModal(event)">
+        <div class="modal-card" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 id="modal-dungeon-title">DUNGEON LOG</h3>
+                <button class="btn-close" onclick="closeLogModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-log-entries">
+                <p class="text-muted">Loading exploration records...</p>
+            </div>
+            <div class="modal-footer">
+                <div class="export-buttons">
+                    <a id="export-txt-link" class="btn btn-secondary btn-sm" href="#" download>Export Plain Text</a>
+                    <a id="export-md-link" class="btn btn-secondary btn-sm" href="#" download>Export Markdown (Obsidian)</a>
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="closeLogModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

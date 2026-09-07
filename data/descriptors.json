@@ -1,0 +1,25 @@
+{
+  "name": "descriptors",
+  "dice": "d66",
+  "entries": [
+    { "min": 11, "max": 12, "value": "Flooded" },
+    { "min": 13, "max": 14, "value": "Crumbling" },
+    { "min": 15, "max": 16, "value": "Ruined" },
+    { "min": 21, "max": 22, "value": "Ancient" },
+    { "min": 23, "max": 24, "value": "Untouched" },
+    { "min": 25, "max": 26, "value": "Overgrown" },
+    { "min": 31, "max": 32, "value": "Dusty" },
+    { "min": 33, "max": 34, "value": "Cold" },
+    { "min": 35, "max": 36, "value": "Unnaturally warm" },
+    { "min": 41, "max": 42, "value": "Mold-covered" },
+    { "min": 43, "max": 44, "value": "Bloodstained" },
+    { "min": 45, "max": 46, "value": "Cluttered" },
+    { "min": 51, "max": 52, "value": "Silent" },
+    { "min": 53, "max": 54, "value": "Dripping" },
+    { "min": 55, "max": 56, "value": "Soot-blackened" },
+    { "min": 61, "max": 62, "value": "Foul-smelling" },
+    { "min": 63, "max": 64, "value": "Wind-swept" },
+    { "min": 65, "max": 65, "value": "Eerie" },
+    { "min": 66, "max": 66, "value": "Immaculate" }
+  ]
+}

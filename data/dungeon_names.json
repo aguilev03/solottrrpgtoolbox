@@ -1,0 +1,35 @@
+{
+  "name": "dungeon_names",
+  "types": {
+    "Tomb": {
+      "format": "compound",
+      "prefixes": ["Ash", "Bone", "Black", "Blood", "Forgotten", "Grim", "Shadow", "Silent", "Iron", "Pale", "Dread", "Cold"],
+      "suffixes": ["grave", "crypt", "vault", "barrow", "tomb", "sepulcher", "necropolis", "catacomb", "rest", "harrow"]
+    },
+    "Cave": {
+      "format": "separate",
+      "prefixes": ["Sunken", "Echoing", "Howling", "Deep", "Jagged", "Whispering", "Dark", "Fungal", "Crystal", "Forgotten", "Serpent's"],
+      "suffixes": ["Grotto", "Caverns", "Hollow", "Chasm", "Delve", "Warrens", "Abyss", "Sinkhole", "Maw", "Depths"]
+    },
+    "Fort": {
+      "format": "separate",
+      "prefixes": ["Iron", "Storm", "High", "Black", "Stone", "Dread", "Wolf", "Red", "Sentinel", "Thunder", "Vanguard"],
+      "suffixes": ["Hold", "Keep", "Citadel", "Redoubt", "Bastion", "Fortress", "Garrison", "Fastness", "Watch"]
+    },
+    "Temple": {
+      "format": "separate",
+      "prefixes": ["Sacred", "Sunken", "Veiled", "Silent", "Radiant", "Forgotten", "Shadow", "Golden", "Eternal", "Hallowed"],
+      "suffixes": ["Sanctuary", "Sanctum", "Temple", "Shrine", "Fane", "Abbey", "Spire", "Monolith", "Pillar"]
+    },
+    "Ruins": {
+      "format": "separate",
+      "prefixes": ["Fallen", "Shattered", "Ashen", "Forsaken", "Ancient", "Sunken", "Crumbling", "Bleak", "Desolate", "Lost"],
+      "suffixes": ["Ruins", "Spire", "Remnants", "Reliquary", "Court", "Citadel", "Hall", "Bastion", "Foundations"]
+    },
+    "Sewers": {
+      "format": "separate",
+      "prefixes": ["Murk", "Drip", "Sluice", "Black", "Filth", "Sunken", "Bile", "Mire", "Rust", "Shadow", "Rancid"],
+      "suffixes": ["Drain", "Cistern", "Warrens", "Sluice", "Culverts", "Tunnels", "Channels", "Labyrinth", "Underpass"]
+    }
+  }
+}

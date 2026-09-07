@@ -1,0 +1,79 @@
+{
+  "name": "hazards",
+  "dice": "d12",
+  "entries": [
+    {
+      "min": 1,
+      "max": 1,
+      "name": "Trap",
+      "subtable": "traps",
+      "description": "A concealed mechanical or arcane snare."
+    },
+    {
+      "min": 2,
+      "max": 2,
+      "name": "Unstable ceiling",
+      "description": "Cracks fracture the overhead masonry; loose stones threaten to give way."
+    },
+    {
+      "min": 3,
+      "max": 3,
+      "name": "Difficult terrain",
+      "description": "Jagged rubble, slippery sludge, or jagged scree severely slows movement."
+    },
+    {
+      "min": 4,
+      "max": 4,
+      "name": "Deep pit/chasm",
+      "description": "A sheer drop cuts across the floor into darkness below."
+    },
+    {
+      "min": 5,
+      "max": 5,
+      "name": "Toxic growth",
+      "description": "Spore-bloated fungi or noxious briars release irritating spores."
+    },
+    {
+      "min": 6,
+      "max": 6,
+      "name": "Flooded area",
+      "description": "Murky, stagnant water reaches knee or waist height, hiding the floor beneath."
+    },
+    {
+      "min": 7,
+      "max": 7,
+      "name": "Unstable floor",
+      "description": "Several flagstones shift and groan noticeably underfoot."
+    },
+    {
+      "min": 8,
+      "max": 8,
+      "name": "Thick smoke/fog",
+      "description": "A dense, clinging vapor reduces visibility to mere paces and stings the eyes."
+    },
+    {
+      "min": 9,
+      "max": 9,
+      "name": "Vermin infestation",
+      "description": "A swarming nest of biting insects, venomous spiders, or carrion rats."
+    },
+    {
+      "min": 10,
+      "max": 10,
+      "name": "Extreme heat/cold",
+      "description": "A severe temperature anomaly chills the bone or stifles the breath."
+    },
+    {
+      "min": 11,
+      "max": 11,
+      "name": "Blocked route",
+      "description": "Heavy collapsed rubble or barricaded debris obstructs passage."
+    },
+    {
+      "min": 12,
+      "max": 12,
+      "name": "Supernatural disturbance",
+      "description": "Unsettling whispers, phantom chills, or gravity anomalies stir the air."
+    }
+  ]
+}

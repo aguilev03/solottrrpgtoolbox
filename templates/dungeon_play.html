@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% block title %}{{ dungeon.name }} — Room {{ room.room_number if room else '1' }}{% endblock %}
+
+{% block header_nav %}
+<nav class="play-nav">
+    <button class="btn btn-secondary btn-sm" onclick="openLogModal({{ dungeon.id }})">View Log</button>
+    <a href="{{ url_for('dungeon_menu') }}" class="btn btn-secondary btn-sm">Dungeon Menu</a>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="play-container">
+
+    <!-- Debug Banner (Only active when DEBUG_DUNGEON_ROLLS = True) -->
+    {% if debug_rolls and debug_info %}
+    <div class="debug-panel">
+        <span class="debug-tag">DEBUG</span>
+        <span class="debug-text">{{ debug_info }}</span>
+    </div>
+    {% endif %}
+
+    <!-- Tension Event Atmospheric Alert -->
+    {% if tension_msg %}
+    <div class="tension-alert">
+        <div class="tension-icon">&#9888;</div>
+        <div class="tension-content">
+            <span class="tension-label">The Clock Advances</span>
+            <p class="tension-text">{{ tension_msg }}</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Progress Advancement Alert -->
+    {% if progress_msg %}
+    <div class="progress-alert">
+        <div class="progress-icon">&#10024;</div>
+        <div class="progress-content">
+            <span class="progress-label">Progress</span>
+            <p class="progress-text">{{ progress_msg }}</p>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if room %}
+    <div class="room-sheet">
+        <!-- Dungeon Header -->
+        <header class="dungeon-header">
+            <h2 class="dungeon-title">{{ dungeon.name | upper }}</h2>
+            <div class="dungeon-subhead">
+                <span class="dungeon-type">{{ dungeon.dungeon_type }}</span>
+                <span class="sep">&bull;</span>
+                <span class="dungeon-level">Level {{ room.level }}</span>
+                <span class="sep">&bull;</span>
+                <span class="dungeon-progress">Progress: {{ dungeon.progress_points + 1 }}</span>
+            </div>
+            <div class="dungeon-time">
+                <span class="time-label">Time:</span> <span class="time-value">{{ formatted_time }}</span>
+            </div>
+        </header>
+
+        <hr class="divider">
+
+        <!-- Room Header -->
+        <div class="room-number-heading">ROOM {{ room.room_number }}</div>
+        <h3 class="room-title">{{ room.title }}</h3>
+
+        {% if room.is_entrance and room.room_number == 1 %}
+            <p class="room-flavor">You cross the threshold into the damp shadows. The air is still, heavy with age.</p>
+        {% elif room.is_entrance and room.level > 1 %}
+            <p class="room-flavor">You emerge into the lower floor. The darkness here feels older, colder, and heavier.</p>
+        {% endif %}
+
+        <!-- Unique Room Banner / Description -->
+        {% if room.is_unique %}
+            <div class="unique-landmark-card">
+                <div class="unique-landmark-header">
+                    <span class="badge-unique">UNIQUE ROOM</span>
+                    <h4 class="unique-name">{{ room.contents_data.unique_room.name }}</h4>
+                </div>
+                <p class="unique-desc">{{ room.contents_data.unique_room.description }}</p>
+                {% if room.contents_data.unique_room.feature %}
+                    <div class="unique-detail"><strong>Feature:</strong> {{ room.contents_data.unique_room.feature }}</div>
+                {% endif %}
+                {% if room.contents_data.unique_room.possible_reward %}
+                    <div class="unique-detail"><strong>Possible Discovery:</strong> {{ room.contents_data.unique_room.possible_reward }}</div>
+                {% endif %}
+                {% if room.contents_data.unique_room.possible_encounter %}
+                    <div class="unique-detail"><strong>Potential Threat:</strong> {{ room.contents_data.unique_room.possible_encounter }}</div>
+                {% endif %}
+
+                {% if room.is_final_room %}
+                    <div class="completion-banner">
+                        <span class="completion-title">DUNGEON COMPLETE</span>
+                        <p class="completion-sub">The innermost sanctum is breached. No deeper depths remain.</p>
+                    </div>
+                {% elif room.next_level_exists %}
+                    <div class="descent-banner">
+                        <p class="descent-text">&darr; {{ room.contents_data.unique_room.possible_exit or "A staircase descends deeper into the complex." }}</p>
+                    </div>
+                {% endif %}
+            </div>
+        {% else %}
+            <!-- Normal Room Contents -->
+            <section class="room-section contents-section">
+                <h4 class="section-label">CONTENTS</h4>
+                <div class="contents-card">
+                    <span class="contents-type-tag">{{ room.contents_type }}</span>
+
+                    {% if room.contents_has_trap %}
+                        {% if not room.trap_revealed %}
+                            <div class="trap-card trap-card-unidentified">
+                                <div class="trap-title">Trap</div>
+                                <p class="trap-click-text">&ldquo;{{ room.trap_warning }}&rdquo;</p>
+                                <form method="POST" action="{{ url_for('dungeon_reveal_trap', dungeon_id=dungeon.id) }}" class="trap-reveal-form">
+                                    <button type="submit" class="btn btn-reveal">Reveal</button>
+                                </form>
+                            </div>
+                        {% else %}
+                            <div class="trap-card trap-card-revealed">
+                                <div class="trap-title">{{ room.trap_display_name }}</div>
+                                <p class="trap-desc-text">&ldquo;{{ room.trap_data.description if room.trap_data else "" }}&rdquo;</p>
+                            </div>
+                        {% endif %}
+                    {% elif room.contents_data and room.contents_data.sub_result %}
+                        <!-- Nested Subtable Result (e.g. Hazard -> Trap, Curio, Puzzle) -->
+                        {% set sub = room.contents_data.sub_result %}
+                        <div class="subtable-content">
+                            <strong class="sub-name">{{ sub.entry.name or sub.entry.type or sub.entry.result }}</strong>
+                            {% if sub.entry.description %}
+                                <p class="sub-desc">{{ sub.entry.description }}</p>
+                            {% endif %}
+                            {% if sub.entry.hint %}
+                                <p class="sub-hint"><em>Hint:</em> {{ sub.entry.hint }}</p>
+                            {% endif %}
+
+                            <!-- Third level nesting if present -->
+                            {% if sub.sub_result %}
+                                {% set sub_sub = sub.sub_result %}
+                                <div class="sub-sub-content">
+                                    <strong class="sub-sub-name">{{ sub_sub.entry.name }}:</strong>
+                                    <span class="sub-sub-desc">{{ sub_sub.entry.description }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% elif room.contents_data and room.contents_data.entry and room.contents_data.entry.description %}
+                        <p class="contents-desc">{{ room.contents_data.entry.description }}</p>
+                    {% else %}
+                        <p class="contents-desc">Quiet and deserted, leaving only shadows and echoes.</p>
+                    {% endif %}
+                </div>
+            </section>
+        {% endif %}
+
+        <!-- Room Objects -->
+        {% if room.objects %}
+        <section class="room-section objects-section">
+            <h4 class="section-label">OBJECTS</h4>
+            <div class="objects-card">
+                <ul class="objects-list">
+                    {% for obj in room.objects %}
+                        <li class="object-item">
+                            <span class="object-bullet">&bull;</span>
+                            <span class="object-text">{{ obj }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- Room Routes -->
+        <section class="room-section routes-section">
+            <h4 class="section-label">ROUTES</h4>
+            <ul class="routes-list">
+                {% for route in room.routes %}
+                    <li class="route-item">
+                        {% if route is mapping %}
+                            <span class="route-direction"><span class="route-arrow">{{ route.arrow }}</span> {{ route.direction }}</span>
+                            <span class="route-sep">&mdash;</span>
+                            <span class="route-desc">{{ route.text }}</span>
+                        {% else %}
+                            {{ route }}
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <!-- Search Result (if already performed) -->
+        {% if room.searched and room.search_result %}
+            <section class="room-section search-result-section">
+                <h4 class="section-label">SEARCH RESULT</h4>
+                <div class="search-result-card">
+                    <span class="search-title">{{ room.search_result.entry.result }}</span>
+                    {% if room.search_result.entry.description %}
+                        <p class="search-desc">{{ room.search_result.entry.description }}</p>
+                    {% endif %}
+
+                    {% if room.search_has_trap %}
+                        {% if not room.trap_revealed %}
+                            <div class="trap-card trap-card-unidentified">
+                                <div class="trap-title">Trap</div>
+                                <p class="trap-click-text">&ldquo;{{ room.trap_warning }}&rdquo;</p>
+                                <form method="POST" action="{{ url_for('dungeon_reveal_trap', dungeon_id=dungeon.id) }}" class="trap-reveal-form">
+                                    <button type="submit" class="btn btn-reveal">Reveal</button>
+                                </form>
+                            </div>
+                        {% else %}
+                            <div class="trap-card trap-card-revealed">
+                                <div class="trap-title">{{ room.trap_display_name }}</div>
+                                <p class="trap-desc-text">&ldquo;{{ room.trap_data.description if room.trap_data else "" }}&rdquo;</p>
+                            </div>
+                        {% endif %}
+                    {% elif room.search_result.sub_result %}
+                        {% set s_sub = room.search_result.sub_result %}
+                        <div class="search-sub-detail">
+                            <strong>{{ s_sub.entry.name or s_sub.entry.type }}:</strong>
+                            <span>{{ s_sub.entry.description }}</span>
+                            {% if s_sub.sub_result %}
+                                <div class="search-sub-sub-detail">
+                                    <em>{{ s_sub.sub_result.entry.name }}:</em> {{ s_sub.sub_result.entry.description }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </section>
+        {% endif %}
+
+        <!-- Action Buttons -->
+        <div class="room-actions">
+            {% if room.is_final_room %}
+                <button class="btn btn-secondary btn-lg" disabled>Dungeon Complete</button>
+            {% elif room.is_unique and room.next_level_exists %}
+                <form method="POST" action="{{ url_for('dungeon_explore', dungeon_id=dungeon.id) }}" class="inline-form">
+                    <button type="submit" class="btn btn-primary btn-lg">&darr; Descend to Level {{ room.level + 1 }}</button>
+                </form>
+            {% else %}
+                <form method="POST" action="{{ url_for('dungeon_explore', dungeon_id=dungeon.id) }}" class="inline-form">
+                    <button type="submit" class="btn btn-primary btn-lg">Generate New Room</button>
+                </form>
+            {% endif %}
+
+            {% if room.searched %}
+                <button class="btn btn-searched btn-lg" disabled>&check; Searched</button>
+            {% else %}
+                <form method="POST" action="{{ url_for('dungeon_search', dungeon_id=dungeon.id) }}" class="inline-form">
+                    <button type="submit" class="btn btn-secondary btn-lg">Search</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

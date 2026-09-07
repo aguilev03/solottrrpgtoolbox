@@ -1,0 +1,271 @@
+Dungeon Type
+|   d12 | Dungeon    |
+| ----: | ---------- |
+|   1–2 | Cave       |
+|   3–4 | Crypt/Tomb |
+|   5–6 | Fort       |
+|   7–8 | Temple     |
+|  9–10 | Ruins      |
+| 11–12 | Sewers     |
+
+Dungeon Size
+|  d6 | Size   | Effect          |
+| --: | ------ | --------------- |
+| 1–2 | Small  | Faster Progress |
+| 3–5 | Medium | Normal Progress |
+|   6 | Large  | Slower Progress |
+
+Room Descriptor
+|   d66 | Descriptor       |
+| ----: | ---------------- |
+| 11–12 | Flooded          |
+| 13–14 | Crumbling        |
+| 15–16 | Ruined           |
+| 21–22 | Ancient          |
+| 23–24 | Untouched        |
+| 25–26 | Overgrown        |
+| 31–32 | Dusty            |
+| 33–34 | Cold             |
+| 35–36 | Unnaturally warm |
+| 41–42 | Mold-covered     |
+| 43–44 | Bloodstained     |
+| 45–46 | Cluttered        |
+| 51–52 | Silent           |
+| 53–54 | Dripping         |
+| 55–56 | Soot-blackened   |
+| 61–62 | Foul-smelling    |
+| 63–64 | Wind-swept       |
+|    65 | Eerie            |
+|    66 | Immaculate       |
+
+Room Type:
+
+Tomb
+| d12 | Room                |
+| --: | ------------------- |
+|   1 | Entrance Hall       |
+|   2 | Burial Chamber      |
+|   3 | Crypt               |
+|   4 | Ossuary             |
+|   5 | Mourning Hall       |
+|   6 | Sarcophagus Chamber |
+|   7 | Offering Chamber    |
+|   8 | Antechamber         |
+|   9 | Funeral Gallery     |
+|  10 | Shrine              |
+|  11 | Preparation Chamber |
+|  12 | Memorial Hall       |
+
+Cave
+| d12 | Room             |
+| --: | ---------------- |
+|   1 | Narrow Passage   |
+|   2 | Fungal Cavern    |
+|   3 | Underground Pool |
+|   4 | Jagged Cavern    |
+|   5 | Echoing Chamber  |
+|   6 | Beast Den        |
+|   7 | Mineral Vein     |
+|   8 | Sinkhole Chamber |
+|   9 | Low Cavern       |
+|  10 | Chasm            |
+|  11 | Great Cavern     |
+|  12 | Natural Gallery  |
+
+Fort
+| d12 | Room               |
+| --: | ------------------ |
+|   1 | Guard Room         |
+|   2 | Barracks           |
+|   3 | Mess Hall          |
+|   4 | Store Room         |
+|   5 | Armory             |
+|   6 | Officer's Quarters |
+|   7 | Training Hall      |
+|   8 | Prison             |
+|   9 | War Room           |
+|  10 | Workshop           |
+|  11 | Courtyard          |
+|  12 | Great Hall         |
+
+Temple
+| d12 | Room               |
+| --: | ------------------ |
+|   1 | Prayer Hall        |
+|   2 | Offering Chamber   |
+|   3 | Ritual Chamber     |
+|   4 | Sanctuary          |
+|   5 | Meditation Chamber |
+|   6 | Library            |
+|   7 | Reliquary          |
+|   8 | Sacristy           |
+|   9 | Statue Hall        |
+|  10 | Processional Hall  |
+|  11 | Priest's Chamber   |
+|  12 | Inner Shrine       |
+
+Ruins
+| d12 | Room              |
+| --: | ----------------- |
+|   1 | Collapsed Hall    |
+|   2 | Abandoned Chamber |
+|   3 | Courtyard         |
+|   4 | Broken Gallery    |
+|   5 | Store Room        |
+|   6 | Living Quarters   |
+|   7 | Workshop          |
+|   8 | Great Hall        |
+|   9 | Cellar            |
+|  10 | Watch Room        |
+|  11 | Forgotten Shrine  |
+|  12 | Buried Chamber    |
+
+Sewers
+| d12 | Room              |
+| --: | ----------------- |
+|   1 | Junction          |
+|   2 | Drain Chamber     |
+|   3 | Cistern           |
+|   4 | Overflow Chamber  |
+|   5 | Maintenance Room  |
+|   6 | Sluice Chamber    |
+|   7 | Filtration Room   |
+|   8 | Flooded Tunnel    |
+|   9 | Waste Pit         |
+|  10 | Pump Room         |
+|  11 | Smuggler's Den    |
+|  12 | Forgotten Chamber |
+
+Routes
+| 2d6 | Routes                |
+| --: | --------------------- |
+|   2 | 1 route — blocked     |
+|   3 | 1 route — locked      |
+|   4 | 1 route               |
+|   5 | 2 routes — one stuck  |
+| 6–8 | 2 routes              |
+|   9 | 3 routes              |
+|  10 | 3 routes — one locked |
+|  11 | 1 route — locked      |
+|  12 | 1 route — unusual     |
+
+Unusual Route
+| d6 | Result                      |
+| -: | --------------------------- |
+|  1 | Crawlspace                  |
+|  2 | Concealed door              |
+|  3 | Vertical shaft              |
+|  4 | Partially collapsed passage |
+|  5 | Narrow crevice              |
+|  6 | Strange doorway             |
+
+Room Contents
+| 2d6 | Contents            |
+| --: | ------------------- |
+|   2 | Dangerous Encounter |
+|   3 | Encounter           |
+|   4 | Hazard              |
+|   5 | Curio               |
+|   6 | Empty               |
+|   7 | Empty               |
+|   8 | Empty               |
+|   9 | Hazard              |
+|  10 | Curio               |
+|  11 | Treasure            |
+|  12 | Puzzle Room         |
+
+Hazards
+| d12 | Hazard                   |
+| --: | ------------------------ |
+|   1 | Trap                     |
+|   2 | Unstable ceiling         |
+|   3 | Difficult terrain        |
+|   4 | Deep pit/chasm           |
+|   5 | Toxic growth             |
+|   6 | Flooded area             |
+|   7 | Unstable floor           |
+|   8 | Thick smoke/fog          |
+|   9 | Vermin infestation       |
+|  10 | Extreme heat/cold        |
+|  11 | Blocked route            |
+|  12 | Supernatural disturbance |
+
+Traps
+| d12 | Trap               |
+| --: | ------------------ |
+|   1 | Alarm              |
+|   2 | Pit                |
+|   3 | Falling debris     |
+|   4 | Dart launcher      |
+|   5 | Swinging weight    |
+|   6 | Blade              |
+|   7 | Gas                |
+|   8 | Crushing mechanism |
+|   9 | Snare              |
+|  10 | Flame              |
+|  11 | Magical ward       |
+|  12 | Collapsing passage |
+
+Curios
+| d12 | Curio                 |
+| --: | --------------------- |
+|   1 | Strange fountain      |
+|   2 | Ancient statue        |
+|   3 | Sealed chest          |
+|   4 | Peculiar altar        |
+|   5 | Inscribed stone       |
+|   6 | Strange mirror        |
+|   7 | Pile of bones         |
+|   8 | Ancient mechanism     |
+|   9 | Decorated sarcophagus |
+|  10 | Mysterious pool       |
+|  11 | Sealed cabinet        |
+|  12 | Unidentified relic    |
+
+Search
+| 2d6 | Search Result                 |
+| --: | ----------------------------- |
+|   2 | Trouble!                      |
+|   3 | Hazard discovered             |
+|   4 | Signs of previous inhabitants |
+|   5 | Nothing                       |
+|   6 | Nothing                       |
+|   7 | Nothing                       |
+|   8 | Nothing                       |
+|   9 | Useful clue                   |
+|  10 | Minor treasure                |
+|  11 | Concealed feature             |
+|  12 | Secret route                  |
+
+Puzzle Rooms
+| d8 | Puzzle                                      |
+| -: | ------------------------------------------- |
+|  1 | Door covered in unknown inscriptions        |
+|  2 | Pedestal containing an empty recess         |
+|  3 | Several movable statues                     |
+|  4 | Door with multiple rotating rings           |
+|  5 | Floor covered with patterned tiles          |
+|  6 | Scales stand beside a sealed doorway        |
+|  7 | Several levers operate an unknown mechanism |
+|  8 | Mural conceals an apparent mechanism        |
+
+Unique Rooms:
+Tomb
+| d6 | Unique Room                   |
+| -: | ----------------------------- |
+|  1 | Royal Burial Chamber          |
+|  2 | Hall of the Honored Dead      |
+|  3 | Sealed Necropolis             |
+|  4 | Chamber of the First Ancestor |
+|  5 | Grand Mausoleum               |
+|  6 | Forgotten King's Tomb         |
+
+Fort
+| d6 | Unique Room              |
+| -: | ------------------------ |
+|  1 | Commander's Hall         |
+|  2 | War Room                 |
+|  3 | Throne Hall              |
+|  4 | Inner Keep               |
+|  5 | Treasury                 |
+|  6 | Dungeon Master's Chamber |

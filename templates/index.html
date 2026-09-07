@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Solo TTRPG Tools{% endblock %}
+
+{% block content %}
+<div class="menu-container">
+    <div class="hero-section">
+        <h2 class="hero-title">SOLO TTRPG TOOLS</h2>
+        <p class="hero-subtitle">System-neutral procedural companions for tabletop roleplaying.</p>
+    </div>
+
+    <div class="tools-grid">
+        <!-- Dungeon Crawler Card -->
+        <a href="{{ url_for('dungeon_menu') }}" class="tool-card active">
+            <div class="tool-card-icon">&#9876;</div>
+            <div class="tool-card-content">
+                <h3 class="tool-card-title">Dungeon Crawler</h3>
+                <p class="tool-card-desc">Procedural room-by-room delve generator with hidden progress, unique rooms, and tension clock.</p>
+            </div>
+            <div class="tool-card-arrow">&rarr;</div>
+        </a>
+
+        <!-- Extensible future tools (slots) -->
+        <div class="tool-card placeholder">
+            <div class="tool-card-icon">&#128214;</div>
+            <div class="tool-card-content">
+                <h3 class="tool-card-title">Oracle &amp; Sparks</h3>
+                <p class="tool-card-desc">System-neutral GM emulator, probability oracles, and idea generators.</p>
+            </div>
+            <span class="badge-coming-soon">Future Tool</span>
+        </div>
+
+        <div class="tool-card placeholder">
+            <div class="tool-card-icon">&#127757;</div>
+            <div class="tool-card-content">
+                <h3 class="tool-card-title">Wilderness &amp; Travel</h3>
+                <p class="tool-card-desc">Procedural hex exploration, weather patterns, and journey hazards.</p>
+            </div>
+            <span class="badge-coming-soon">Future Tool</span>
+        </div>
+    </div>
+</div>
+{% endblock %}

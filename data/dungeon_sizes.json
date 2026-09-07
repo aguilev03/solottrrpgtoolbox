@@ -1,0 +1,26 @@
+{
+  "name": "dungeon_sizes",
+  "random_dice": "d6",
+  "random_table": [
+    { "min": 1, "max": 2, "value": "Small" },
+    { "min": 3, "max": 5, "value": "Medium" },
+    { "min": 6, "max": 6, "value": "Large" }
+  ],
+  "sizes": {
+    "Small": {
+      "name": "Small",
+      "hidden_floors": { "min": 1, "max": 1 },
+      "description": "A compact subterranean site"
+    },
+    "Medium": {
+      "name": "Medium",
+      "hidden_floors": { "min": 1, "max": 2 },
+      "description": "A standard multi-chamber complex"
+    },
+    "Large": {
+      "name": "Large",
+      "hidden_floors": { "min": 2, "max": 3 },
+      "description": "An extensive, deep sprawl"
+    }
+  }
+}

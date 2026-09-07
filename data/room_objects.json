@@ -1,0 +1,506 @@
+{
+  "name": "room_objects",
+  "dice": "d100",
+  "entries": [
+    {
+      "min": 1,
+      "max": 1,
+      "name": "Overturned wooden table"
+    },
+    {
+      "min": 2,
+      "max": 2,
+      "name": "Broken high-backed chair"
+    },
+    {
+      "min": 3,
+      "max": 3,
+      "name": "Rotted wooden bench"
+    },
+    {
+      "min": 4,
+      "max": 4,
+      "name": "Sturdy stone throne with faded carvings"
+    },
+    {
+      "min": 5,
+      "max": 5,
+      "name": "Moldering canopied bedframe"
+    },
+    {
+      "min": 6,
+      "max": 6,
+      "name": "Splintered drafting desk with empty inkwell"
+    },
+    {
+      "min": 7,
+      "max": 7,
+      "name": "Collapsed wooden stool"
+    },
+    {
+      "min": 8,
+      "max": 8,
+      "name": "Ornate stone lectern"
+    },
+    {
+      "min": 9,
+      "max": 9,
+      "name": "Empty iron weapon rack"
+    },
+    {
+      "min": 10,
+      "max": 10,
+      "name": "Carved wooden pew with splintered armrests"
+    },
+    {
+      "min": 11,
+      "max": 11,
+      "name": "Iron-banded wooden chest with shattered lock"
+    },
+    {
+      "min": 12,
+      "max": 12,
+      "name": "Cobweb-draped bookcase"
+    },
+    {
+      "min": 13,
+      "max": 13,
+      "name": "Heavy stone slab table"
+    },
+    {
+      "min": 14,
+      "max": 14,
+      "name": "Rotting wooden wardrobe with hanging hinges"
+    },
+    {
+      "min": 15,
+      "max": 15,
+      "name": "Low canvas and wood sleeping cot"
+    },
+    {
+      "min": 16,
+      "max": 16,
+      "name": "Cracked clay amphora"
+    },
+    {
+      "min": 17,
+      "max": 17,
+      "name": "Rotted wooden barrel with loose iron hoops"
+    },
+    {
+      "min": 18,
+      "max": 18,
+      "name": "Splintered wooden shipping crate"
+    },
+    {
+      "min": 19,
+      "max": 19,
+      "name": "Tarnished iron lockbox"
+    },
+    {
+      "min": 20,
+      "max": 20,
+      "name": "Empty wicker storage basket"
+    },
+    {
+      "min": 21,
+      "max": 21,
+      "name": "Stack of rusted iron buckets"
+    },
+    {
+      "min": 22,
+      "max": 22,
+      "name": "Moldering leather satchel"
+    },
+    {
+      "min": 23,
+      "max": 23,
+      "name": "Shattered ceramic jug"
+    },
+    {
+      "min": 24,
+      "max": 24,
+      "name": "Empty stone burial urn"
+    },
+    {
+      "min": 25,
+      "max": 25,
+      "name": "Bound burlap sack with rotted seams"
+    },
+    {
+      "min": 26,
+      "max": 26,
+      "name": "Corroded metal oil canister"
+    },
+    {
+      "min": 27,
+      "max": 27,
+      "name": "Dust-caked glass demijohn"
+    },
+    {
+      "min": 28,
+      "max": 28,
+      "name": "Small velvet-lined wooden casket (empty)"
+    },
+    {
+      "min": 29,
+      "max": 29,
+      "name": "Sealed stone jar with wax plug"
+    },
+    {
+      "min": 30,
+      "max": 30,
+      "name": "Rusted iron strongbox with bent lid"
+    },
+    {
+      "min": 31,
+      "max": 31,
+      "name": "Rusted iron wall sconce"
+    },
+    {
+      "min": 32,
+      "max": 32,
+      "name": "Cold stone brazier filled with charcoal ash"
+    },
+    {
+      "min": 33,
+      "max": 33,
+      "name": "Hanging iron cage with bent bars"
+    },
+    {
+      "min": 34,
+      "max": 34,
+      "name": "Brass candelabrum with melted wax stubs"
+    },
+    {
+      "min": 35,
+      "max": 35,
+      "name": "Tarnished wall mirror with spiderweb fractures"
+    },
+    {
+      "min": 36,
+      "max": 36,
+      "name": "Heavy iron torch bracket"
+    },
+    {
+      "min": 37,
+      "max": 37,
+      "name": "Cast iron cauldron hanging from a tripod"
+    },
+    {
+      "min": 38,
+      "max": 38,
+      "name": "Iron wall manacles and dangling chains"
+    },
+    {
+      "min": 39,
+      "max": 39,
+      "name": "Corroded iron floor grate"
+    },
+    {
+      "min": 40,
+      "max": 40,
+      "name": "Carved stone basin dry with dust"
+    },
+    {
+      "min": 41,
+      "max": 41,
+      "name": "Suspended oil lamp with cracked glass reservoir"
+    },
+    {
+      "min": 42,
+      "max": 42,
+      "name": "Weathered bronze altar bell (cracked)"
+    },
+    {
+      "min": 43,
+      "max": 43,
+      "name": "Iron fireplace and soot-stained hearth"
+    },
+    {
+      "min": 44,
+      "max": 44,
+      "name": "Massive iron chandelier fallen and tangled on the floor"
+    },
+    {
+      "min": 45,
+      "max": 45,
+      "name": "Ornate brass incense burner (cold)"
+    },
+    {
+      "min": 46,
+      "max": 46,
+      "name": "Piles of moldering straw and damp rags"
+    },
+    {
+      "min": 47,
+      "max": 47,
+      "name": "Heap of chipped flagstones and rubble"
+    },
+    {
+      "min": 48,
+      "max": 48,
+      "name": "Scatter of broken pottery shards"
+    },
+    {
+      "min": 49,
+      "max": 49,
+      "name": "Crumbled ceiling mortar and plaster dust"
+    },
+    {
+      "min": 50,
+      "max": 50,
+      "name": "Ash heap with half-burnt oak timbers"
+    },
+    {
+      "min": 51,
+      "max": 51,
+      "name": "Heap of gnawed animal bones"
+    },
+    {
+      "min": 52,
+      "max": 52,
+      "name": "Piles of damp, rotting sawdust"
+    },
+    {
+      "min": 53,
+      "max": 53,
+      "name": "Shredded moth-eaten tapestry hanging from wall"
+    },
+    {
+      "min": 54,
+      "max": 54,
+      "name": "Single discarded leather boot"
+    },
+    {
+      "min": 55,
+      "max": 55,
+      "name": "Broken ceramic chamber pot"
+    },
+    {
+      "min": 56,
+      "max": 56,
+      "name": "Rusted iron bands and loose square nails"
+    },
+    {
+      "min": 57,
+      "max": 57,
+      "name": "Tattered woolen blanket chewed by vermin"
+    },
+    {
+      "min": 58,
+      "max": 58,
+      "name": "Heap of rusted chain links"
+    },
+    {
+      "min": 59,
+      "max": 59,
+      "name": "Scattered charcoal briquettes"
+    },
+    {
+      "min": 60,
+      "max": 60,
+      "name": "Broken stone cornice"
+    },
+    {
+      "min": 61,
+      "max": 61,
+      "name": "Dull iron wood-axe head"
+    },
+    {
+      "min": 62,
+      "max": 62,
+      "name": "Broken mining pick with cracked handle"
+    },
+    {
+      "min": 63,
+      "max": 63,
+      "name": "Discarded iron prybar"
+    },
+    {
+      "min": 64,
+      "max": 64,
+      "name": "Rusted iron shears and smithing tongs"
+    },
+    {
+      "min": 65,
+      "max": 65,
+      "name": "Weathered stone mortar and pestle"
+    },
+    {
+      "min": 66,
+      "max": 66,
+      "name": "Coiled length of dry-rotted hemp rope"
+    },
+    {
+      "min": 67,
+      "max": 67,
+      "name": "Dented copper kettle"
+    },
+    {
+      "min": 68,
+      "max": 68,
+      "name": "Bent iron masonry chisel"
+    },
+    {
+      "min": 69,
+      "max": 69,
+      "name": "Flint stone and rusted steel striker"
+    },
+    {
+      "min": 70,
+      "max": 70,
+      "name": "Heavy wooden mallet with cracked head"
+    },
+    {
+      "min": 71,
+      "max": 71,
+      "name": "Broken iron shovel blade"
+    },
+    {
+      "min": 72,
+      "max": 72,
+      "name": "Discarded whetstone worn smooth"
+    },
+    {
+      "min": 73,
+      "max": 73,
+      "name": "Rusted iron grappling hook"
+    },
+    {
+      "min": 74,
+      "max": 74,
+      "name": "Wooden pulley with frayed cord"
+    },
+    {
+      "min": 75,
+      "max": 75,
+      "name": "Bent brass measuring calipers"
+    },
+    {
+      "min": 76,
+      "max": 76,
+      "name": "Chipped stone gargoyle head"
+    },
+    {
+      "min": 77,
+      "max": 77,
+      "name": "Weathered stone bust with defaced features"
+    },
+    {
+      "min": 78,
+      "max": 78,
+      "name": "Wax-encrusted skull resting on a flat stone"
+    },
+    {
+      "min": 79,
+      "max": 79,
+      "name": "Smudged charcoal markings drawn on the masonry"
+    },
+    {
+      "min": 80,
+      "max": 80,
+      "name": "Half-melted wax figurines"
+    },
+    {
+      "min": 81,
+      "max": 81,
+      "name": "Carved bone needle and tangled linen cord"
+    },
+    {
+      "min": 82,
+      "max": 82,
+      "name": "Broken glass hourglass with black sand spilled"
+    },
+    {
+      "min": 83,
+      "max": 83,
+      "name": "Empty glass vial smelling faintly of sulfur"
+    },
+    {
+      "min": 84,
+      "max": 84,
+      "name": "Corroded ring of bent skeleton keys"
+    },
+    {
+      "min": 85,
+      "max": 85,
+      "name": "Faint chalk circle drawn on the flagstones"
+    },
+    {
+      "min": 86,
+      "max": 86,
+      "name": "Dried bundle of bitter mountain herbs"
+    },
+    {
+      "min": 87,
+      "max": 87,
+      "name": "Broken ceremonial mask made of carved wood"
+    },
+    {
+      "min": 88,
+      "max": 88,
+      "name": "Loose floor tile concealing a shallow empty niche"
+    },
+    {
+      "min": 89,
+      "max": 89,
+      "name": "Discarded leather scabbard missing its blade"
+    },
+    {
+      "min": 90,
+      "max": 90,
+      "name": "Rusted iron shield with split wood backing"
+    },
+    {
+      "min": 91,
+      "max": 91,
+      "name": "Dent-marked copper drinking goblet"
+    },
+    {
+      "min": 92,
+      "max": 92,
+      "name": "Weathered wooden effigy tied with twine"
+    },
+    {
+      "min": 93,
+      "max": 93,
+      "name": "Burnt torch stub soaked in pitch"
+    },
+    {
+      "min": 94,
+      "max": 94,
+      "name": "Broken hourglass frame of carved walnut"
+    },
+    {
+      "min": 95,
+      "max": 95,
+      "name": "Small stone mortar containing crushed chalk"
+    },
+    {
+      "min": 96,
+      "max": 96,
+      "name": "Cast bronze mortar bowl green with patina"
+    },
+    {
+      "min": 97,
+      "max": 97,
+      "name": "Moldering leather dice cup and carved bone dice"
+    },
+    {
+      "min": 98,
+      "max": 98,
+      "name": "Iron brazier shovel with twisted handle"
+    },
+    {
+      "min": 99,
+      "max": 99,
+      "name": "Heavy iron door hinge pried loose"
+    },
+    {
+      "min": 100,
+      "max": 100,
+      "name": "Small wooden shrine niche lined with bird feathers"
+    }
+  ]
+}

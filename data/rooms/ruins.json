@@ -1,0 +1,18 @@
+{
+  "dungeon_type": "Ruins",
+  "dice": "d12",
+  "entries": [
+    { "min": 1, "max": 1, "value": "Collapsed Hall" },
+    { "min": 2, "max": 2, "value": "Abandoned Chamber" },
+    { "min": 3, "max": 3, "value": "Courtyard" },
+    { "min": 4, "max": 4, "value": "Broken Gallery" },
+    { "min": 5, "max": 5, "value": "Store Room" },
+    { "min": 6, "max": 6, "value": "Living Quarters" },
+    { "min": 7, "max": 7, "value": "Workshop" },
+    { "min": 8, "max": 8, "value": "Great Hall" },
+    { "min": 9, "max": 9, "value": "Cellar" },
+    { "min": 10, "max": 10, "value": "Watch Room" },
+    { "min": 11, "max": 11, "value": "Forgotten Shrine" },
+    { "min": 12, "max": 12, "value": "Buried Chamber" }
+  ]
+}

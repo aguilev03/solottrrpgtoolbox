@@ -1,0 +1,42 @@
+{
+  "name": "tension_events",
+  "dice": "d6",
+  "entries": [
+    {
+      "min": 1,
+      "max": 1,
+      "type": "Wandering Encounter",
+      "description": "Footsteps or skittering claws announce the approach of roaming inhabitants."
+    },
+    {
+      "min": 2,
+      "max": 2,
+      "type": "Dungeon Sound / Atmosphere Shift",
+      "description": "A distant groan of stone settling, a sudden chilling gust, or faint chanting in the dark."
+    },
+    {
+      "min": 3,
+      "max": 3,
+      "type": "Torch / Resource Depletion",
+      "description": "Torches gutter and burn low; light sources must be renewed or shadows press closer."
+    },
+    {
+      "min": 4,
+      "max": 4,
+      "type": "Signs of Movement",
+      "description": "Fresh tracks, dripping fluid, or a freshly disturbed cobweb indicates nearby activity."
+    },
+    {
+      "min": 5,
+      "max": 5,
+      "type": "Sudden Hazard Shift",
+      "description": "Dust falls from the rafters or water rises slightly in low-lying channels."
+    },
+    {
+      "min": 6,
+      "max": 6,
+      "type": "Uneasy Stillness",
+      "description": "An oppressive, unnatural silence settles over the corridors, heightening paranoia."
+    }
+  ]
+}

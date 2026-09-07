@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Create New Dungeon — Solo TTRPG Tools{% endblock %}
+
+{% block header_nav %}
+<nav class="breadcrumb">
+    <a href="{{ url_for('dungeon_menu') }}">&larr; Dungeon Menu</a>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="section-header">
+        <h2 class="section-title">New Dungeon</h2>
+        <p class="section-subtitle">Set the parameters for your subterranean delve.</p>
+    </div>
+
+    <form method="POST" action="{{ url_for('dungeon_new') }}" class="dungeon-form">
+        <!-- Dungeon Type -->
+        <div class="form-group">
+            <label for="dungeon_type" class="form-label">Dungeon Type</label>
+            <select id="dungeon_type" name="dungeon_type" class="form-select" onchange="fetchRandomName()">
+                {% for t in dungeon_types %}
+                    <option value="{{ t }}" {% if t == 'Tomb' %}selected{% endif %}>{{ t }}</option>
+                {% endfor %}
+            </select>
+            <span class="form-hint">Determines architecture, hazards, unique landmarks, and name flavor.</span>
+        </div>
+
+        <!-- Dungeon Name -->
+        <div class="form-group">
+            <label for="dungeon-name-input" class="form-label">Dungeon Name</label>
+            <div class="input-with-button">
+                <input type="text" id="dungeon-name-input" name="name" class="form-input" value="{{ default_name }}" required placeholder="Enter dungeon name...">
+                <button type="button" class="btn btn-secondary" onclick="fetchRandomName()">Random Name</button>
+            </div>
+            <span class="form-hint">Dungeon-type specific name generation.</span>
+        </div>
+
+        <!-- Dungeon Size -->
+        <div class="form-group">
+            <label for="size" class="form-label">Dungeon Size</label>
+            <select id="size" name="size" class="form-select">
+                {% for s in sizes %}
+                    <option value="{{ s }}" {% if s == 'Medium' %}selected{% endif %}>{{ s }}</option>
+                {% endfor %}
+            </select>
+            <span class="form-hint">Influences hidden floor depth (Small: 1 floor, Medium: 1–2 floors, Large: 2–3 floors). Unannounced to the player.</span>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary btn-xl">Enter Dungeon</button>
+            <a href="{{ url_for('dungeon_menu') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

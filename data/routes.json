@@ -1,0 +1,43 @@
+{
+  "name": "routes",
+  "structure_dice": "2d6",
+  "structure_table": [
+    { "min": 2, "max": 2, "conditions": ["blocked"] },
+    { "min": 3, "max": 3, "conditions": ["locked"] },
+    { "min": 4, "max": 4, "conditions": ["normal"] },
+    { "min": 5, "max": 5, "conditions": ["stuck", "normal"] },
+    { "min": 6, "max": 8, "conditions": ["normal", "normal"] },
+    { "min": 9, "max": 9, "conditions": ["normal", "normal", "normal"] },
+    { "min": 10, "max": 10, "conditions": ["locked", "normal", "normal"] },
+    { "min": 11, "max": 11, "conditions": ["locked"] },
+    { "min": 12, "max": 12, "conditions": ["unusual"] }
+  ],
+  "physical_descriptions": [
+    { "value": "Heavy wooden door", "weight": 2 },
+    { "value": "Stone archway", "weight": 2 },
+    { "value": "Narrow corridor", "weight": 2 },
+    { "value": "Iron gate", "weight": 1 },
+    { "value": "Descending passage", "weight": 1 },
+    { "value": "Cracked stone doorway", "weight": 1 },
+    { "value": "Arched entryway", "weight": 1 },
+    { "value": "Rough-hewn tunnel", "weight": 1 }
+  ],
+  "unusual_routes": {
+    "dice": "d6",
+    "entries": [
+      { "min": 1, "max": 1, "value": "Crawlspace" },
+      { "min": 2, "max": 2, "value": "Concealed door" },
+      { "min": 3, "max": 3, "value": "Vertical shaft" },
+      { "min": 4, "max": 4, "value": "Partially collapsed passage" },
+      { "min": 5, "max": 5, "value": "Narrow crevice" },
+      { "min": 6, "max": 6, "value": "Strange doorway" }
+    ]
+  },
+  "secret_route_descriptions": [
+    { "value": "Concealed revolving bookcase/shelf", "weight": 1 },
+    { "value": "Hidden flagstone trapdoor", "weight": 1 },
+    { "value": "Camouflaged hollow behind a tapestry or altar", "weight": 1 },
+    { "value": "Hidden sliding stone panel", "weight": 2 },
+    { "value": "Concealed crawlway behind loose masonry", "weight": 2 }
+  ]
+}

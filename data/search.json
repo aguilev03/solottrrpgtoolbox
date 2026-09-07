@@ -1,0 +1,57 @@
+{
+  "name": "search",
+  "dice": "2d6",
+  "entries": [
+    {
+      "min": 2,
+      "max": 2,
+      "result": "Trouble!",
+      "subtable": "search_trouble",
+      "description": "A careless movement or sudden noise brings danger."
+    },
+    {
+      "min": 3,
+      "max": 3,
+      "result": "Hazard Discovered",
+      "subtable": "hazards",
+      "description": "Your thorough inspection uncovers an environmental threat."
+    },
+    {
+      "min": 4,
+      "max": 4,
+      "result": "Signs of previous inhabitants",
+      "description": "Discarded rations, spent torch stubs, or faint carvings give insight into who passed here."
+    },
+    {
+      "min": 5,
+      "max": 8,
+      "result": "Nothing",
+      "description": "Nothing of interest or value is found despite careful scrutiny."
+    },
+    {
+      "min": 9,
+      "max": 9,
+      "result": "Useful clue",
+      "description": "A scrawled note, scratch marks, or draft hints at the layout ahead."
+    },
+    {
+      "min": 10,
+      "max": 10,
+      "result": "Minor treasure",
+      "description": "A few loose coins, a polished gem, or useful adventuring salvage."
+    },
+    {
+      "min": 11,
+      "max": 11,
+      "result": "Concealed feature",
+      "description": "A hollow brick concealing a minor niche, or an old mechanism lever."
+    },
+    {
+      "min": 12,
+      "max": 12,
+      "result": "Secret route",
+      "action": "add_secret_route",
+      "description": "You uncover a hidden way forward!"
+    }
+  ]
+}

@@ -1,0 +1,166 @@
+{
+  "name": "traps",
+  "dice": "d20",
+  "entries": [
+    {
+      "min": 1,
+      "max": 1,
+      "name": "Swinging Blade",
+      "warning": "You hear a click, as though something has just been activated.",
+      "description": "A thin seam in the nearby wall conceals a heavy blade poised to sweep across the room.",
+      "revealed_description": "A thin seam in the nearby wall conceals a heavy blade poised to sweep across the room."
+    },
+    {
+      "min": 2,
+      "max": 2,
+      "name": "Pitfall",
+      "warning": "The floor gives a faint creak beneath your weight.",
+      "description": "A section of flooring is nothing more than a carefully disguised cover over a deep pit.",
+      "revealed_description": "A section of flooring is nothing more than a carefully disguised cover over a deep pit."
+    },
+    {
+      "min": 3,
+      "max": 3,
+      "name": "Dart Launcher",
+      "warning": "A soft mechanical tick comes from somewhere nearby.",
+      "description": "Tiny holes along the wall conceal a series of spring-loaded dart launchers aimed across the passage.",
+      "revealed_description": "Tiny holes along the wall conceal a series of spring-loaded dart launchers aimed across the passage."
+    },
+    {
+      "min": 4,
+      "max": 4,
+      "name": "Falling Block",
+      "warning": "Dust suddenly trickles down from the ceiling.",
+      "description": "A massive stone block overhead has been rigged to drop when the mechanism below is disturbed.",
+      "revealed_description": "A massive stone block overhead has been rigged to drop when the mechanism below is disturbed."
+    },
+    {
+      "min": 5,
+      "max": 5,
+      "name": "Poison Gas",
+      "warning": "You hear a quiet hiss that wasn't there a moment ago.",
+      "description": "Narrow vents hidden in the masonry are beginning to release a strange vapor into the chamber.",
+      "revealed_description": "Narrow vents hidden in the masonry are beginning to release a strange vapor into the chamber."
+    },
+    {
+      "min": 6,
+      "max": 6,
+      "name": "Swinging Weight",
+      "warning": "Somewhere above you, a chain suddenly pulls taut.",
+      "description": "A massive suspended weight is concealed overhead, positioned to swing violently through the room.",
+      "revealed_description": "A massive suspended weight is concealed overhead, positioned to swing violently through the room."
+    },
+    {
+      "min": 7,
+      "max": 7,
+      "name": "Snare",
+      "warning": "Something thin brushes against your boot.",
+      "description": "Nearly invisible cords run across the floor into a concealed mechanism designed to snare anyone crossing them.",
+      "revealed_description": "Nearly invisible cords run across the floor into a concealed mechanism designed to snare anyone crossing them."
+    },
+    {
+      "min": 8,
+      "max": 8,
+      "name": "Crushing Walls",
+      "warning": "Stone grinds against stone somewhere behind the walls.",
+      "description": "Hidden mechanisms connect the opposing walls, allowing them to slowly close together and crush anything between them.",
+      "revealed_description": "Hidden mechanisms connect the opposing walls, allowing them to slowly close together and crush anything between them."
+    },
+    {
+      "min": 9,
+      "max": 9,
+      "name": "Flame Jet",
+      "warning": "You smell something sharp and oily in the air.",
+      "description": "Small nozzles concealed among the stonework connect to a reservoir designed to engulf the passage in flame.",
+      "revealed_description": "Small nozzles concealed among the stonework connect to a reservoir designed to engulf the passage in flame."
+    },
+    {
+      "min": 10,
+      "max": 10,
+      "name": "Collapsing Ceiling",
+      "warning": "A small pebble strikes the floor beside you. Then another.",
+      "description": "Several ceiling supports have been deliberately weakened and connected to a concealed trigger.",
+      "revealed_description": "Several ceiling supports have been deliberately weakened and connected to a concealed trigger."
+    },
+    {
+      "min": 11,
+      "max": 11,
+      "name": "Needle Lock",
+      "warning": "The mechanism gives an unusually sharp click as it moves.",
+      "description": "A tiny needle is concealed inside the lock or handle, positioned to strike the hand of anyone manipulating it.",
+      "revealed_description": "A tiny needle is concealed inside the lock or handle, positioned to strike the hand of anyone manipulating it."
+    },
+    {
+      "min": 12,
+      "max": 12,
+      "name": "False Door",
+      "warning": "The door shifts strangely when touched, almost as though the entire frame moved.",
+      "description": "The apparent doorway is part of a larger mechanism designed to drop, tilt, or collapse when opened.",
+      "revealed_description": "The apparent doorway is part of a larger mechanism designed to drop, tilt, or collapse when opened."
+    },
+    {
+      "min": 13,
+      "max": 13,
+      "name": "Flooding Chamber",
+      "warning": "You hear the distant rush of moving water.",
+      "description": "Hidden channels and sealed sluices surround the chamber, designed to rapidly fill the area with water.",
+      "revealed_description": "Hidden channels and sealed sluices surround the chamber, designed to rapidly fill the area with water."
+    },
+    {
+      "min": 14,
+      "max": 14,
+      "name": "Rolling Boulder",
+      "warning": "A deep *thunk* echoes from somewhere beyond the passage.",
+      "description": "A large stone has been secured farther up the passage and connected to a trigger that releases it downhill.",
+      "revealed_description": "A large stone has been secured farther up the passage and connected to a trigger that releases it downhill."
+    },
+    {
+      "min": 15,
+      "max": 15,
+      "name": "Net Trap",
+      "warning": "Something overhead rustles despite the still air.",
+      "description": "A weighted net has been carefully concealed above the area, ready to drop and entangle anyone beneath it.",
+      "revealed_description": "A weighted net has been carefully concealed above the area, ready to drop and entangle anyone beneath it."
+    },
+    {
+      "min": 16,
+      "max": 16,
+      "name": "Spiked Floor",
+      "warning": "One of the floor stones sinks slightly beneath your foot.",
+      "description": "Several floor panels conceal rows of spikes connected to pressure mechanisms beneath the stone.",
+      "revealed_description": "Several floor panels conceal rows of spikes connected to pressure mechanisms beneath the stone."
+    },
+    {
+      "min": 17,
+      "max": 17,
+      "name": "Magical Ward",
+      "warning": "For an instant, faint markings shimmer across a nearby surface and disappear.",
+      "description": "An arcane sigil has been worked into the area, its lines forming a dormant magical ward awaiting a trigger.",
+      "revealed_description": "An arcane sigil has been worked into the area, its lines forming a dormant magical ward awaiting a trigger."
+    },
+    {
+      "min": 18,
+      "max": 18,
+      "name": "Alarm",
+      "warning": "You hear a faint metallic chime somewhere in the distance.",
+      "description": "A concealed line or pressure mechanism connects this area to an alarm elsewhere in the dungeon.",
+      "revealed_description": "A concealed line or pressure mechanism connects this area to an alarm elsewhere in the dungeon."
+    },
+    {
+      "min": 19,
+      "max": 19,
+      "name": "Sealing Doors",
+      "warning": "Something heavy shifts inside the walls behind you.",
+      "description": "Counterweights and hidden tracks are positioned to slam nearby doors shut and seal the chamber.",
+      "revealed_description": "Counterweights and hidden tracks are positioned to slam nearby doors shut and seal the chamber."
+    },
+    {
+      "min": 20,
+      "max": 20,
+      "name": "Pendulum",
+      "warning": "A slow metallic scrape comes from somewhere overhead.",
+      "description": "A large pendulum mechanism is concealed above, positioned to sweep repeatedly across the chamber once released.",
+      "revealed_description": "A large pendulum mechanism is concealed above, positioned to sweep repeatedly across the chamber once released."
+    }
+  ]
+}
