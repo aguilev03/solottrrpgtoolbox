@@ -90,8 +90,35 @@ class Database:
                 );
             """)
 
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS npcs (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    details TEXT NOT NULL DEFAULT '',
+                    current INTEGER NOT NULL DEFAULT 1,
+                    party_member INTEGER NOT NULL DEFAULT 0,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS npc_traits (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    npc_id INTEGER NOT NULL,
+                    status TEXT NOT NULL DEFAULT 'default',
+                    trait TEXT NOT NULL,
+                    category TEXT NOT NULL DEFAULT 'PR',
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (npc_id) REFERENCES npcs(id) ON DELETE CASCADE
+                );
+            """)
+
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_rooms_dungeon ON rooms(dungeon_id);")
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_logs_dungeon ON dungeon_logs(dungeon_id);")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_npcs_current ON npcs(current);")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_npcs_party ON npcs(party_member);")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_npc_traits_npc ON npc_traits(npc_id);")
             conn.commit()
 
     def create_dungeon(self, dungeon: DungeonState) -> int:
@@ -380,6 +407,261 @@ class Database:
                 }
                 for r in rows
             ]
+
+    # ==========================================
+    # CHARACTER EMULATOR (NPCs & TRAITS)
+    # ==========================================
+
+    def create_npc(
+        self,
+        name: str,
+        details: str = "",
+        current: bool = True,
+        party_member: bool = False,
+        traits: Optional[List[Dict[str, str]]] = None,
+    ) -> int:
+        clean_name = name.strip()
+        if not clean_name:
+            raise ValueError("NPC name cannot be empty.")
+
+        # Rule: If party_member is True, current MUST be True
+        if party_member:
+            current = True
+
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO npcs (name, details, current, party_member)
+                VALUES (?, ?, ?, ?)
+            """, (clean_name, details.strip(), 1 if current else 0, 1 if party_member else 0))
+            npc_id = cursor.lastrowid
+
+            if traits:
+                for t in traits:
+                    status = (t.get("status") or "default").strip().lower()
+                    trait_text = (t.get("trait") or "").strip()
+                    category = (t.get("category") or "PR").strip().upper()
+                    if trait_text:
+                        cursor.execute("""
+                            INSERT INTO npc_traits (npc_id, status, trait, category)
+                            VALUES (?, ?, ?, ?)
+                        """, (npc_id, status, trait_text, category))
+
+            conn.commit()
+            return npc_id
+
+    def get_npc(self, npc_id: int) -> Optional[Dict[str, Any]]:
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT id, name, details, current, party_member, created_at, updated_at
+                FROM npcs WHERE id = ?
+            """, (npc_id,))
+            row = cursor.fetchone()
+            if not row:
+                return None
+
+            cursor.execute("""
+                SELECT id, status, trait, category, created_at
+                FROM npc_traits
+                WHERE npc_id = ?
+                ORDER BY id ASC
+            """, (npc_id,))
+            trait_rows = cursor.fetchall()
+
+            return {
+                "id": row["id"],
+                "name": row["name"],
+                "details": row["details"],
+                "current": bool(row["current"]),
+                "party_member": bool(row["party_member"]),
+                "traits": [
+                    {
+                        "id": t["id"],
+                        "status": t["status"],
+                        "trait": t["trait"],
+                        "category": t["category"],
+                    }
+                    for t in trait_rows
+                ],
+                "created_at": row["created_at"],
+                "updated_at": row["updated_at"],
+            }
+
+    def update_npc(
+        self,
+        npc_id: int,
+        name: Optional[str] = None,
+        details: Optional[str] = None,
+        current: Optional[bool] = None,
+        party_member: Optional[bool] = None,
+    ) -> bool:
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT id, name, details, current, party_member FROM npcs WHERE id = ?", (npc_id,))
+            existing = cursor.fetchone()
+            if not existing:
+                return False
+
+            new_name = name.strip() if name is not None else existing["name"]
+            if not new_name:
+                raise ValueError("NPC name cannot be empty.")
+            new_details = details.strip() if details is not None else existing["details"]
+
+            # Rule: Cannot set current = False while party_member is True (or will be True)
+            if current is False:
+                will_be_party = party_member if party_member is not None else bool(existing["party_member"])
+                if will_be_party:
+                    raise ValueError("Party Members are always Current. Uncheck Party Member first.")
+
+            # Rule: If party_member is checked (set to True), current MUST automatically become True
+            if party_member is True:
+                current_val = True
+            elif current is not None:
+                current_val = current
+            else:
+                current_val = bool(existing["current"])
+
+            if party_member is not None:
+                party_val = party_member
+            else:
+                party_val = bool(existing["party_member"])
+
+            cursor.execute("""
+                UPDATE npcs
+                SET name = ?, details = ?, current = ?, party_member = ?, updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+            """, (
+                new_name,
+                new_details,
+                1 if current_val else 0,
+                1 if party_val else 0,
+                npc_id,
+            ))
+            conn.commit()
+            return True
+
+    def delete_npc(self, npc_id: int) -> bool:
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM npcs WHERE id = ?", (npc_id,))
+            deleted = cursor.rowcount > 0
+            conn.commit()
+            return deleted
+
+    def list_npcs(
+        self,
+        current_only: Optional[bool] = None,
+        party_only: Optional[bool] = None,
+        search_query: Optional[str] = None,
+    ) -> List[Dict[str, Any]]:
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            query = "SELECT id, name, details, current, party_member, created_at, updated_at FROM npcs WHERE 1=1"
+            params: List[Any] = []
+
+            if current_only is True:
+                query += " AND current = 1"
+            elif current_only is False:
+                query += " AND current = 0"
+
+            if party_only is True:
+                query += " AND party_member = 1"
+            elif party_only is False:
+                query += " AND party_member = 0"
+
+            if search_query:
+                term = f"%{search_query.strip()}%"
+                query += " AND (name LIKE ? OR details LIKE ? OR id IN (SELECT npc_id FROM npc_traits WHERE trait LIKE ?))"
+                params.extend([term, term, term])
+
+            # Party members first, then alphabetical by name
+            query += " ORDER BY party_member DESC, LOWER(name) ASC"
+
+            cursor.execute(query, params)
+            npc_rows = cursor.fetchall()
+            if not npc_rows:
+                return []
+
+            npc_ids = [r["id"] for r in npc_rows]
+            placeholders = ",".join("?" for _ in npc_ids)
+            cursor.execute(f"""
+                SELECT id, npc_id, status, trait, category
+                FROM npc_traits
+                WHERE npc_id IN ({placeholders})
+                ORDER BY id ASC
+            """, npc_ids)
+            all_traits = cursor.fetchall()
+
+            traits_by_npc: Dict[int, List[Dict[str, Any]]] = {nid: [] for nid in npc_ids}
+            for t in all_traits:
+                traits_by_npc[t["npc_id"]].append({
+                    "id": t["id"],
+                    "status": t["status"],
+                    "trait": t["trait"],
+                    "category": t["category"],
+                })
+
+            results = []
+            for r in npc_rows:
+                results.append({
+                    "id": r["id"],
+                    "name": r["name"],
+                    "details": r["details"],
+                    "current": bool(r["current"]),
+                    "party_member": bool(r["party_member"]),
+                    "traits": traits_by_npc.get(r["id"], []),
+                    "created_at": r["created_at"],
+                    "updated_at": r["updated_at"],
+                })
+            return results
+
+    def add_npc_trait(self, npc_id: int, status: str, trait: str, category: str) -> int:
+        clean_trait = trait.strip()
+        if not clean_trait:
+            raise ValueError("Trait cannot be empty.")
+        clean_status = (status or "default").strip().lower()
+        clean_category = (category or "PR").strip().upper()
+
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO npc_traits (npc_id, status, trait, category)
+                VALUES (?, ?, ?, ?)
+            """, (npc_id, clean_status, clean_trait, clean_category))
+            trait_id = cursor.lastrowid
+            cursor.execute("UPDATE npcs SET updated_at = CURRENT_TIMESTAMP WHERE id = ?", (npc_id,))
+            conn.commit()
+            return trait_id
+
+    def delete_npc_trait(self, trait_id: int) -> bool:
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT npc_id FROM npc_traits WHERE id = ?", (trait_id,))
+            row = cursor.fetchone()
+            if not row:
+                return False
+            npc_id = row["npc_id"]
+            cursor.execute("DELETE FROM npc_traits WHERE id = ?", (trait_id,))
+            cursor.execute("UPDATE npcs SET updated_at = CURRENT_TIMESTAMP WHERE id = ?", (npc_id,))
+            conn.commit()
+            return True
+
+    def set_npc_traits(self, npc_id: int, traits: List[Dict[str, str]]) -> None:
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM npc_traits WHERE npc_id = ?", (npc_id,))
+            for t in traits:
+                trait_text = (t.get("trait") or "").strip()
+                if trait_text:
+                    status = (t.get("status") or "default").strip().lower()
+                    category = (t.get("category") or "PR").strip().upper()
+                    cursor.execute("""
+                        INSERT INTO npc_traits (npc_id, status, trait, category)
+                        VALUES (?, ?, ?, ?)
+                    """, (npc_id, status, trait_text, category))
+            cursor.execute("UPDATE npcs SET updated_at = CURRENT_TIMESTAMP WHERE id = ?", (npc_id,))
+            conn.commit()
 
 
 _DEFAULT_DB: Optional[Database] = None

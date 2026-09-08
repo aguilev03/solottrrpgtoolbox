@@ -1,0 +1,310 @@
+{% extends "base.html" %}
+
+{% block title %}Character Emulator — Solo TTRPG Tools{% endblock %}
+
+{% block main_class %}main-content-wide{% endblock %}
+
+{% block header_nav %}
+<nav class="breadcrumb">
+    <a href="{{ url_for('index') }}">&larr; Solo TTRPG Tools</a>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="emulator-container">
+    <!-- Top Action Bar -->
+    <header class="emulator-header">
+        <div class="emulator-title-wrap">
+            <h2 class="emulator-title">CHARACTER EMULATOR</h2>
+            <p class="emulator-subtitle">Triple-O procedural behavior referee for party members, companions, hirelings, and recurring NPCs.</p>
+        </div>
+        <div class="emulator-actions-bar">
+            <button type="button" class="btn btn-primary" onclick="openAddNpcModal()">+ Add NPC</button>
+            <button type="button" class="btn btn-secondary" onclick="openFindNpcModal()">Find NPC</button>
+            <button type="button" class="btn btn-secondary" onclick="openManageNpcsModal()">Manage NPCs</button>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <div class="emulator-roster">
+        <!-- Section 1: PARTY MEMBERS (only if any exist) -->
+        {% if party_members %}
+        <section class="emulator-section section-party-members">
+            <div class="section-divider">
+                <span class="section-divider-title">PARTY MEMBERS</span>
+            </div>
+            <div class="npc-grid">
+                {% for npc in party_members %}
+                    {% include "emulator_card.html" %}
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- Section 2: CURRENT NPCs (only if any exist) -->
+        {% if current_npcs %}
+        <section class="emulator-section section-current-npcs">
+            <div class="section-divider">
+                <span class="section-divider-title">CURRENT NPCs</span>
+            </div>
+            <div class="npc-grid">
+                {% for npc in current_npcs %}
+                    {% include "emulator_card.html" %}
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- Empty State (if no current NPCs at all) -->
+        {% if not party_members and not current_npcs %}
+        <div class="emulator-empty-state">
+            <div class="empty-icon">&#128101;</div>
+            <h3 class="empty-title">No Active NPCs in the Scene</h3>
+            <p class="empty-desc">Create a new character or bring an existing one from your persistent library to begin generating actions.</p>
+            <div class="empty-buttons">
+                <button type="button" class="btn btn-primary" onclick="openAddNpcModal()">+ Add NPC</button>
+                <button type="button" class="btn btn-secondary" onclick="openFindNpcModal()">Find NPC</button>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Attribution Footer -->
+    <footer class="emulator-footer">
+        <p class="attribution-text">
+            Adapted from <em>Triple-O: The Player Character Emulator</em> by Cezar Capacle under
+            <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a>.
+        </p>
+    </footer>
+</div>
+
+<!-- ==========================================
+     MODALS
+     ========================================== -->
+
+<!-- Modal: Add NPC -->
+<div id="modal-add-npc" class="modal-backdrop hidden" onclick="closeModalOnBackdrop(event, 'modal-add-npc')">
+    <div class="modal-card modal-card-lg" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3 class="modal-title">+ ADD NPC</h3>
+            <button type="button" class="btn-close" onclick="closeModal('modal-add-npc')">&times;</button>
+        </div>
+        <form id="form-add-npc" onsubmit="submitAddNpc(event)">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="add-npc-name" class="form-label">Name <span class="required">*</span></label>
+                    <input type="text" id="add-npc-name" name="name" class="form-input" placeholder="e.g. John, Mira, Old Marcus" required autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label for="add-npc-details" class="form-label">Details</label>
+                    <textarea id="add-npc-details" name="details" class="form-textarea" rows="2" placeholder="e.g. Former farmer turned mercenary with an eye for trouble."></textarea>
+                </div>
+
+                <div class="form-checkbox-row">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="add-npc-current" name="current" checked onchange="handleAddCurrentChange()">
+                        <span>Current (present in active scene)</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="add-npc-party" name="party_member" onchange="handleAddPartyChange()">
+                        <span>Party Member</span>
+                    </label>
+                </div>
+                <div id="add-npc-feedback" class="form-feedback hidden"></div>
+
+                <!-- Optional Initial Traits -->
+                <div class="modal-traits-builder">
+                    <div class="traits-builder-header">
+                        <span class="traits-builder-title">TRAITS <span class="text-muted">(Optional &mdash; can be added anytime)</span></span>
+                        <button type="button" class="btn btn-xs btn-outline" onclick="addTraitRowToBuilder('add-traits-container')">+ Add Trait</button>
+                    </div>
+                    <div id="add-traits-container" class="traits-builder-list">
+                        <!-- Dynamic Trait Rows -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="closeModal('modal-add-npc')">Cancel</button>
+                <button type="submit" class="btn btn-primary btn-sm">Save NPC</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal: Quick Add Trait -->
+<div id="modal-quick-trait" class="modal-backdrop hidden" onclick="closeModalOnBackdrop(event, 'modal-quick-trait')">
+    <div class="modal-card" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3 class="modal-title" id="quick-trait-modal-title">ADD TRAIT</h3>
+            <button type="button" class="btn-close" onclick="closeModal('modal-quick-trait')">&times;</button>
+        </div>
+        <form id="form-quick-trait" onsubmit="submitQuickTrait(event)">
+            <input type="hidden" id="quick-trait-npc-id" name="npc_id">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="quick-trait-status" class="form-label">Status</label>
+                    <select id="quick-trait-status" name="status" class="form-select">
+                        <option value="default" selected>Default (Weight 1)</option>
+                        <option value="prevalent">Prevalent (Weight 2)</option>
+                        <option value="temporary">Temporary (Weight 1)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="quick-trait-text" class="form-label">Trait <span class="required">*</span></label>
+                    <input type="text" id="quick-trait-text" name="trait" class="form-input" placeholder="e.g. Protective, Grew up on a farm, Injured leg" required autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label for="quick-trait-category" class="form-label">Category</label>
+                    <div class="category-input-row">
+                        <select id="quick-trait-category" name="category" class="form-select" onchange="handleCategorySelectChange(this, 'quick-trait-custom-cat')">
+                            <option value="PR" selected>PR &mdash; Personality</option>
+                            <option value="SK">SK &mdash; Skill</option>
+                            <option value="BG">BG &mdash; Background</option>
+                            <option value="CL">CL &mdash; Class</option>
+                            <option value="CN">CN &mdash; Condition</option>
+                            <option value="MT">MT &mdash; Motivation</option>
+                            <option value="CUSTOM">Custom Category...</option>
+                        </select>
+                        <input type="text" id="quick-trait-custom-cat" class="form-input custom-cat-input hidden" placeholder="2-3 letter tag (e.g. RL, GO)" maxlength="8">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="closeModal('modal-quick-trait')">Cancel</button>
+                <button type="submit" class="btn btn-primary btn-sm">Add Trait</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal: Edit NPC -->
+<div id="modal-edit-npc" class="modal-backdrop hidden" onclick="closeModalOnBackdrop(event, 'modal-edit-npc')">
+    <div class="modal-card modal-card-lg" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3 class="modal-title" id="edit-npc-modal-title">EDIT NPC</h3>
+            <button type="button" class="btn-close" onclick="closeModal('modal-edit-npc')">&times;</button>
+        </div>
+        <form id="form-edit-npc" onsubmit="submitEditNpc(event)">
+            <input type="hidden" id="edit-npc-id" name="id">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="edit-npc-name" class="form-label">Name <span class="required">*</span></label>
+                    <input type="text" id="edit-npc-name" name="name" class="form-input" required autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-npc-details" class="form-label">Details</label>
+                    <textarea id="edit-npc-details" name="details" class="form-textarea" rows="2"></textarea>
+                </div>
+
+                <div class="form-checkbox-row">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="edit-npc-current" name="current" onchange="handleEditCurrentChange()">
+                        <span>Current</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="edit-npc-party" name="party_member" onchange="handleEditPartyChange()">
+                        <span>Party Member</span>
+                    </label>
+                </div>
+                <div id="edit-npc-feedback" class="form-feedback hidden"></div>
+
+                <!-- Edit Traits -->
+                <div class="modal-traits-builder">
+                    <div class="traits-builder-header">
+                        <span class="traits-builder-title">TRAITS</span>
+                        <button type="button" class="btn btn-xs btn-outline" onclick="addTraitRowToBuilder('edit-traits-container')">+ Add Trait</button>
+                    </div>
+                    <div id="edit-traits-container" class="traits-builder-list">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="closeModal('modal-edit-npc')">Cancel</button>
+                <button type="submit" class="btn btn-primary btn-sm">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal: Find NPC -->
+<div id="modal-find-npc" class="modal-backdrop hidden" onclick="closeModalOnBackdrop(event, 'modal-find-npc')">
+    <div class="modal-card modal-card-lg" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3 class="modal-title">FIND NPC</h3>
+            <button type="button" class="btn-close" onclick="closeModal('modal-find-npc')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="search-bar-wrap">
+                <input type="text" id="find-npc-search" class="form-input search-input" placeholder="Search by name, details, or trait..." oninput="handleFindNpcSearch()" autocomplete="off">
+            </div>
+            <div id="find-npc-results" class="find-results-list">
+                <p class="text-muted">Loading character library...</p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="closeModal('modal-find-npc')">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Manage NPCs -->
+<div id="modal-manage-npcs" class="modal-backdrop hidden" onclick="closeModalOnBackdrop(event, 'modal-manage-npcs')">
+    <div class="modal-card modal-card-xl" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3 class="modal-title">MANAGE NPCs</h3>
+            <button type="button" class="btn-close" onclick="closeModal('modal-manage-npcs')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="search-bar-wrap">
+                <input type="text" id="manage-npc-search" class="form-input search-input" placeholder="Filter characters..." oninput="handleManageNpcSearch()" autocomplete="off">
+            </div>
+            <div class="table-responsive">
+                <table class="manage-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th class="text-center">Party</th>
+                            <th class="text-center">Current</th>
+                            <th class="text-center">Traits</th>
+                            <th class="text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="manage-npc-tbody">
+                        <tr>
+                            <td colspan="5" class="text-muted text-center">Loading characters...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="closeModal('modal-manage-npcs')">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Confirm Delete -->
+<div id="modal-confirm-delete" class="modal-backdrop hidden" onclick="closeModalOnBackdrop(event, 'modal-confirm-delete')">
+    <div class="modal-card modal-card-sm" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3 class="modal-title modal-title-danger">CONFIRM DELETION</h3>
+            <button type="button" class="btn-close" onclick="closeModal('modal-confirm-delete')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to permanently delete <strong id="delete-npc-name-display">this character</strong> and all their traits?</p>
+            <p class="text-danger-note">This action cannot be undone.</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="closeModal('modal-confirm-delete')">Cancel</button>
+            <button type="button" class="btn btn-danger btn-sm" id="btn-confirm-delete-action">Delete Permanently</button>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/emulator.js') }}"></script>
+{% endblock %}

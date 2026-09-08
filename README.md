@@ -1,8 +1,10 @@
-# SOLO TTRPG TOOLS — Dungeon Crawler
+# SOLO TTRPG TOOLS
 
-A lightweight, system-neutral, self-hosted web application for solo tabletop roleplaying games.
+A lightweight, system-neutral, self-hosted web suite for solo tabletop roleplaying games.
 
-The **Dungeon Crawler** module is a procedural room-by-room generator acting as a hidden game master or referee. It creates living subterranean delves with zero pre-generation: rooms, unique landmarks, hazards, and floor descents come into existence only as the player takes action.
+The application includes two specialized solo modules:
+1. **Dungeon Crawler:** A procedural room-by-room generator acting as a referee. Delves, landmarks, hazards, and floor descents emerge unpredictably using a pure Progress dice pool.
+2. **Character Emulator:** Based on Cezar Capacle's *Triple-O: The Player Character Emulator*. Answers "What does this character do?" for party members, companions, hirelings, allies, and recurring NPCs without system-bound math.
 
 ---
 
@@ -16,7 +18,7 @@ The **Dungeon Crawler** module is a procedural room-by-room generator acting as 
 
 ---
 
-## 2. Core Mechanics
+## 2. Dungeon Crawler Mechanics
 
 ### The Pure Progress Dice Pool Mechanic
 Exploration does not accumulate points toward a static target. Instead, it uses a growing **D6 dice pool**:
@@ -133,15 +135,65 @@ Every generated chamber (Entrance, standard rooms, and Unique Chambers) is autom
 
 ---
 
-## 3. Directory Structure
+## 3. Character Emulator Mechanics (Triple-O)
+
+Adapted from *Triple-O: The Player Character Emulator* by Cezar Capacle under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+
+The **Character Emulator** answers *"What does this character do?"* while your chosen tabletop RPG system answers *"Does it work?"*. It gives autonomous personality and decision-making to companions, party members, hirelings, allies, and recurring NPCs without requiring the solo player to direct every action.
+
+### The Behavioral Prompt Formula
+When rolling an action for an NPC, the emulator generates **3 independent prompts**, each combining:
+$$\text{Weighted Trait} + \text{d66 Action} + \text{1d6 Triple-O Check} = \text{Behavioral Prompt}$$
+
+1. **Trait Selection (Weighted):**
+   - **Default (Weight 1):** Foundational traits.
+   - **Prevalent (Weight 2):** Dominant personality quirks or backgrounds that appear twice as often.
+   - **Temporary (Weight 1):** Fleeting conditions, injuries, or moods.
+   - *Zero Traits Rule:* NPCs do not need traits to roll actions. If an NPC has 0 traits, `DEFAULT` is used as a display-only placeholder without storing fake traits.
+2. **Specific Action Tables (d66):**
+   Seven distinct 36-entry tables covering all adventuring situations:
+   - **Combat:** Offensive tactics, maneuvers, repositioning, and morale checks.
+   - **Social:** Persuasion, leverage, deception, empathy, and intimidation.
+   - **Exploration:** Wilderness navigation, foraging, scouting, and tracking.
+   - **Delving:** Underground tactics, searching for mechanisms, testing rooms, and formations.
+   - **Interpretation:** How the character perceives ambiguous discoveries, omens, or secrets.
+   - **Downtime:** Campfire conversations, personal traditions, coping vices, and bonding.
+   - **Planning:** Tactical preparation, divinations, gathering intel, and risk assessment.
+3. **Triple-O Check (1d6):**
+   Determines how characteristic or unexpected the action is:
+   - **1:** `THE ODD` (16.67% — surprising, unorthodox, or out-of-character choice)
+   - **2–3:** `THE OPTION` (33.33% — sensible alternative, unexpected variation)
+   - **4–6:** `THE OBVIOUS` (50.00% — standard, instinctive, or expected reaction)
+
+### Spark Tables
+Six 36-entry inspiration tables (`data/character_sparks.json`) provide immediate answers when behavior or motivation is uncertain:
+- **Action:** What they are doing.
+- **Focus:** What they are paying attention to or concerned with.
+- **Method:** How they approach the situation.
+- **Disposition:** Their current mood or attitude.
+- **Motivation:** Underlying drive, fear, or desire.
+- **Dynamics:** How the character relates to another companion or NPC.
+- **Predefined Combinations:** `Action + Focus`, `Action + Method`, `Action + Motivation`.
+
+### Party Member & Current Rules
+- **Current:** Marks NPCs physically present in the active scene. Removing Current never deletes the NPC.
+- **Party Members:** Always active in the party. If an NPC is marked as a Party Member, `Current` is strictly required (`Party Member = true` forces `Current = true`).
+- **Unchecking Party Member:** Keeps `Current = true` (the character leaves the party but remains in the scene).
+- **Preventing Invalid State:** Unchecking `Current` while `Party Member` is active is prevented with a clear explanation: *"Party Members are always Current. Uncheck Party Member first."*
+- **Persistent Library:** All characters and traits are saved in SQLite. Use **Find NPC** or **Manage NPCs** to activate, edit, or search any saved character.
+
+---
+
+## 4. Directory Structure
 
 ```text
 solo-ttrpg-tools/
-├── app.py                      # Flask web application & API routes
+├── app.py                      # Flask web application & API routes (Dungeon + Emulator)
 ├── config.py                   # Centralized configuration & environment variables
-├── database.py                 # SQLite persistence schema & atomic transactions
+├── database.py                 # SQLite schema (dungeons, rooms, logs, npcs, traits)
 ├── dice.py                     # Dice parser (1d6, 2d6, d12, d66) & Progress dice pool
 ├── dungeon_engine.py           # Procedural referee: rooms, tension clock, search
+├── emulator_engine.py          # Character Emulator engine: Triple-O, weighted traits, sparks
 ├── table_loader.py             # TableManager: startup validation & recursive subtable engine
 ├── solo-ttrpg-tools.service    # Production systemd service unit file
 ├── requirements.txt            # Python dependencies (Flask, Gunicorn, Pytest)
@@ -163,6 +215,8 @@ solo-ttrpg-tools/
 │   ├── tension_events.json     # d6 Hourly tension event roll table
 │   ├── unique_rooms.json       # Unique landmark rooms by dungeon type
 │   ├── room_objects.json       # d100 Room Objects (furniture, fixtures, misc junk)
+│   ├── character_actions.json  # 7 d66 Action tables (Combat, Social, Exploration, Delving, etc.)
+│   ├── character_sparks.json   # 6 d66 Spark tables (Action, Focus, Method, Disposition, etc.)
 │   └── rooms/                  # Type-specific room type tables
 │       ├── tomb.json           # d12 Tomb room types
 │       ├── cave.json           # d12 Cave room types
@@ -176,21 +230,25 @@ solo-ttrpg-tools/
 │   ├── css/
 │   │   └── style.css           # Dark fantasy / parchment responsive stylesheet
 │   └── js/
-│       └── app.js              # Name generator, modal controllers, log export handlers
+│       ├── app.js              # Name generator, modal controllers, log export handlers
+│       └── emulator.js         # Character Emulator card toggles, action rolls, sparks
 ├── templates/
 │   ├── base.html               # Base layout, typography & modal dialogs
-│   ├── index.html              # Main menu (extensible tool grid)
+│   ├── index.html              # Main menu (Dungeon Crawler + Character Emulator)
 │   ├── dungeon_menu.html       # Saved dungeons list & resume/delete
 │   ├── dungeon_new.html        # New dungeon setup form
-│   └── dungeon_play.html       # Primary room exploration interface
+│   ├── dungeon_play.html       # Primary room exploration interface
+│   ├── emulator.html           # Character Emulator roster & modal controllers
+│   └── emulator_card.html      # Individual NPC card component
 └── tests/
-    ├── test_phase1.py          # Mechanics, dice, and engine tests (23 tests)
-    └── test_dungeon_app.py     # End-to-end integration & persistence tests (15 tests)
+    ├── test_phase1.py              # Mechanics, dice, and engine tests (23 tests)
+    ├── test_dungeon_app.py         # End-to-end integration & persistence tests (15 tests)
+    └── test_character_emulator.py  # Character Emulator acceptance & API tests (23 tests)
 ```
 
 ---
 
-## 4. Installation Guide (Debian LXC / Linux)
+## 5. Installation Guide (Debian LXC / Linux)
 
 ### Step 1: Install System Prerequisites
 ```bash
@@ -215,7 +273,7 @@ python3 -m venv .venv
 ```
 
 ### Step 4: Run the Automated Test Suite
-Verify all 38 unit and integration tests pass:
+Verify all 61 unit and integration tests pass:
 ```bash
 PYTHONPATH=. .venv/bin/pytest -v
 ```
@@ -236,7 +294,7 @@ Run with 3 worker processes bound to all interfaces:
 
 ---
 
-## 5. Systemd Service Setup (Auto-Start on Boot)
+## 6. Systemd Service Setup (Auto-Start on Boot)
 
 1. Copy the included service file into systemd:
    ```bash
@@ -267,7 +325,7 @@ Run with 3 worker processes bound to all interfaces:
 
 ---
 
-## 6. Configuration Options
+## 7. Configuration Options
 
 Set configuration options as environment variables in `/etc/systemd/system/solo-ttrpg-tools.service` or your shell:
 
@@ -281,7 +339,7 @@ Set configuration options as environment variables in `/etc/systemd/system/solo-
 
 ---
 
-## 7. Customizing Roll Tables (JSON)
+## 8. Customizing Roll Tables (JSON)
 
 All table content is separated from the engine logic. To modify, add, or replace tables, edit the JSON files in `data/`.
 
@@ -323,7 +381,7 @@ Routes are assembled from three distinct data-driven components:
 
 ---
 
-## 8. Database Backup & Restore
+## 9. Database Backup & Restore
 
 All saved dungeons, room history, and exploration logs are preserved in `instance/solo_tools.db`.
 
@@ -342,7 +400,7 @@ sudo systemctl start solo-ttrpg-tools
 
 ---
 
-## 9. Updating the Application Without Losing Saves
+## 10. Updating the Application Without Losing Saves
 
 The database file (`instance/solo_tools.db`) is git-ignored and self-contained in `instance/`.
 
@@ -366,10 +424,11 @@ All active dungeons, floor levels, search histories, and logs will remain untouc
 
 ---
 
-## 10. Dungeon Log & Obsidian Export
+## 11. Dungeon Log & Obsidian Export
 
 During exploration, all events (room entries, discoveries, searches, and tension checks) are automatically logged.
 
 - Click **View Log** on the play screen to view the chronological delve record with elapsed time stamps.
 - Click **Export Plain Text** to download a clean `.txt` log.
 - Click **Export Markdown** to download a formatted `.md` log ready to drag and drop directly into **Obsidian** or your solo campaign notebook.
+

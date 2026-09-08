@@ -5,6 +5,7 @@ from flask import Flask, Response, jsonify, redirect, render_template, request, 
 from config import Config
 from database import get_db
 from dungeon_engine import DungeonEngine, DungeonState, format_dungeon_time
+from emulator_engine import EmulatorEngine, get_emulator_engine
 from table_loader import get_table_manager
 
 app = Flask(__name__)
@@ -14,6 +15,7 @@ app.config.from_object(Config)
 db = get_db(app.config["DATABASE_PATH"])
 table_manager = get_table_manager(app.config["DATA_DIR"])
 engine = DungeonEngine(table_manager)
+emulator = get_emulator_engine(app.config["DATA_DIR"])
 
 
 @app.context_processor
@@ -333,6 +335,278 @@ def dungeon_export(dungeon_id: int):
         mimetype="text/markdown",
         headers={"Content-Disposition": f'attachment; filename="{dungeon.name}_log.md"'},
     )
+
+
+# ==========================================
+# CHARACTER EMULATOR ROUTES
+# ==========================================
+
+@app.route("/emulator")
+def emulator_main():
+    """Character Emulator main screen."""
+    all_current = db.list_npcs(current_only=True)
+    party_members = [npc for npc in all_current if npc["party_member"]]
+    current_npcs = [npc for npc in all_current if not npc["party_member"]]
+
+    # Sort alphabetically by name (case-insensitive)
+    party_members.sort(key=lambda x: x["name"].lower())
+    current_npcs.sort(key=lambda x: x["name"].lower())
+
+    return render_template(
+        "emulator.html",
+        party_members=party_members,
+        current_npcs=current_npcs,
+        action_tables=emulator.ACTION_TABLE_NAMES,
+        spark_tables=emulator.SPARK_TABLE_NAMES,
+        spark_combos=list(emulator.SPARK_COMBINATIONS.keys()),
+    )
+
+
+@app.route("/emulator/npc/new", methods=["POST"])
+def emulator_npc_new():
+    """Create a new NPC."""
+    if request.is_json:
+        data = request.get_json() or {}
+        name = data.get("name", "").strip()
+        details = data.get("details", "").strip()
+        current = bool(data.get("current", True))
+        party_member = bool(data.get("party_member", False))
+        traits = data.get("traits", [])
+    else:
+        name = request.form.get("name", "").strip()
+        details = request.form.get("details", "").strip()
+        current = bool(request.form.get("current", True))
+        party_member = bool(request.form.get("party_member", False))
+        traits = []
+
+    if not name:
+        if request.is_json:
+            return jsonify({"success": False, "error": "NPC name cannot be empty."}), 400
+        return redirect(url_for("emulator_main"))
+
+    try:
+        npc_id = db.create_npc(
+            name=name,
+            details=details,
+            current=current,
+            party_member=party_member,
+            traits=traits,
+        )
+    except ValueError as e:
+        if request.is_json:
+            return jsonify({"success": False, "error": str(e)}), 400
+        return redirect(url_for("emulator_main"))
+
+    if request.is_json:
+        npc = db.get_npc(npc_id)
+        return jsonify({"success": True, "npc": npc})
+
+    return redirect(url_for("emulator_main"))
+
+
+@app.route("/emulator/npc/<int:npc_id>/toggle-status", methods=["POST"])
+def emulator_npc_toggle_status(npc_id: int):
+    """Toggle Current or Party Member status for an NPC with validation."""
+    npc = db.get_npc(npc_id)
+    if not npc:
+        return jsonify({"success": False, "error": "NPC not found."}), 404
+
+    data = request.get_json() or {}
+    new_current = data.get("current")
+    new_party_member = data.get("party_member")
+
+    try:
+        db.update_npc(
+            npc_id=npc_id,
+            current=new_current,
+            party_member=new_party_member,
+        )
+    except ValueError as e:
+        return jsonify({"success": False, "error": str(e)}), 400
+
+    updated = db.get_npc(npc_id)
+    return jsonify({"success": True, "npc": updated})
+
+
+@app.route("/emulator/npc/<int:npc_id>/edit", methods=["POST"])
+def emulator_npc_edit(npc_id: int):
+    """Full edit for an NPC."""
+    npc = db.get_npc(npc_id)
+    if not npc:
+        if request.is_json:
+            return jsonify({"success": False, "error": "NPC not found."}), 404
+        return redirect(url_for("emulator_main"))
+
+    if request.is_json:
+        data = request.get_json() or {}
+        name = data.get("name", "").strip()
+        details = data.get("details", "").strip()
+        current = data.get("current")
+        party_member = data.get("party_member")
+        traits = data.get("traits")
+    else:
+        name = request.form.get("name", "").strip()
+        details = request.form.get("details", "").strip()
+        current = bool(request.form.get("current"))
+        party_member = bool(request.form.get("party_member"))
+        traits = None
+
+    try:
+        db.update_npc(
+            npc_id=npc_id,
+            name=name if name else None,
+            details=details,
+            current=current,
+            party_member=party_member,
+        )
+        if traits is not None:
+            db.set_npc_traits(npc_id, traits)
+    except ValueError as e:
+        if request.is_json:
+            return jsonify({"success": False, "error": str(e)}), 400
+        return redirect(url_for("emulator_main"))
+
+    updated = db.get_npc(npc_id)
+    if request.is_json:
+        return jsonify({"success": True, "npc": updated})
+    return redirect(url_for("emulator_main"))
+
+
+@app.route("/emulator/npc/<int:npc_id>/delete", methods=["POST"])
+def emulator_npc_delete(npc_id: int):
+    """Permanently delete an NPC and associated traits."""
+    deleted = db.delete_npc(npc_id)
+    if not deleted:
+        if request.is_json:
+            return jsonify({"success": False, "error": "NPC not found."}), 404
+        return redirect(url_for("emulator_main"))
+
+    if request.is_json:
+        return jsonify({"success": True, "npc_id": npc_id})
+    return redirect(url_for("emulator_main"))
+
+
+@app.route("/emulator/npc/<int:npc_id>/traits/add", methods=["POST"])
+def emulator_npc_add_trait(npc_id: int):
+    """Quick Add Trait to an NPC."""
+    npc = db.get_npc(npc_id)
+    if not npc:
+        return jsonify({"success": False, "error": "NPC not found."}), 404
+
+    data = request.get_json() or {}
+    status = data.get("status", "default").strip().lower()
+    trait = data.get("trait", "").strip()
+    category = data.get("category", "PR").strip().upper()
+
+    if not trait:
+        return jsonify({"success": False, "error": "Trait text cannot be empty."}), 400
+
+    try:
+        trait_id = db.add_npc_trait(npc_id, status, trait, category)
+    except ValueError as e:
+        return jsonify({"success": False, "error": str(e)}), 400
+
+    updated = db.get_npc(npc_id)
+    return jsonify({
+        "success": True,
+        "trait": {
+            "id": trait_id,
+            "status": status.capitalize(),
+            "trait": trait,
+            "category": category,
+        },
+        "npc": updated,
+    })
+
+
+@app.route("/emulator/npc/<int:npc_id>/traits/<int:trait_id>/delete", methods=["POST"])
+def emulator_npc_delete_trait(npc_id: int, trait_id: int):
+    """Delete a trait from an NPC."""
+    deleted = db.delete_npc_trait(trait_id)
+    if not deleted:
+        return jsonify({"success": False, "error": "Trait not found."}), 404
+    updated = db.get_npc(npc_id)
+    return jsonify({"success": True, "npc": updated})
+
+
+@app.route("/emulator/npc/<int:npc_id>/roll-action", methods=["POST"])
+def emulator_npc_roll_action(npc_id: int):
+    """Roll 3 independent behavioral action prompts for an NPC."""
+    npc = db.get_npc(npc_id)
+    if not npc:
+        return jsonify({"success": False, "error": "NPC not found."}), 404
+
+    data = request.get_json() or {}
+    action_type = data.get("action_type", "downtime").strip().lower()
+
+    try:
+        results = emulator.roll_specific_action(action_type, npc["traits"])
+    except ValueError as e:
+        return jsonify({"success": False, "error": str(e)}), 400
+
+    return jsonify({
+        "success": True,
+        "npc_id": npc_id,
+        "action_type": action_type.capitalize(),
+        "results": results,
+    })
+
+
+@app.route("/emulator/npc/<int:npc_id>/roll-spark", methods=["POST"])
+def emulator_npc_roll_spark(npc_id: int):
+    """Roll a Spark table or combination for an NPC."""
+    npc = db.get_npc(npc_id)
+    if not npc:
+        return jsonify({"success": False, "error": "NPC not found."}), 404
+
+    data = request.get_json() or {}
+    spark_type = data.get("spark_type", "method").strip().lower()
+
+    try:
+        spark_result = emulator.roll_spark(spark_type)
+    except ValueError as e:
+        return jsonify({"success": False, "error": str(e)}), 400
+
+    return jsonify({
+        "success": True,
+        "npc_id": npc_id,
+        "spark": spark_result,
+    })
+
+
+@app.route("/emulator/api/npcs", methods=["GET"])
+def emulator_api_list_npcs():
+    """List or search all stored NPCs for Find NPC and Manage NPCs."""
+    query = request.args.get("q", "").strip()
+    npcs = db.list_npcs(search_query=query if query else None)
+    return jsonify({"success": True, "npcs": npcs})
+
+
+@app.route("/emulator/npc/<int:npc_id>/make-current", methods=["POST"])
+def emulator_npc_make_current(npc_id: int):
+    """Set NPC current = True."""
+    npc = db.get_npc(npc_id)
+    if not npc:
+        return jsonify({"success": False, "error": "NPC not found."}), 404
+    db.update_npc(npc_id, current=True)
+    updated = db.get_npc(npc_id)
+    return jsonify({"success": True, "npc": updated})
+
+
+@app.route("/emulator/npc/<int:npc_id>/remove-current", methods=["POST"])
+def emulator_npc_remove_current(npc_id: int):
+    """Remove NPC from current scene (current = False) without deleting."""
+    npc = db.get_npc(npc_id)
+    if not npc:
+        return jsonify({"success": False, "error": "NPC not found."}), 404
+
+    try:
+        db.update_npc(npc_id, current=False)
+    except ValueError as e:
+        return jsonify({"success": False, "error": str(e)}), 400
+
+    updated = db.get_npc(npc_id)
+    return jsonify({"success": True, "npc": updated})
 
 
 if __name__ == "__main__":

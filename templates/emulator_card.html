@@ -1,0 +1,97 @@
+<article class="npc-card" id="npc-card-{{ npc.id }}" data-npc-id="{{ npc.id }}">
+    <!-- Card Header -->
+    <div class="npc-card-header">
+        <div class="npc-name-wrap">
+            <h3 class="npc-name">{{ npc.name }}</h3>
+            {% if npc.party_member %}
+                <span class="badge-party-member" id="badge-party-{{ npc.id }}">Party</span>
+            {% endif %}
+        </div>
+        {% if npc.details %}
+            <p class="npc-details" id="card-details-{{ npc.id }}">{{ npc.details }}</p>
+        {% else %}
+            <p class="npc-details text-muted hidden" id="card-details-{{ npc.id }}"></p>
+        {% endif %}
+    </div>
+
+    <!-- Status Toggles -->
+    <div class="npc-status-bar">
+        <label class="status-toggle-label" title="Whether this NPC is currently in the active scene">
+            <input type="checkbox" id="card-chk-current-{{ npc.id }}" {% if npc.current %}checked{% endif %} onchange="handleCardCurrentToggle({{ npc.id }}, this)">
+            <span class="status-toggle-text">Current</span>
+        </label>
+        <label class="status-toggle-label" title="Whether this NPC is a party member">
+            <input type="checkbox" id="card-chk-party-{{ npc.id }}" {% if npc.party_member %}checked{% endif %} onchange="handleCardPartyToggle({{ npc.id }}, this)">
+            <span class="status-toggle-text">Party Member</span>
+        </label>
+    </div>
+    <div class="card-feedback-msg hidden" id="card-feedback-{{ npc.id }}"></div>
+
+    <!-- Traits Section -->
+    <div class="npc-traits-section">
+        <div class="traits-header">
+            <span class="traits-title-label">TRAITS</span>
+            <div class="traits-actions">
+                <button type="button" class="btn btn-xs btn-outline" onclick="openQuickAddTraitModal({{ npc.id }}, '{{ npc.name|replace("'", "\\'") }}')">+ Trait</button>
+                <button type="button" class="btn btn-xs btn-outline" onclick="openEditNpcModal({{ npc.id }})">Edit</button>
+            </div>
+        </div>
+
+        <div class="traits-list" id="traits-list-{{ npc.id }}">
+            {% if npc.traits %}
+                {% for t in npc.traits %}
+                    <div class="trait-row" id="card-trait-{{ t.id }}">
+                        <span class="trait-status-badge badge-{{ t.status|lower }}">{{ t.status|capitalize }}</span>
+                        <span class="trait-text">{{ t.trait }}</span>
+                        {% if t.category %}
+                            <span class="trait-category-tag">{{ t.category }}</span>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-traits-placeholder">
+                    <em>No stored traits yet &mdash; actions will use <strong>DEFAULT</strong> placeholder.</em>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Action Roll Section -->
+    <div class="npc-roll-section action-roll-section">
+        <div class="roll-controls-row">
+            <label class="roll-label" for="action-select-{{ npc.id }}">Action:</label>
+            <select id="action-select-{{ npc.id }}" class="form-select roll-select">
+                {% for act in action_tables %}
+                    <option value="{{ act }}" {% if act == 'downtime' %}selected{% endif %}>{{ act|capitalize }}</option>
+                {% endfor %}
+            </select>
+            <button type="button" class="btn btn-sm btn-gold btn-roll-action" id="btn-roll-act-{{ npc.id }}" onclick="handleRollAction({{ npc.id }})">Roll Action</button>
+        </div>
+
+        <!-- Action Results (Injected into this same card) -->
+        <div class="npc-action-results hidden" id="action-results-{{ npc.id }}"></div>
+    </div>
+
+    <!-- Spark Roll Section -->
+    <div class="npc-roll-section spark-roll-section">
+        <div class="roll-controls-row">
+            <label class="roll-label" for="spark-select-{{ npc.id }}">Spark:</label>
+            <select id="spark-select-{{ npc.id }}" class="form-select roll-select">
+                <optgroup label="Single Tables">
+                    {% for spk in spark_tables %}
+                        <option value="{{ spk }}" {% if spk == 'method' %}selected{% endif %}>{{ spk|capitalize }}</option>
+                    {% endfor %}
+                </optgroup>
+                <optgroup label="Combinations">
+                    <option value="action_focus">Action + Focus</option>
+                    <option value="action_method">Action + Method</option>
+                    <option value="action_motivation">Action + Motivation</option>
+                </optgroup>
+            </select>
+            <button type="button" class="btn btn-sm btn-secondary btn-roll-spark" id="btn-roll-spk-{{ npc.id }}" onclick="handleRollSpark({{ npc.id }})">Roll</button>
+        </div>
+
+        <!-- Spark Results (Injected into this same card) -->
+        <div class="npc-spark-results hidden" id="spark-results-{{ npc.id }}"></div>
+    </div>
+</article>
