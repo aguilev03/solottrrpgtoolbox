@@ -1,8 +1,9 @@
 """Dungeon engine: procedural room generation, hidden Progress mechanic, time and tension clock."""
 
+from __future__ import annotations
 import random
 from dataclasses import asdict, dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 from dice import ProgressRollResult, roll_progress
 from table_loader import TableManager, get_table_manager
 
