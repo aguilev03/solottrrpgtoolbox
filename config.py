@@ -15,3 +15,11 @@ class Config:
     DATA_DIR = os.path.join(BASE_DIR, "data")
     INSTANCE_DIR = os.path.join(BASE_DIR, "instance")
     DATABASE_PATH = os.environ.get("SOLO_TOOLS_DB", os.path.join(INSTANCE_DIR, "solo_tools.db"))
+
+    # Hexroll 3 Xpra / Web stream URL
+    # Defaults to relative path '/xpra/' so that requests from any device (tablet, phone, PC)
+    # are forwarded by the LXC reverse proxy internally to 127.0.0.1:14501 on the LXC container.
+    HEXROLL_URL = os.environ.get(
+        "HEXROLL_URL",
+        "/xpra/",
+    )

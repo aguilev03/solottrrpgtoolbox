@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Hexroll 3 Sandbox & VTT — Solo TTRPG Tools{% endblock %}
+
+{% block header_nav %}
+<nav class="play-nav">
+    <a href="{{ url_for('index') }}" class="btn btn-secondary btn-sm">&larr; Home</a>
+    <a href="{{ url_for('dungeon_menu') }}" class="btn btn-secondary btn-sm">Dungeon Crawler</a>
+    <a href="{{ url_for('emulator_main') }}" class="btn btn-secondary btn-sm">Emulator</a>
+</nav>
+{% endblock %}
+
+{% block main_class %}hexroll-fullscreen-container{% endblock %}
+
+{% block content %}
+<div class="hexroll-wrapper">
+    <div class="hexroll-bar">
+        <div class="hexroll-bar-title">
+            <span>&#127757;</span>
+            <span>HEXROLL 3 (BACKER EDITION)</span>
+        </div>
+        <div class="hexroll-bar-actions">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="reloadFrame()" title="Reload Stream">
+                &#8635; Reload
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="toggleFullscreen()" id="fullscreen-btn" title="Toggle Fullscreen">
+                &#x26F6; Fullscreen
+            </button>
+            <a href="{{ hexroll_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" title="Open in new window or tab">
+                &#8599; Pop Out
+            </a>
+        </div>
+    </div>
+    
+    <div class="hexroll-frame-container" id="hexroll-container">
+        <iframe
+            id="hexroll-iframe"
+            class="hexroll-iframe"
+            src="{{ hexroll_url }}"
+            allow="fullscreen; clipboard-read; clipboard-write; autoplay"
+            title="Hexroll 3 VTT Interface">
+        </iframe>
+    </div>
+</div>
+
+<script>
+function toggleFullscreen() {
+    const container = document.getElementById('hexroll-container');
+    const btn = document.getElementById('fullscreen-btn');
+    if (!document.fullscreenElement) {
+        if (container.requestFullscreen) {
+            container.requestFullscreen();
+        } else if (container.webkitRequestFullscreen) {
+            container.webkitRequestFullscreen();
+        } else if (container.msRequestFullscreen) {
+            container.msRequestFullscreen();
+        }
+        btn.innerHTML = '&#x2715; Exit Fullscreen';
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        }
+        btn.innerHTML = '&#x26F6; Fullscreen';
+    }
+}
+
+document.addEventListener('fullscreenchange', () => {
+    const btn = document.getElementById('fullscreen-btn');
+    if (!document.fullscreenElement && btn) {
+        btn.innerHTML = '&#x26F6; Fullscreen';
+    }
+});
+
+function reloadFrame() {
+    const iframe = document.getElementById('hexroll-iframe');
+    if (iframe) {
+        iframe.src = iframe.src;
+    }
+}
+</script>
+{% endblock %}

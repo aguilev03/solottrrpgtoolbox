@@ -37,6 +37,20 @@ def index():
 
 
 # ==========================================
+# HEXROLL 3 SANDBOX & VTT
+# ==========================================
+
+@app.route("/hexroll")
+def hexroll_view():
+    """Hexroll 3 Sandbox and VTT interface."""
+    hexroll_url = app.config.get(
+        "HEXROLL_URL",
+        "/xpra/",
+    )
+    return render_template("hexroll.html", hexroll_url=hexroll_url)
+
+
+# ==========================================
 # DUNGEON CRAWLER MENU
 # ==========================================
 

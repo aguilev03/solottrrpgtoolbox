@@ -36,6 +36,15 @@ def test_main_menu(test_client):
     assert res.status_code == 200
     assert b"SOLO TTRPG TOOLS" in res.data
     assert b"Dungeon Crawler" in res.data
+    assert b"Hexroll 3 Sandbox" in res.data
+
+
+def test_hexroll_route(test_client):
+    client, _ = test_client
+    res = client.get("/hexroll")
+    assert res.status_code == 200
+    assert b"HEXROLL 3 (BACKER EDITION)" in res.data
+    assert b"/xpra/" in res.data
 
 
 def test_dungeon_menu_empty(test_client):

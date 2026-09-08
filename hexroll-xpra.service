@@ -1,0 +1,28 @@
+[Unit]
+Description=Hexroll 3 Backer Edition Xpra HTML5 Server
+After=network.target
+
+[Service]
+Type=simple
+# Adjust User/Group as needed for your Debian container (e.g., www-data, debian, or root)
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/solo-ttrpg-tools/hexroll3-linux-backer-edition
+Environment="HOME=/var/www"
+
+# Starts Xpra display :100 bound strictly to 127.0.0.1:14501 inside the LXC
+ExecStart=/usr/bin/xpra start :100 \
+    --bind-tcp=127.0.0.1:14501 \
+    --html=on \
+    --speaker=on \
+    --microphone=off \
+    --daemon=no \
+    --start-child="/opt/solo-ttrpg-tools/hexroll3-linux-backer-edition/hexroll3-app" \
+    --exit-with-children=no
+
+ExecStop=/usr/bin/xpra stop :100
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
