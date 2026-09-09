@@ -2,9 +2,11 @@
 
 A lightweight, system-neutral, self-hosted web suite for solo tabletop roleplaying games.
 
-The application includes two specialized solo modules:
-1. **Dungeon Crawler:** A procedural room-by-room generator acting as a referee. Delves, landmarks, hazards, and floor descents emerge unpredictably using a pure Progress dice pool.
-2. **Character Emulator:** Based on Cezar Capacle's *Triple-O: The Player Character Emulator*. Answers "What does this character do?" for party members, companions, hirelings, allies, and recurring NPCs without system-bound math.
+The application includes four specialized solo modules:
+1. **Dungeon Crawler:** A procedural room-by-room generator acting as a referee. Delves, themes, landmarks, hazards, and floor descents emerge unpredictably using a pure Progress dice pool. Includes atmospheric dressing and expanded perils from *The Perilous Tables* and *Sandbox Generator*.
+2. **Wilderness & Hex Generator:** A procedural 19-hex flower cluster sandbox and travel oracle based on *Sandbox Generator* and *The Perilous Tables*. Features regional biome continuity, settlements, dungeons, landmarks, weather, and wandering NPCs with interactive SVG map inspection and Obsidian Markdown export.
+3. **Character Emulator:** Based on Cezar Capacle's *Triple-O: The Player Character Emulator*. Answers "What does this character do?" for party members, companions, hirelings, allies, and recurring NPCs without system-bound math.
+4. **Hexroll 3 Sandbox:** Embedded procedural hex map sandbox, settlement generator, and 3D virtual tabletop streamed via Xpra and HTML5.
 
 ---
 
@@ -318,7 +320,12 @@ Run with 3 worker processes bound to all interfaces:
    sudo systemctl status solo-ttrpg-tools
    ```
 
-5. View live logs:
+5. Restart the service (after pulling updates):
+   ```bash
+   sudo systemctl restart solo-ttrpg-tools
+   ```
+
+6. View live logs:
    ```bash
    journalctl -u solo-ttrpg-tools -f
    ```
@@ -404,20 +411,20 @@ sudo systemctl start solo-ttrpg-tools
 
 The database file (`instance/solo_tools.db`) is git-ignored and self-contained in `instance/`.
 
-To update the application safely:
+To update the application safely on your server:
 ```bash
-cd /opt/solo-ttrpg-tools
+cd ~/solottrrpgtoolbox   # (or /opt/solo-ttrpg-tools)
 
-# 1. Back up database first
+# 1. Back up database first (optional safeguard)
 sqlite3 instance/solo_tools.db ".backup 'instance/solo_tools_pre_update.db'"
 
-# 2. Pull or copy updated code
-git pull
+# 2. Pull the latest code
+git pull origin main
 
 # 3. Update virtual environment dependencies if requirements changed
 .venv/bin/pip install -r requirements.txt
 
-# 4. Restart the service
+# 4. Restart the systemd service
 sudo systemctl restart solo-ttrpg-tools
 ```
 All active dungeons, floor levels, search histories, and logs will remain untouched.
