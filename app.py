@@ -1,6 +1,6 @@
-"""Solo TTRPG Tools - Flask Application."""
-
+import json
 import os
+import random
 from functools import wraps
 from flask import Flask, Response, flash, jsonify, redirect, render_template, request, session, url_for
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -9,6 +9,7 @@ from config import Config
 from database import get_db
 from dungeon_engine import DungeonEngine, DungeonState, format_dungeon_time
 from emulator_engine import EmulatorEngine, get_emulator_engine
+from hex_engine import HexEngine, HexRegion, HexCell
 from table_loader import get_table_manager
 
 app = Flask(__name__)
@@ -22,6 +23,7 @@ db = get_db(app.config["DATABASE_PATH"])
 table_manager = get_table_manager(app.config["DATA_DIR"])
 engine = DungeonEngine(table_manager)
 emulator = get_emulator_engine(app.config["DATA_DIR"])
+hex_engine = HexEngine(table_manager)
 
 PUBLIC_ENDPOINTS = {"login", "setup", "static", "auth_check"}
 
@@ -294,6 +296,15 @@ def dungeon_new():
         if not name:
             name = engine.generate_dungeon_name(dungeon_type)
 
+        danger_mode = request.form.get("danger_mode", "standard").strip()
+        theme_input = request.form.get("theme", "random").strip()
+        if theme_input.lower() == "random":
+            theme = engine.roll_theme()
+        elif theme_input.lower() == "none":
+            theme = ""
+        else:
+            theme = theme_input
+
         hidden_floors = engine.determine_hidden_floors(size)
 
         dungeon = DungeonState(
@@ -307,6 +318,8 @@ def dungeon_new():
             tension_dice=0,
             progress_points=0,
             is_complete=False,
+            danger_mode=danger_mode,
+            theme=theme,
         )
 
         dungeon_id = db.create_dungeon(dungeon)
@@ -332,8 +345,18 @@ def dungeon_new():
     # GET request
     dungeon_types = ["Tomb", "Cave", "Fort", "Temple", "Ruins", "Sewers", "Random"]
     sizes = ["Random", "Small", "Medium", "Large"]
-    default_name = engine.generate_dungeon_name("Tomb")
-    return render_template("dungeon_new.html", dungeon_types=dungeon_types, sizes=sizes, default_name=default_name)
+    initial_type = request.args.get("type", "Tomb").strip()
+    if initial_type not in dungeon_types:
+        initial_type = "Tomb"
+    initial_name = request.args.get("name", "").strip()
+    default_name = initial_name if initial_name else engine.generate_dungeon_name(initial_type if initial_type != "Random" else "Tomb")
+    return render_template(
+        "dungeon_new.html",
+        dungeon_types=dungeon_types,
+        sizes=sizes,
+        default_name=default_name,
+        selected_type=initial_type,
+    )
 
 
 @app.route("/api/random-name")
@@ -489,7 +512,7 @@ def dungeon_reveal_trap(dungeon_id: int):
         return redirect(url_for("dungeon_play", dungeon_id=dungeon_id))
 
     if not current_room.trap_revealed:
-        trap_data, log_msg = engine.reveal_trap(current_room)
+        trap_data, log_msg = engine.reveal_trap(current_room, dungeon=dungeon)
         db.save_room(current_room)
         db.add_log_entry(dungeon.id, dungeon.elapsed_minutes, log_msg)
 
@@ -834,6 +857,128 @@ def emulator_npc_remove_current(npc_id: int):
 
     updated = db.get_npc(npc_id)
     return jsonify({"success": True, "npc": updated})
+
+
+# ==========================================
+# WILDERNESS & HEX GENERATOR ROUTES
+# ==========================================
+
+@app.route("/hex")
+@app.route("/wilderness")
+def hex_menu():
+    """Wilderness & Hex Generator launcher and saved regions list."""
+    regions = db.list_hex_regions()
+    prefix = random.choice(["Ashwood", "Sunken", "Ironstone", "Mistveil", "Shadowfen", "Dragonspire", "Whispering", "Grim"])
+    suffix = random.choice(["Marches", "Wilds", "Reach", "Borderlands", "Basin", "Barrens", "Hinterlands"])
+    default_name = f"The {prefix} {suffix}"
+    return render_template("hex_menu.html", regions=regions, default_region_name=default_name)
+
+
+@app.route("/hex/region/new", methods=["POST"])
+def hex_region_new():
+    """Generate and save a new hex region sandbox."""
+    name = request.form.get("name", "").strip() or "Uncharted Borderlands"
+    layout_type = request.form.get("layout_type", "cluster_19").strip()
+    starting_biome = request.form.get("starting_biome", "random").strip()
+    if starting_biome.lower() == "random":
+        starting_biome = None
+
+    region = hex_engine.generate_region(
+        name=name,
+        layout_type=layout_type,
+        starting_biome=starting_biome,
+    )
+    region_id = db.save_hex_region(region)
+    flash(f"Generated new sandbox region: {region.name} ({len(region.cells)} hexes).", "success")
+    return redirect(url_for("hex_region_view", region_id=region_id))
+
+
+@app.route("/hex/region/<int:region_id>")
+def hex_region_view(region_id: int):
+    """View and interact with an SVG hex region map."""
+    region = db.get_hex_region(region_id)
+    if not region:
+        flash("Region not found.", "error")
+        return redirect(url_for("hex_menu"))
+
+    cells_data = [
+        {
+            "hex_index": c.hex_index,
+            "q": c.q,
+            "r": c.r,
+            "biome": c.biome,
+            "biome_color": c.biome_color,
+            "biome_icon": c.biome_icon,
+            "feature_type": c.feature_type,
+            "feature_icon": c.feature_icon,
+            "title": c.title,
+            "summary": c.summary,
+            "details": c.details,
+        }
+        for c in region.cells
+    ]
+    cells_json = json.dumps(cells_data)
+    return render_template("hex_region_view.html", region=region, cells_json=cells_json)
+
+
+@app.route("/hex/region/<int:region_id>/delete", methods=["POST"])
+def hex_region_delete(region_id: int):
+    """Delete a saved hex region."""
+    deleted = db.delete_hex_region(region_id)
+    if deleted:
+        flash("Region deleted successfully.", "success")
+    else:
+        flash("Failed to delete region.", "error")
+    return redirect(url_for("hex_menu"))
+
+
+@app.route("/hex/quick", methods=["GET", "POST"])
+def hex_quick():
+    """Roll a standalone single hex on demand."""
+    if request.method == "POST":
+        biome = request.form.get("biome", "").strip() or None
+        feature_type = request.form.get("feature_type", "").strip() or None
+    else:
+        biome = request.args.get("biome", "").strip() or None
+        feature_type = request.args.get("feature_type", "").strip() or None
+
+    cell = hex_engine.generate_single_hex(biome=biome, feature_type=feature_type)
+    return render_template(
+        "hex_quick.html",
+        cell=cell,
+        selected_biome=biome,
+        selected_feature=feature_type,
+    )
+
+
+@app.route("/hex/oracle", methods=["GET", "POST"])
+def hex_oracle():
+    """Travel, weather, encounter, and wandering NPC oracle."""
+    weather_result = None
+    enc_result = None
+    npc_result = None
+    selected_enc_biome = "Grassland"
+
+    if request.method == "POST":
+        action = request.form.get("action", "").strip()
+        if action == "weather":
+            weather_result = hex_engine.roll_weather()
+        elif action == "encounter":
+            selected_enc_biome = request.form.get("biome", "Grassland").strip()
+            enc_result = hex_engine.roll_wilderness_encounter(selected_enc_biome)
+        elif action == "npc":
+            npc_result = hex_engine.roll_npc()
+    else:
+        # Initial weather roll on visit
+        weather_result = hex_engine.roll_weather()
+
+    return render_template(
+        "hex_oracle.html",
+        weather_result=weather_result,
+        enc_result=enc_result,
+        selected_enc_biome=selected_enc_biome,
+        npc_result=npc_result,
+    )
 
 
 if __name__ == "__main__":

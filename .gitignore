@@ -62,7 +62,8 @@ htmlcov/
 *.log
 logs/
 
-# Operating System
+# Operating System & Documents
+*.pdf
 .DS_Store
 Thumbs.db
 

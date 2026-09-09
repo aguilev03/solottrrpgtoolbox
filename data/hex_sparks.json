@@ -1,0 +1,135 @@
+{
+  "name": "hex_sparks",
+  "knowledge_tables": [
+    {
+      "min": 1,
+      "max": 5,
+      "type": "Monster Lore",
+      "prompt": "Clues regarding a nearby beast or faction: territorial boundary marks, favored prey, or a vulnerability."
+    },
+    {
+      "min": 6,
+      "max": 6,
+      "type": "Alchemy Formula",
+      "prompt": "An etched recipe on stone or bark revealing how to distill local flora into an antitoxin or poultice."
+    },
+    {
+      "min": 7,
+      "max": 7,
+      "type": "Curative Spring or Herb",
+      "prompt": "The specific location of a mineral spring or root with potent rejuvenating properties."
+    },
+    {
+      "min": 8,
+      "max": 8,
+      "type": "Settlement Directions",
+      "prompt": "A blazed trail or traveler marker pointing toward the nearest refuge, ford, or trading post."
+    },
+    {
+      "min": 9,
+      "max": 9,
+      "type": "Dungeon Entrance Location",
+      "prompt": "A carved map or cryptic riddle disclosing the concealed entrance to a subterranean crypt or ruin."
+    },
+    {
+      "min": 10,
+      "max": 10,
+      "type": "Prophesied Event",
+      "prompt": "A dire omen or astrological alignment heralding an impending raid, eclipse, or calamity."
+    },
+    {
+      "min": 11,
+      "max": 11,
+      "type": "Historic Chronicle",
+      "prompt": "A commemorative inscription recounting a decisive battle or treaty between ancient factions."
+    },
+    {
+      "min": 12,
+      "max": 12,
+      "type": "Myth & Local Folklore",
+      "prompt": "A folk ballad or fireside legend hinting at an ancient guardian and the tribute it demands."
+    },
+    {
+      "min": 13,
+      "max": 13,
+      "type": "Regional Custom & Taboo",
+      "prompt": "Knowledge of a sacred boundary or sign of peace recognized by the local inhabitants."
+    },
+    {
+      "min": 14,
+      "max": 14,
+      "type": "Password / Phrase",
+      "prompt": "A cipher word that pacifies an enchanted ward, sentry construct, or smuggler post."
+    },
+    {
+      "min": 15,
+      "max": 15,
+      "type": "Secret Route / Shortcut",
+      "prompt": "A camouflaged goat path cutting straight through impassable terrain, halving travel time."
+    },
+    {
+      "min": 16,
+      "max": 16,
+      "type": "Spell Scroll or Ritual Fragment",
+      "prompt": "Vellum scrap or engraved slate holding the words to an obscure cantrip or minor ritual."
+    },
+    {
+      "min": 17,
+      "max": 17,
+      "type": "Legend of a Relic",
+      "prompt": "Tale of a hero's lost blade, staff, or ring buried nearby with clues to its resting place."
+    },
+    {
+      "min": 18,
+      "max": 18,
+      "type": "Toxicity / Edibility Insight",
+      "prompt": "Clear signs distinguishing which local berries and mushrooms are nourishing versus fatal."
+    },
+    {
+      "min": 19,
+      "max": 19,
+      "type": "Upcoming Weather Signs",
+      "prompt": "Atmospheric pressure, cloud shapes, and bird flight indicating severe storms or unseasonal warmth."
+    },
+    {
+      "min": 20,
+      "max": 20,
+      "type": "Monster Language Vocabulary",
+      "prompt": "Crucial phrases in Goblin, Orcish, or Draconic enabling parley rather than immediate bloodshed."
+    }
+  ],
+  "special_quests": {
+    "Disputes": [
+      "Adultery or broken family honor between two influential clans",
+      "Broken trade charter over grain tariffs and smuggled salt",
+      "Contested inheritance of a deceased merchant estate",
+      "Murder investigation with contradictory alibis and tainted evidence",
+      "Disputed territorial boundary marker moved in the dead of night",
+      "Impending execution trial where the accused claims divine innocence"
+    ],
+    "Threats": [
+      "Fanatical cultists preparing a blood ritual at the next moonrise",
+      "Impending flash flood threatening to wash away the river crossing",
+      "Stampeding herd of panicked beasts fleeing a worse terror",
+      "Creeping magical blight withering crops and poisoning wells",
+      "Virulent pestilence spreading from an unburied mass grave",
+      "Uncontrolled wildfire raging across the dry prairie or forest"
+    ],
+    "Mysteries": [
+      "Unexplained nighttime abductions leaving only claw marks",
+      "A weeping phantom wandering the crossroads pleading for burial",
+      "Ancestral curse that strikes the firstborn of every generation",
+      "A sudden miraculous healing spring drawing desperate pilgrims",
+      "Bizarre mutations appearing among newborn livestock",
+      "Enigmatic glowing lights dancing above the marshes at midnight"
+    ],
+    "NPC_In_Need": [
+      "Wounded traveler stricken with amnesia clutching a bloody signet",
+      "Desperate merchant fleeing pursuing outlaws across the rocks",
+      "Weeping parent whose child vanished near the barrow mounds",
+      "Exhausted pilgrims on the verge of dying from hunger and thirst",
+      "Escaped captive in iron manacles being tracked by hunting hounds",
+      "Injured knight trapped beneath a dead warhorse in a ravine"
+    ]
+  }
+}

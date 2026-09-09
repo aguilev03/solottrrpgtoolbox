@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+
+{% block title %}{{ region.name }} — Hex Map{% endblock %}
+
+{% block header_nav %}
+<nav class="breadcrumb">
+    <a href="{{ url_for('hex_menu') }}">&larr; Wilderness Menu</a>
+    <span class="sep">/</span>
+    <span class="current">{{ region.name }}</span>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="hex-container">
+    <!-- Region Top Bar -->
+    <div class="hex-actions-row">
+        <div>
+            <h2 style="font-family: var(--font-serif); color: var(--gold-primary); margin: 0 0 0.25rem 0;">{{ region.name | upper }}</h2>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">
+                <span>{{ '19-Hex Flower Cluster' if region.layout_type == 'cluster_19' else '7-Hex Mini Region' }}</span>
+                <span class="sep">&bull;</span>
+                <span>Center Biome: <strong>{{ region.center_biome }}</strong></span>
+                <span class="sep">&bull;</span>
+                <span>Hexes: <strong>{{ region.cells|length }}</strong></span>
+            </div>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="exportMarkdown()">Export Markdown</button>
+            <a href="{{ url_for('hex_oracle') }}" class="btn btn-secondary btn-sm">Travel Oracle</a>
+            <a href="{{ url_for('hex_menu') }}" class="btn btn-primary btn-sm">&larr; Back to Menu</a>
+        </div>
+    </div>
+
+    <!-- Weather & Travel Atmosphere Banner -->
+    {% if region.weather %}
+    <div class="weather-banner">
+        <div class="weather-icon">&#9728;</div>
+        <div class="weather-info">
+            <strong>Regional Weather:</strong> {{ region.weather.temperature }} &bull; {{ region.weather.condition }} &bull; {{ region.weather.wind }}
+            <br>
+            <span style="font-size: 0.8rem; color: #b0c0d0;">Travel Impact: {{ region.weather.travel_impact }} &mdash; <em>{{ region.weather.condition_desc }}</em></span>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Main Map & Inspector Layout -->
+    <div class="hex-main-layout">
+        <!-- SVG Map Viewport -->
+        <div class="hex-map-viewport">
+            <h4 style="font-family: var(--font-serif); color: var(--gold-primary); margin-bottom: 0.75rem; align-self: flex-start;">REGIONAL HEX MAP</h4>
+            <svg viewBox="0 0 540 480" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <radialGradient id="hexGlow" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="rgba(255,255,255,0.15)"/>
+                        <stop offset="100%" stop-color="rgba(0,0,0,0.3)"/>
+                    </radialGradient>
+                </defs>
+
+                {% for cell in region.cells %}
+                    {% set cx, cy = cell.svg_center() %}
+                    <g class="hex-cell-group" id="hex-group-{{ cell.hex_index }}" onclick="selectHex({{ cell.hex_index }})" style="cursor: pointer;">
+                        <polygon
+                            points="{{ cell.svg_points() }}"
+                            fill="{{ cell.biome_color }}"
+                            class="hex-polygon {% if loop.first %}selected{% endif %}"
+                            id="polygon-{{ cell.hex_index }}"
+                        />
+                        <polygon points="{{ cell.svg_points() }}" fill="url(#hexGlow)" pointer-events="none" />
+                        <!-- Feature Icon -->
+                        <text x="{{ cx }}" y="{{ cy - 5 }}" class="hex-icon-text">{{ cell.feature_icon }}</text>
+                        <!-- Hex Label -->
+                        <text x="{{ cx }}" y="{{ cy + 15 }}" class="hex-label-text">#{{ cell.hex_index }} {{ cell.biome[:4] }}</text>
+                    </g>
+                {% endfor %}
+            </svg>
+            <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.75rem; text-align: center;">
+                Click any hex to inspect details, hazards, encounters, and landmarks.
+            </div>
+        </div>
+
+        <!-- Hex Inspector Panel -->
+        <div class="hex-details-card" id="hex-inspector">
+            <div id="inspector-content">
+                <!-- Dynamically populated via selectHex() -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden JSON data for interactive client-side selection -->
+<script id="region-cells-data" type="application/json">
+{{ cells_json | safe }}
+</script>
+
+<script>
+const cellsData = JSON.parse(document.getElementById('region-cells-data').textContent);
+
+function selectHex(hexIndex) {
+    const cell = cellsData.find(c => c.hex_index === hexIndex);
+    if (!cell) return;
+
+    // Update selected polygon styles
+    document.querySelectorAll('.hex-polygon').forEach(p => p.classList.remove('selected'));
+    const poly = document.getElementById(`polygon-${hexIndex}`);
+    if (poly) poly.classList.add('selected');
+
+    const details = cell.details || {};
+    const inspector = document.getElementById('inspector-content');
+
+    let featureHtml = '';
+    if (cell.feature_type === 'Settlement' && details.settlement) {
+        const s = details.settlement;
+        featureHtml = `
+            <div class="hex-section-block">
+                <div class="hex-section-title">Settlement Profile (${s.type})</div>
+                <div class="hex-meta-grid">
+                    <div class="hex-meta-item"><strong>Name:</strong> ${s.name}</div>
+                    <div class="hex-meta-item"><strong>Population:</strong> ${s.population}</div>
+                    ${s.ruler ? `<div class="hex-meta-item"><strong>Leadership:</strong> ${s.ruler}</div>` : ''}
+                    ${s.specialty ? `<div class="hex-meta-item"><strong>Economy:</strong> ${s.specialty}</div>` : ''}
+                    ${s.main_building ? `<div class="hex-meta-item"><strong>Main Landmark:</strong> ${s.main_building}</div>` : ''}
+                    ${s.tavern ? `<div class="hex-meta-item"><strong>Wayside Tavern:</strong> ${s.tavern}</div>` : ''}
+                    ${s.trouble ? `<div class="hex-meta-item"><strong>Local Trouble:</strong> ${s.trouble}</div>` : ''}
+                    ${s.secret && s.secret !== 'None of note' ? `<div class="hex-meta-item" style="color:#f2a0a0;"><strong>Hidden Secret:</strong> ${s.secret}</div>` : ''}
+                </div>
+            </div>
+        `;
+    } else if (cell.feature_type === 'Landmark' && details.landmark) {
+        const lm = details.landmark;
+        featureHtml = `
+            <div class="hex-section-block">
+                <div class="hex-section-title">Landmark: ${lm.category} (${lm.subcategory})</div>
+                <div class="hex-meta-grid">
+                    <div class="hex-meta-item"><strong>Feature:</strong> ${lm.name}</div>
+                    <div class="hex-meta-item"><strong>Discovery / Situation:</strong> ${lm.content_type} &mdash; ${lm.content_desc}</div>
+                </div>
+            </div>
+        `;
+    } else if (cell.feature_type === 'Lair' && details.lair) {
+        const lair = details.lair;
+        featureHtml = `
+            <div class="hex-section-block">
+                <div class="hex-section-title">Monster Lair: ${lair.monster}</div>
+                <div class="hex-meta-grid">
+                    <div class="hex-meta-item"><strong>Danger Level:</strong> <span style="color:#e06666;">${lair.danger}</span></div>
+                    <div class="hex-meta-item"><strong>Lair Form:</strong> ${lair.lair_form}</div>
+                    <div class="hex-meta-item"><strong>Defenses:</strong> ${lair.defenses}</div>
+                    <div class="hex-meta-item"><strong>Status:</strong> ${lair.status}</div>
+                    <div class="hex-meta-item"><strong>Treasure Hoard:</strong> ${lair.treasure}</div>
+                </div>
+            </div>
+        `;
+    } else if (cell.feature_type === 'Dungeon' && details.dungeon) {
+        const d = details.dungeon;
+        const newDungeonUrl = `{{ url_for('dungeon_new') }}?type=${encodeURIComponent(d.dungeon_type)}&name=${encodeURIComponent(d.dungeon_name)}`;
+        featureHtml = `
+            <div class="hex-section-block">
+                <div class="hex-section-title">Dungeon Complex: ${d.dungeon_name}</div>
+                <div class="hex-meta-grid">
+                    <div class="hex-meta-item"><strong>Architecture:</strong> ${d.dungeon_type} Delve</div>
+                    <div class="hex-meta-item"><strong>Situation:</strong> ${d.situation}</div>
+                    <div class="hex-meta-item"><strong>Accessibility:</strong> ${d.accessibility}</div>
+                </div>
+                <div style="margin-top: 1rem;">
+                    <a href="${newDungeonUrl}" class="btn btn-primary btn-sm" style="display:inline-block; width:100%; text-align:center;">
+                        &#9876; Delve into this Dungeon &rarr;
+                    </a>
+                </div>
+            </div>
+        `;
+    } else if (cell.feature_type === 'Wilds') {
+        const hz = details.hazard || {};
+        const spk = details.spark || {};
+        featureHtml = `
+            <div class="hex-section-block">
+                <div class="hex-section-title">Wilderness Hazard</div>
+                <div class="hex-meta-grid">
+                    <div class="hex-meta-item"><strong>Hazard:</strong> ${hz.name || 'Treacherous Footing'}</div>
+                    <div class="hex-meta-item"><strong>Effect:</strong> ${hz.effect || ''}</div>
+                    <div class="hex-meta-item"><strong>Guidance:</strong> <em>${hz.guidance || ''}</em></div>
+                </div>
+            </div>
+            <div class="hex-section-block">
+                <div class="hex-section-title">What Can Be Discovered Here</div>
+                <div class="hex-meta-grid">
+                    <div class="hex-meta-item"><strong>Clue / Lore (${spk.type || 'Knowledge'}):</strong> ${spk.prompt || ''}</div>
+                </div>
+            </div>
+        `;
+    }
+
+    const enc = details.encounter || {};
+    const encHtml = `
+        <div class="hex-section-block">
+            <div class="hex-section-title">Wilderness Encounter Check</div>
+            <div class="hex-meta-grid">
+                <div class="hex-meta-item"><strong>Creature:</strong> ${enc.creature || 'Local Wildlife'}</div>
+                <div class="hex-meta-item"><strong>Threat:</strong> <span style="color:var(--gold-primary);">${enc.danger || 'Medium'}</span></div>
+                <div class="hex-meta-item"><strong>Activity:</strong> <em>${enc.activity || 'Foraging'}</em></div>
+            </div>
+        </div>
+    `;
+
+    inspector.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
+            <div>
+                <span class="hex-badge-biome" style="background:${cell.biome_color}; color:#fff;">${cell.biome}</span>
+                <span class="hex-feature-badge">${cell.feature_type}</span>
+            </div>
+            <span style="font-family:var(--font-serif); font-size:1.1rem; color:var(--gold-primary);">HEX #${cell.hex_index}</span>
+        </div>
+        <h3 style="font-family:var(--font-serif); color:#f5f0e6; margin:0 0 0.4rem 0;">${cell.title}</h3>
+        <p style="font-size:0.88rem; color:#dfd8c8; font-style:italic; line-height:1.4; margin-bottom:1rem;">${cell.summary}</p>
+        ${featureHtml}
+        ${encHtml}
+    `;
+}
+
+function exportMarkdown() {
+    let md = `# Region: {{ region.name }}\n\n`;
+    md += `**Center Biome:** {{ region.center_biome }}\n`;
+    md += `**Layout:** {{ region.layout_type }}\n\n`;
+    if (cellsData && cellsData.length) {
+        cellsData.forEach(c => {
+            md += `## Hex #${c.hex_index}: ${c.title}\n`;
+            md += `- **Biome:** ${c.biome}\n`;
+            md += `- **Feature:** ${c.feature_type}\n`;
+            md += `- **Summary:** ${c.summary}\n`;
+            if (c.details && c.details.encounter) {
+                md += `- **Encounter:** ${c.details.encounter.creature} (${c.details.encounter.danger}) - ${c.details.encounter.activity}\n`;
+            }
+            md += `\n`;
+        });
+    }
+
+    const blob = new Blob([md], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `region_{{ region.id }}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+// Select Hex 1 (Center) by default on initial page load
+document.addEventListener('DOMContentLoaded', () => {
+    selectHex(1);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,119 @@
+{
+  "name": "hex_weather",
+  "temperatures": [
+    {
+      "min": 1,
+      "max": 2,
+      "name": "Freezing",
+      "desc": "Bone-chilling frost; water freezes solid; hypothermia risk without warm furs."
+    },
+    {
+      "min": 3,
+      "max": 5,
+      "name": "Cold & Crisp",
+      "desc": "Brisk autumn chill; breath mists in the air; pleasant for fast marching."
+    },
+    {
+      "min": 6,
+      "max": 8,
+      "name": "Mild & Temperate",
+      "desc": "Gentle, comfortable weather ideal for cross-country travel."
+    },
+    {
+      "min": 9,
+      "max": 11,
+      "name": "Warm & Humid",
+      "desc": "Heavy warmth; pack beasts tire quickly; requires frequent hydration."
+    },
+    {
+      "min": 12,
+      "max": 12,
+      "name": "Sweltering Heat",
+      "desc": "Blistering scorching sun; mirages on the horizon; heat exhaustion risk."
+    }
+  ],
+  "conditions": [
+    {
+      "min": 1,
+      "max": 2,
+      "name": "Clear Blue Skies",
+      "desc": "Unobscured sun and unlimited visibility to the horizon.",
+      "travel_impact": "Full travel speed."
+    },
+    {
+      "min": 3,
+      "max": 4,
+      "name": "Scattered Clouds",
+      "desc": "Gentle, rolling cumulus clouds offering intermittent shade.",
+      "travel_impact": "Full travel speed."
+    },
+    {
+      "min": 5,
+      "max": 6,
+      "name": "Overcast & Gloomy",
+      "desc": "Lead-grey cloud blanket muting light and casting dreary shadows.",
+      "travel_impact": "Full travel speed."
+    },
+    {
+      "min": 7,
+      "max": 7,
+      "name": "Creeping Mist / Fog",
+      "desc": "Ground-level fog obscuring distant landmarks.",
+      "travel_impact": "Slowed pace; navigation checks at -1."
+    },
+    {
+      "min": 8,
+      "max": 9,
+      "name": "Light Rain / Drizzle",
+      "desc": "Steady, damp drizzle soaking clothes and softening the soil.",
+      "travel_impact": "Normal pace; campsite prep requires dry timber."
+    },
+    {
+      "min": 10,
+      "max": 10,
+      "name": "Heavy Downpour",
+      "desc": "Torrents of blinding rain churning roads into thick mud.",
+      "travel_impact": "Movement halved; small brooks swell into torrents."
+    },
+    {
+      "min": 11,
+      "max": 11,
+      "name": "Raging Thunderstorm",
+      "desc": "Crashing lightning, deafening thunderclaps, and howling squalls.",
+      "travel_impact": "Travel dangerous; open terrain risks lightning strikes."
+    },
+    {
+      "min": 12,
+      "max": 12,
+      "name": "Blinding Snow / Sleet",
+      "desc": "Howling blizzard and zero visibility.",
+      "travel_impact": "Parties must seek shelter or become hopelessly lost."
+    }
+  ],
+  "winds": [
+    {
+      "min": 1,
+      "max": 4,
+      "name": "Calm Air",
+      "desc": "Still, motionless leaves and smoke rising straight up."
+    },
+    {
+      "min": 5,
+      "max": 8,
+      "name": "Gentle Breeze",
+      "desc": "Pleasant rustling in the treetops, carrying scents."
+    },
+    {
+      "min": 9,
+      "max": 11,
+      "name": "Stiff Wind",
+      "desc": "Buffeting gusts that tear at cloaks and rattle branches."
+    },
+    {
+      "min": 12,
+      "max": 12,
+      "name": "Howling Gale",
+      "desc": "Violent squalls that snap boughs and whip dust into eyes."
+    }
+  ]
+}

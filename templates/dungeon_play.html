@@ -49,6 +49,10 @@
             <h2 class="dungeon-title">{{ dungeon.name | upper }}</h2>
             <div class="dungeon-subhead">
                 <span class="dungeon-type">{{ dungeon.dungeon_type }}</span>
+                {% if dungeon.theme %}
+                <span class="sep">&bull;</span>
+                <span class="dungeon-theme">Theme: {{ dungeon.theme }}</span>
+                {% endif %}
                 <span class="sep">&bull;</span>
                 <span class="dungeon-level">Level {{ room.level }}</span>
                 <span class="sep">&bull;</span>
@@ -69,6 +73,13 @@
             <p class="room-flavor">You cross the threshold into the damp shadows. The air is still, heavy with age.</p>
         {% elif room.is_entrance and room.level > 1 %}
             <p class="room-flavor">You emerge into the lower floor. The darkness here feels older, colder, and heavier.</p>
+        {% endif %}
+
+        {% if room.dressing %}
+            <div class="room-dressing">
+                <span class="dressing-label">&#128065; Atmosphere:</span>
+                <span class="dressing-text">{{ room.dressing }}</span>
+            </div>
         {% endif %}
 
         <!-- Unique Room Banner / Description -->
@@ -120,6 +131,15 @@
                             <div class="trap-card trap-card-revealed">
                                 <div class="trap-title">{{ room.trap_display_name }}</div>
                                 <p class="trap-desc-text">&ldquo;{{ room.trap_data.description if room.trap_data else "" }}&rdquo;</p>
+                                {% if room.trap_data and room.trap_data.danger_type %}
+                                    <div class="trap-extra"><strong>Danger:</strong> {{ room.trap_data.danger_type }}</div>
+                                {% endif %}
+                                {% if room.trap_data and room.trap_data.trigger %}
+                                    <div class="trap-extra"><strong>Trigger:</strong> {{ room.trap_data.trigger }}</div>
+                                {% endif %}
+                                {% if room.trap_data and room.trap_data.countermeasure %}
+                                    <div class="trap-extra"><strong>Tactical Clue:</strong> {{ room.trap_data.countermeasure }}</div>
+                                {% endif %}
                             </div>
                         {% endif %}
                     {% elif room.contents_data and room.contents_data.sub_result %}
@@ -210,6 +230,15 @@
                             <div class="trap-card trap-card-revealed">
                                 <div class="trap-title">{{ room.trap_display_name }}</div>
                                 <p class="trap-desc-text">&ldquo;{{ room.trap_data.description if room.trap_data else "" }}&rdquo;</p>
+                                {% if room.trap_data and room.trap_data.danger_type %}
+                                    <div class="trap-extra"><strong>Danger:</strong> {{ room.trap_data.danger_type }}</div>
+                                {% endif %}
+                                {% if room.trap_data and room.trap_data.trigger %}
+                                    <div class="trap-extra"><strong>Trigger:</strong> {{ room.trap_data.trigger }}</div>
+                                {% endif %}
+                                {% if room.trap_data and room.trap_data.countermeasure %}
+                                    <div class="trap-extra"><strong>Tactical Clue:</strong> {{ room.trap_data.countermeasure }}</div>
+                                {% endif %}
                             </div>
                         {% endif %}
                     {% elif room.search_result.sub_result %}

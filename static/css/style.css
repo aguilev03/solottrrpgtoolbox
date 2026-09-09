@@ -2214,3 +2214,246 @@ body {
     border-radius: 3px;
 }
 
+
+/* ==========================================================================
+   Dungeon Perils & Atmosphere Enhancements
+   ========================================================================== */
+
+.room-dressing {
+    margin: 0.85rem 0 1.25rem 0;
+    padding: 0.65rem 0.95rem;
+    background: rgba(26, 22, 16, 0.75);
+    border-left: 3px solid var(--gold-primary);
+    border-radius: 4px;
+    font-size: 0.88rem;
+    line-height: 1.45;
+}
+
+.dressing-label {
+    color: var(--gold-primary);
+    font-weight: 600;
+    margin-right: 0.4rem;
+}
+
+.dressing-text {
+    color: #dfd8c8;
+    font-style: italic;
+}
+
+.trap-extra {
+    margin-top: 0.45rem;
+    font-size: 0.84rem;
+    color: #dfd8c8;
+    line-height: 1.4;
+    padding-top: 0.35rem;
+    border-top: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.trap-extra strong {
+    color: var(--gold-primary);
+}
+
+.dungeon-theme {
+    color: var(--gold-primary);
+    font-style: italic;
+}
+
+/* ==========================================================================
+   Wilderness & Hex Generator Styles
+   ========================================================================== */
+
+.hex-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem;
+}
+
+.hex-dashboard {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+.hex-actions-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+}
+
+.hex-main-layout {
+    display: grid;
+    grid-template-columns: minmax(360px, 1fr) 420px;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+@media (max-width: 900px) {
+    .hex-main-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+.hex-map-viewport {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.hex-map-viewport svg {
+    max-width: 100%;
+    height: auto;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
+}
+
+.hex-polygon {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    stroke: #25221b;
+    stroke-width: 2;
+}
+
+.hex-polygon:hover {
+    filter: brightness(1.25);
+    stroke: var(--gold-primary);
+    stroke-width: 3;
+}
+
+.hex-polygon.selected {
+    stroke: #fff;
+    stroke-width: 3.5;
+    filter: brightness(1.35) drop-shadow(0 0 6px rgba(212, 163, 89, 0.6));
+}
+
+.hex-label-text {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: bold;
+    fill: #f5f0e6;
+    text-anchor: middle;
+    pointer-events: none;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+.hex-icon-text {
+    font-size: 16px;
+    text-anchor: middle;
+    pointer-events: none;
+}
+
+.hex-details-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 1.5rem;
+    position: sticky;
+    top: 1rem;
+}
+
+.hex-badge-biome {
+    display: inline-block;
+    padding: 0.25rem 0.6rem;
+    border-radius: 3px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-right: 0.5rem;
+}
+
+.hex-feature-badge {
+    display: inline-block;
+    padding: 0.25rem 0.6rem;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--border-subtle);
+    border-radius: 3px;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+
+.weather-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(20, 24, 30, 0.7);
+    border: 1px solid rgba(100, 130, 160, 0.3);
+    border-radius: 4px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.weather-icon {
+    font-size: 1.4rem;
+}
+
+.weather-info {
+    font-size: 0.85rem;
+    line-height: 1.35;
+    color: #dfd8c8;
+}
+
+.weather-info strong {
+    color: #9eb5cc;
+}
+
+.hex-section-block {
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-subtle);
+}
+
+.hex-section-title {
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gold-primary);
+    margin-bottom: 0.5rem;
+}
+
+.hex-meta-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+}
+
+.hex-meta-item strong {
+    color: var(--gold-primary);
+}
+
+.hex-list-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.hex-list-table th,
+.hex-list-table td {
+    padding: 0.6rem 0.8rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.85rem;
+}
+
+.hex-list-table th {
+    color: var(--gold-primary);
+    font-family: var(--font-serif);
+    font-size: 0.9rem;
+}
+
+.hex-list-table tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+}

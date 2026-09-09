@@ -5,6 +5,7 @@ import os
 import sqlite3
 from typing import Any, Dict, List, Optional
 from dungeon_engine import DungeonState, RoomState, format_dungeon_time
+from hex_engine import HexCell, HexRegion
 
 
 class Database:
@@ -67,7 +68,15 @@ class Database:
                 );
             """)
 
-            # Migration check for existing databases
+            # Migration check for existing dungeons table
+            cursor.execute("PRAGMA table_info(dungeons)")
+            dungeon_cols = [c[1] for c in cursor.fetchall()]
+            if "danger_mode" not in dungeon_cols:
+                cursor.execute("ALTER TABLE dungeons ADD COLUMN danger_mode TEXT DEFAULT 'standard'")
+            if "theme" not in dungeon_cols:
+                cursor.execute("ALTER TABLE dungeons ADD COLUMN theme TEXT DEFAULT ''")
+
+            # Migration check for existing rooms table
             cursor.execute("PRAGMA table_info(rooms)")
             room_cols = [c[1] for c in cursor.fetchall()]
             if "has_trap" not in room_cols:
@@ -78,6 +87,8 @@ class Database:
                 cursor.execute("ALTER TABLE rooms ADD COLUMN trap_data_json TEXT")
             if "objects_json" not in room_cols:
                 cursor.execute("ALTER TABLE rooms ADD COLUMN objects_json TEXT")
+            if "dressing" not in room_cols:
+                cursor.execute("ALTER TABLE rooms ADD COLUMN dressing TEXT DEFAULT ''")
 
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS dungeon_logs (
@@ -125,12 +136,44 @@ class Database:
                 );
             """)
 
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS hex_regions (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    layout_type TEXT NOT NULL DEFAULT 'cluster_19',
+                    center_biome TEXT NOT NULL DEFAULT 'Grassland',
+                    weather_json TEXT,
+                    notes TEXT DEFAULT '',
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS hex_cells (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    region_id INTEGER NOT NULL,
+                    hex_index INTEGER NOT NULL,
+                    q INTEGER NOT NULL DEFAULT 0,
+                    r INTEGER NOT NULL DEFAULT 0,
+                    biome TEXT NOT NULL,
+                    feature_type TEXT NOT NULL,
+                    title TEXT NOT NULL,
+                    summary TEXT NOT NULL,
+                    details_json TEXT NOT NULL,
+                    discovered INTEGER NOT NULL DEFAULT 1,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (region_id) REFERENCES hex_regions(id) ON DELETE CASCADE
+                );
+            """)
+
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_rooms_dungeon ON rooms(dungeon_id);")
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_logs_dungeon ON dungeon_logs(dungeon_id);")
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_npcs_current ON npcs(current);")
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_npcs_party ON npcs(party_member);")
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_npc_traits_npc ON npc_traits(npc_id);")
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_hex_cells_region ON hex_cells(region_id);")
             conn.commit()
 
     def create_dungeon(self, dungeon: DungeonState) -> int:
@@ -140,8 +183,8 @@ class Database:
                 INSERT INTO dungeons (
                     name, dungeon_type, size, current_level, hidden_total_levels,
                     current_room_number, elapsed_minutes, tension_dice, progress_points,
-                    is_complete
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    is_complete, danger_mode, theme
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 dungeon.name,
                 dungeon.dungeon_type,
@@ -153,6 +196,8 @@ class Database:
                 dungeon.tension_dice,
                 dungeon.progress_points,
                 1 if dungeon.is_complete else 0,
+                dungeon.danger_mode,
+                dungeon.theme,
             ))
             dungeon_id = cursor.lastrowid
             conn.commit()
@@ -175,6 +220,8 @@ class Database:
                     progress_points = ?,
                     current_room_id = ?,
                     is_complete = ?,
+                    danger_mode = ?,
+                    theme = ?,
                     updated_at = CURRENT_TIMESTAMP
                 WHERE id = ?
             """, (
@@ -189,6 +236,8 @@ class Database:
                 dungeon.progress_points,
                 dungeon.current_room_id,
                 1 if dungeon.is_complete else 0,
+                dungeon.danger_mode,
+                dungeon.theme,
                 dungeon.id,
             ))
             conn.commit()
@@ -200,6 +249,7 @@ class Database:
             row = cursor.fetchone()
             if not row:
                 return None
+            keys = row.keys()
             return DungeonState(
                 id=row["id"],
                 name=row["name"],
@@ -213,6 +263,8 @@ class Database:
                 progress_points=row["progress_points"],
                 current_room_id=row["current_room_id"],
                 is_complete=bool(row["is_complete"]),
+                danger_mode=row["danger_mode"] if "danger_mode" in keys else "standard",
+                theme=row["theme"] if "theme" in keys else "",
                 created_at=row["created_at"],
                 updated_at=row["updated_at"],
             )
@@ -221,13 +273,14 @@ class Database:
         with self.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute("""
-                SELECT id, name, dungeon_type, size, current_level, elapsed_minutes, is_complete, updated_at
+                SELECT id, name, dungeon_type, size, current_level, elapsed_minutes, is_complete, danger_mode, theme, updated_at
                 FROM dungeons
                 ORDER BY updated_at DESC
             """)
             rows = cursor.fetchall()
             dungeons = []
             for r in rows:
+                keys = r.keys()
                 elapsed_mins = r["elapsed_minutes"]
                 hours = elapsed_mins // 60
                 mins = elapsed_mins % 60
@@ -245,6 +298,8 @@ class Database:
                     "elapsed_minutes": elapsed_mins,
                     "explored_time_str": time_str,
                     "is_complete": bool(r["is_complete"]),
+                    "danger_mode": r["danger_mode"] if "danger_mode" in keys else "standard",
+                    "theme": r["theme"] if "theme" in keys else "",
                     "updated_at": r["updated_at"],
                 })
             return dungeons
@@ -262,18 +317,19 @@ class Database:
             if room.id is None:
                 cursor.execute("""
                     INSERT INTO rooms (
-                        dungeon_id, level, room_number, descriptor, room_type,
+                        dungeon_id, level, room_number, descriptor, room_type, dressing,
                         is_unique, is_entrance, is_final_room, next_level_exists,
                         contents_type, contents_data_json, routes_json,
                         searched, search_result_json,
                         has_trap, trap_revealed, trap_data_json, objects_json
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
                     room.dungeon_id,
                     room.level,
                     room.room_number,
                     room.descriptor,
                     room.room_type,
+                    room.dressing,
                     1 if room.is_unique else 0,
                     1 if room.is_entrance else 0,
                     1 if room.is_final_room else 0,
@@ -294,6 +350,7 @@ class Database:
                     UPDATE rooms SET
                         descriptor = ?,
                         room_type = ?,
+                        dressing = ?,
                         is_unique = ?,
                         is_entrance = ?,
                         is_final_room = ?,
@@ -311,6 +368,7 @@ class Database:
                 """, (
                     room.descriptor,
                     room.room_type,
+                    room.dressing,
                     1 if room.is_unique else 0,
                     1 if room.is_entrance else 0,
                     1 if room.is_final_room else 0,
@@ -344,6 +402,7 @@ class Database:
                 room_number=row["room_number"],
                 descriptor=row["descriptor"],
                 room_type=row["room_type"],
+                dressing=row["dressing"] if "dressing" in keys else "",
                 is_unique=bool(row["is_unique"]),
                 is_entrance=bool(row["is_entrance"]),
                 is_final_room=bool(row["is_final_room"]),
@@ -374,6 +433,7 @@ class Database:
                     room_number=row["room_number"],
                     descriptor=row["descriptor"],
                     room_type=row["room_type"],
+                    dressing=row["dressing"] if "dressing" in keys else "",
                     is_unique=bool(row["is_unique"]),
                     is_entrance=bool(row["is_entrance"]),
                     is_final_room=bool(row["is_final_room"]),
@@ -389,6 +449,130 @@ class Database:
                     objects=json.loads(row["objects_json"]) if ("objects_json" in keys and row["objects_json"]) else [],
                 ))
             return result
+
+    # ==========================================
+    # HEX REGIONS & WILDERNESS PERSISTENCE
+    # ==========================================
+
+    def save_hex_region(self, region: HexRegion) -> int:
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            if region.id is None:
+                cursor.execute("""
+                    INSERT INTO hex_regions (
+                        name, layout_type, center_biome, weather_json, notes
+                    ) VALUES (?, ?, ?, ?, ?)
+                """, (
+                    region.name,
+                    region.layout_type,
+                    region.center_biome,
+                    json.dumps(region.weather) if region.weather else None,
+                    region.notes,
+                ))
+                region.id = cursor.lastrowid
+            else:
+                cursor.execute("""
+                    UPDATE hex_regions SET
+                        name = ?,
+                        layout_type = ?,
+                        center_biome = ?,
+                        weather_json = ?,
+                        notes = ?,
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE id = ?
+                """, (
+                    region.name,
+                    region.layout_type,
+                    region.center_biome,
+                    json.dumps(region.weather) if region.weather else None,
+                    region.notes,
+                    region.id,
+                ))
+                cursor.execute("DELETE FROM hex_cells WHERE region_id = ?", (region.id,))
+
+            for cell in region.cells:
+                cursor.execute("""
+                    INSERT INTO hex_cells (
+                        region_id, hex_index, q, r, biome, feature_type,
+                        title, summary, details_json, discovered
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    region.id,
+                    cell.hex_index,
+                    cell.q,
+                    cell.r,
+                    cell.biome,
+                    cell.feature_type,
+                    cell.title,
+                    cell.summary,
+                    json.dumps(cell.details),
+                    1 if cell.discovered else 0,
+                ))
+                cell.region_id = region.id
+                cell.id = cursor.lastrowid
+
+            conn.commit()
+            return region.id
+
+    def get_hex_region(self, region_id: int) -> Optional[HexRegion]:
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM hex_regions WHERE id = ?", (region_id,))
+            row = cursor.fetchone()
+            if not row:
+                return None
+
+            cursor.execute("SELECT * FROM hex_cells WHERE region_id = ? ORDER BY hex_index ASC", (region_id,))
+            cell_rows = cursor.fetchall()
+            cells = []
+            for cr in cell_rows:
+                cells.append(HexCell(
+                    id=cr["id"],
+                    region_id=cr["region_id"],
+                    hex_index=cr["hex_index"],
+                    q=cr["q"],
+                    r=cr["r"],
+                    biome=cr["biome"],
+                    feature_type=cr["feature_type"],
+                    title=cr["title"],
+                    summary=cr["summary"],
+                    details=json.loads(cr["details_json"]) if cr["details_json"] else {},
+                    discovered=bool(cr["discovered"]),
+                    created_at=cr["created_at"],
+                ))
+
+            return HexRegion(
+                id=row["id"],
+                name=row["name"],
+                layout_type=row["layout_type"],
+                center_biome=row["center_biome"],
+                weather=json.loads(row["weather_json"]) if row["weather_json"] else {},
+                notes=row["notes"] or "",
+                cells=cells,
+                created_at=row["created_at"],
+                updated_at=row["updated_at"],
+            )
+
+    def list_hex_regions(self) -> List[Dict[str, Any]]:
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT hr.id, hr.name, hr.layout_type, hr.center_biome, hr.notes, hr.created_at, hr.updated_at,
+                       COUNT(hc.id) as hex_count
+                FROM hex_regions hr
+                LEFT JOIN hex_cells hc ON hr.id = hc.region_id
+                GROUP BY hr.id
+                ORDER BY hr.updated_at DESC
+            """)
+            rows = cursor.fetchall()
+            return [dict(r) for r in rows]
+
+    def delete_hex_region(self, region_id: int) -> bool:
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM hex_regions WHERE id = ?", (region_id,))
+            conn.commit()
+            return cursor.rowcount > 0
 
     def add_log_entry(self, dungeon_id: int, elapsed_minutes: int, entry: str) -> None:
         with self.get_connection() as conn:

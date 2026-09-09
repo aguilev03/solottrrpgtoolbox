@@ -1,0 +1,84 @@
+{
+  "name": "dungeon_themes",
+  "dice": "d12",
+  "categories": {
+    "Hopeful": [
+      "Nature & Flourishing Growth",
+      "Law & Imperial Order",
+      "Beauty & Reverent Wonder",
+      "Healing & Miraculous Recovery",
+      "Sanctuary & Vigilant Protection",
+      "Completion & Triumph",
+      "Ancient Inheritance & Legacy",
+      "Balance & Cosmic Harmony",
+      "Radiant Light & Vitality",
+      "Prophecy & Destined Calling",
+      "Divine Favor & Presence",
+      "Ascension & Transcendence"
+    ],
+    "Mysterious": [
+      "Burglary & Coveted Heists",
+      "Desire & Consuming Obsession",
+      "Secrets & Deception",
+      "Imitation & Mimicry",
+      "Inversion & Mirror Realities",
+      "Primal Elemental Strife",
+      "Alchemical Transformation",
+      "Shadow & Wandering Spirits",
+      "Cryptic Forbidden Lore",
+      "Divination & Omniscient Sight",
+      "Fraying Sanity & Hallucination",
+      "Arcane Binding & Glamour"
+    ],
+    "Grim": [
+      "Pride & Fallen Hubris",
+      "Insatiable Hunger & Gluttony",
+      "Avarice & Cursed Hoards",
+      "Primal Savagery & Ferocity",
+      "Devotion & Bloody Sacrifice",
+      "Eldritch Forbidden Knowledge",
+      "Tyranny & Crushing Dominance",
+      "Agony & Torment",
+      "Wrath & Eternal Strife",
+      "Tragic Loss & Mourning",
+      "Chaos & Blighting Corruption",
+      "Inescapable Darkness & Mortis"
+    ],
+    "Gonzo": [
+      "Clockwork Constructs & Automata",
+      "Unexpected Inanimate Sentience",
+      "Temporal Rift & Time Travel",
+      "Forgotten High Technology",
+      "Bizarre Inverted Gravity",
+      "Extraterrestrial / Alien Entity",
+      "Cosmic Alignment & Void Stars",
+      "Planar Bleedthrough & Demon Gates",
+      "Weird Mutation Chambers",
+      "Living Architecture",
+      "Surreal Dream Distortion",
+      "Chamber of Paradoxes"
+    ]
+  },
+  "entries": [
+    {
+      "min": 1,
+      "max": 2,
+      "category": "Hopeful"
+    },
+    {
+      "min": 3,
+      "max": 5,
+      "category": "Mysterious"
+    },
+    {
+      "min": 6,
+      "max": 11,
+      "category": "Grim"
+    },
+    {
+      "min": 12,
+      "max": 12,
+      "category": "Gonzo"
+    }
+  ]
+}

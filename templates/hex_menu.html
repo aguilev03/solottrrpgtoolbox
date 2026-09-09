@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Wilderness &amp; Hex Generator — Solo TTRPG Tools{% endblock %}
+
+{% block header_nav %}
+<nav class="breadcrumb">
+    <a href="{{ url_for('index') }}">&larr; Main Menu</a>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="hex-container">
+    <div class="hero-section">
+        <h2 class="hero-title">WILDERNESS &amp; HEX GENERATOR</h2>
+        <p class="hero-subtitle">Procedural hexcrawl engine based on Atelier Clandestin's <em>Sandbox Generator</em> and Jason Lutes' <em>The Perilous Tables</em>.</p>
+    </div>
+
+    <!-- Generator Actions Grid -->
+    <div class="tools-grid" style="margin-bottom: 2rem;">
+        <!-- New Region Map Card -->
+        <div class="tool-card active" onclick="document.getElementById('new-region-modal').style.display='block'">
+            <div class="tool-card-icon">&#127758;</div>
+            <div class="tool-card-content">
+                <h3 class="tool-card-title">Generate Hex Region</h3>
+                <p class="tool-card-desc">Roll a 19-hex flower cluster or 7-hex mini sandbox with terrain biomes, settlements, dungeons, and landmarks.</p>
+            </div>
+            <div class="tool-card-arrow">&plus;</div>
+        </div>
+
+        <!-- Quick Single Hex Card -->
+        <a href="{{ url_for('hex_quick') }}" class="tool-card active">
+            <div class="tool-card-icon">&#128506;</div>
+            <div class="tool-card-content">
+                <h3 class="tool-card-title">Quick Hex Explore</h3>
+                <p class="tool-card-desc">Generate an immediate standalone hex on-the-fly with tactical hazards, discoveries, landmarks, and encounters.</p>
+            </div>
+            <div class="tool-card-arrow">&rarr;</div>
+        </a>
+
+        <!-- Wilderness Travel & Oracle Card -->
+        <a href="{{ url_for('hex_oracle') }}" class="tool-card active">
+            <div class="tool-card-icon">&#9728;</div>
+            <div class="tool-card-content">
+                <h3 class="tool-card-title">Travel &amp; Weather Oracle</h3>
+                <p class="tool-card-desc">Procedural weather changes, wilderness travel conditions, random encounters, and wandering NPC referee.</p>
+            </div>
+            <div class="tool-card-arrow">&rarr;</div>
+        </a>
+    </div>
+
+    <!-- Saved Regions List -->
+    <div class="card" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 1.5rem;">
+        <h3 style="font-family: var(--font-serif); color: var(--gold-primary); margin-bottom: 1rem;">Saved Sandbox Regions</h3>
+
+        {% if regions and regions|length > 0 %}
+        <div style="overflow-x: auto;">
+            <table class="hex-list-table">
+                <thead>
+                    <tr>
+                        <th>Region Name</th>
+                        <th>Center Biome</th>
+                        <th>Hex Count</th>
+                        <th>Layout</th>
+                        <th>Created</th>
+                        <th style="text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reg in regions %}
+                    <tr>
+                        <td><strong>{{ reg.name }}</strong></td>
+                        <td><span class="hex-badge-biome" style="background: rgba(212, 163, 89, 0.15); border: 1px solid var(--gold-primary); color: var(--gold-primary);">{{ reg.center_biome }}</span></td>
+                        <td>{{ reg.hex_count }} Hexes</td>
+                        <td>{{ '19-Hex Cluster' if reg.layout_type == 'cluster_19' else ('7-Hex Mini' if reg.layout_type == 'cluster_7' else 'Single Hex') }}</td>
+                        <td style="color: var(--text-muted); font-size: 0.8rem;">{{ reg.created_at[:16] if reg.created_at else '' }}</td>
+                        <td style="text-align: right;">
+                            <a href="{{ url_for('hex_region_view', region_id=reg.id) }}" class="btn btn-primary btn-sm">Explore Map &rarr;</a>
+                            <form method="POST" action="{{ url_for('hex_region_delete', region_id=reg.id) }}" style="display: inline;" onsubmit="return confirm('Delete region \'{{ reg.name }}\'?');">
+                                <button type="submit" class="btn btn-danger btn-sm">&times;</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p style="color: var(--text-muted); font-style: italic; margin-top: 0.5rem;">No saved regions yet. Click &ldquo;Generate Hex Region&rdquo; above to create your first wilderness sandbox!</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal for New Region Generation -->
+<div id="new-region-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 999; overflow-y: auto; padding: 2rem 1rem;">
+    <div class="form-container" style="max-width: 500px; margin: 2rem auto; background: var(--bg-card); border: 1px solid var(--gold-primary); border-radius: 8px; padding: 2rem; box-shadow: 0 8px 32px rgba(0,0,0,0.8);">
+        <h3 style="font-family: var(--font-serif); color: var(--gold-primary); margin-bottom: 0.5rem;">Generate Sandbox Region</h3>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Procedurally generate a complete hex sandbox according to <em>Sandbox Generator</em> rules.</p>
+
+        <form method="POST" action="{{ url_for('hex_region_new') }}">
+            <div class="form-group">
+                <label for="region_name" class="form-label">Region Name</label>
+                <input type="text" id="region_name" name="name" class="form-input" value="{{ default_region_name }}" required placeholder="e.g. The Ashwood Marches">
+            </div>
+
+            <div class="form-group">
+                <label for="layout_type" class="form-label">Map Size &amp; Scope</label>
+                <select id="layout_type" name="layout_type" class="form-select">
+                    <option value="cluster_19" selected>19-Hex Flower Cluster (Full Region, Sandbox Generator p. 8-11)</option>
+                    <option value="cluster_7">7-Hex Mini Region (Center + Ring 1)</option>
+                </select>
+                <span class="form-hint">A 19-hex sandbox spans ~12 miles across, providing days of exploration.</span>
+            </div>
+
+            <div class="form-group">
+                <label for="starting_biome" class="form-label">Center Hex Biome</label>
+                <select id="starting_biome" name="starting_biome" class="form-select">
+                    <option value="random" selected>Random (Roll 1d10 Biome)</option>
+                    <option value="Grassland">Grassland (Plains &amp; Farmlands)</option>
+                    <option value="Forest">Forest (Ancient Woodlands)</option>
+                    <option value="Hills">Hills (Crags &amp; Barrows)</option>
+                    <option value="Marsh">Marsh (Swamps &amp; Mires)</option>
+                    <option value="Mountains">Mountains (Jagged Peaks)</option>
+                </select>
+            </div>
+
+            <div class="form-actions" style="margin-top: 1.5rem; display: flex; gap: 0.75rem; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="document.getElementById('new-region-modal').style.display='none'">Cancel</button>
+                <button type="submit" class="btn btn-primary">Generate Sandbox</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

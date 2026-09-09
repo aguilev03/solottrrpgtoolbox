@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}Quick Hex Explore — Solo TTRPG Tools{% endblock %}
+
+{% block header_nav %}
+<nav class="breadcrumb">
+    <a href="{{ url_for('hex_menu') }}">&larr; Wilderness Menu</a>
+    <span class="sep">/</span>
+    <span class="current">Quick Hex Explore</span>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="hex-container" style="max-width: 800px;">
+    <div class="hero-section" style="margin-bottom: 1.5rem;">
+        <h2 class="hero-title">QUICK HEX EXPLORE</h2>
+        <p class="hero-subtitle">Generate an immediate standalone hex on demand for sandbox exploration.</p>
+    </div>
+
+    <!-- Generator Controls Form -->
+    <form method="POST" action="{{ url_for('hex_quick') }}" class="card" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 1.25rem; margin-bottom: 2rem;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 1rem; align-items: end;">
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="biome" class="form-label">Biome</label>
+                <select id="biome" name="biome" class="form-select">
+                    <option value="" {% if not selected_biome %}selected{% endif %}>Random (Roll 1d10 Biome)</option>
+                    <option value="Grassland" {% if selected_biome == 'Grassland' %}selected{% endif %}>Grassland</option>
+                    <option value="Forest" {% if selected_biome == 'Forest' %}selected{% endif %}>Forest</option>
+                    <option value="Hills" {% if selected_biome == 'Hills' %}selected{% endif %}>Hills</option>
+                    <option value="Marsh" {% if selected_biome == 'Marsh' %}selected{% endif %}>Marsh</option>
+                    <option value="Mountains" {% if selected_biome == 'Mountains' %}selected{% endif %}>Mountains</option>
+                </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="feature_type" class="form-label">Feature Type</label>
+                <select id="feature_type" name="feature_type" class="form-select">
+                    <option value="" {% if not selected_feature %}selected{% endif %}>Random (Roll 1d6 Feature)</option>
+                    <option value="Wilds" {% if selected_feature == 'Wilds' %}selected{% endif %}>Wilds (Hazard &amp; Discovery)</option>
+                    <option value="Landmark" {% if selected_feature == 'Landmark' %}selected{% endif %}>Landmark (Natural/Artificial/Magical)</option>
+                    <option value="Settlement" {% if selected_feature == 'Settlement' %}selected{% endif %}>Settlement (Hamlet, Village, Castle, etc.)</option>
+                    <option value="Lair" {% if selected_feature == 'Lair' %}selected{% endif %}>Lair (Monster Den &amp; Hoard)</option>
+                    <option value="Dungeon" {% if selected_feature == 'Dungeon' %}selected{% endif %}>Dungeon (Subterranean Delve)</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="height: 42px;">Roll New Hex</button>
+        </div>
+    </form>
+
+    <!-- Generated Hex Card -->
+    {% if cell %}
+    <div class="card" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 2rem; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+            <div>
+                <span class="hex-badge-biome" style="background: {{ cell.biome_color }}; color: #fff;">{{ cell.biome_icon }} {{ cell.biome }}</span>
+                <span class="hex-feature-badge">{{ cell.feature_icon }} {{ cell.feature_type }}</span>
+            </div>
+            <span style="font-family: var(--font-serif); font-size: 1.1rem; color: var(--gold-primary);">STANDALONE HEX</span>
+        </div>
+
+        <h3 style="font-family: var(--font-serif); font-size: 1.4rem; color: #f5f0e6; margin: 0 0 0.5rem 0;">{{ cell.title }}</h3>
+        <p style="font-size: 0.95rem; color: #dfd8c8; font-style: italic; line-height: 1.45; margin-bottom: 1.5rem;">{{ cell.summary }}</p>
+
+        <!-- Weather -->
+        {% if cell.details.weather %}
+        <div class="weather-banner" style="margin-bottom: 1.25rem;">
+            <div class="weather-icon">&#9728;</div>
+            <div class="weather-info">
+                <strong>Current Weather:</strong> {{ cell.details.weather.temperature }} &bull; {{ cell.details.weather.condition }} &bull; {{ cell.details.weather.wind }}
+                <br>
+                <span style="font-size: 0.8rem; color: #b0c0d0;">Travel Impact: {{ cell.details.weather.travel_impact }} &mdash; <em>{{ cell.details.weather.condition_desc }}</em></span>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Feature Specific Details -->
+        {% if cell.feature_type == 'Settlement' and cell.details.settlement %}
+            {% set s = cell.details.settlement %}
+            <div class="hex-section-block">
+                <div class="hex-section-title">Settlement Profile ({{ s.type }})</div>
+                <div class="hex-meta-grid">
+                    <div class="hex-meta-item"><strong>Name:</strong> {{ s.name }}</div>
+                    <div class="hex-meta-item"><strong>Population:</strong> {{ s.population }}</div>
+                    {% if s.ruler %}<div class="hex-meta-item"><strong>Leadership:</strong> {{ s.ruler }}</div>{% endif %}
+                    {% if s.specialty %}<div class="hex-meta-item"><strong>Specialty / Economy:</strong> {{ s.specialty }}</div>{% endif %}
+                    {% if s.main_building %}<div class="hex-meta-item"><strong>Main Feature:</strong> {{ s.main_building }}</div>{% endif %}
+                    {% if s.tavern %}<div class="hex-meta-item"><strong>Wayside Tavern:</strong> {{ s.tavern }}</div>{% endif %}
+                    {% if s.trouble %}<div class="hex-meta-item"><strong>Local Trouble:</strong> {{ s.trouble }}</div>{% endif %}
+                    {% if s.secret and s.secret != 'None of note' %}
+                    <div class="hex-meta-item" style="color: #f2a0a0;"><strong>Dark Secret:</strong> {{ s.secret }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+        {% elif cell.feature_type == 'Landmark' and cell.details.landmark %}
+            {% set lm = cell.details.landmark %}
+            <div class="hex-section-block">
+                <div class="hex-section-title">Landmark Feature ({{ lm.category }} &bull; {{ lm.subcategory }})</div>
+                <div class="hex-meta-grid">
+                    <div class="hex-meta-item"><strong>Prominent Site:</strong> {{ lm.name }}</div>
+                    <div class="hex-meta-item"><strong>Discovery / Opportunity:</strong> {{ lm.content_type }} &mdash; <em>{{ lm.content_desc }}</em></div>
+                </div>
+            </div>
+
+        {% elif cell.feature_type == 'Lair' and cell.details.lair %}
+            {% set lair = cell.details.lair %}
+            <div class="hex-section-block">
+                <div class="hex-section-title">Monster Lair: {{ lair.monster }}</div>
+                <div class="hex-meta-grid">
+                    <div class="hex-meta-item"><strong>Danger Level:</strong> <span style="color: #e06666;">{{ lair.danger }}</span></div>
+                    <div class="hex-meta-item"><strong>Lair Layout:</strong> {{ lair.lair_form }}</div>
+                    <div class="hex-meta-item"><strong>Defensive Perimeter:</strong> {{ lair.defenses }}</div>
+                    <div class="hex-meta-item"><strong>Current Status:</strong> {{ lair.status }}</div>
+                    <div class="hex-meta-item"><strong>Guarded Spoils:</strong> {{ lair.treasure }}</div>
+                </div>
+            </div>
+
+        {% elif cell.feature_type == 'Dungeon' and cell.details.dungeon %}
+            {% set d = cell.details.dungeon %}
+            <div class="hex-section-block">
+                <div class="hex-section-title">Dungeon Complex: {{ d.dungeon_name }}</div>
+                <div class="hex-meta-grid">
+                    <div class="hex-meta-item"><strong>Architecture:</strong> {{ d.dungeon_type }} Complex</div>
+                    <div class="hex-meta-item"><strong>Situation:</strong> {{ d.situation }}</div>
+                    <div class="hex-meta-item"><strong>Accessibility:</strong> {{ d.accessibility }}</div>
+                </div>
+                <div style="margin-top: 1.25rem;">
+                    <a href="{{ url_for('dungeon_new') }}?type={{ d.dungeon_type }}&name={{ d.dungeon_name }}" class="btn btn-primary" style="display: block; text-align: center;">
+                        &#9876; Delve into this Dungeon &rarr;
+                    </a>
+                </div>
+            </div>
+
+        {% elif cell.feature_type == 'Wilds' %}
+            {% set hz = cell.details.hazard or {} %}
+            {% set spk = cell.details.spark or {} %}
+            <div class="hex-section-block">
+                <div class="hex-section-title">Wilderness Hazard</div>
+                <div class="hex-meta-grid">
+                    <div class="hex-meta-item"><strong>Hazard:</strong> {{ hz.name or 'Treacherous Footing' }}</div>
+                    <div class="hex-meta-item"><strong>Effect:</strong> {{ hz.effect or '' }}</div>
+                    <div class="hex-meta-item"><strong>Tactical Guidance:</strong> <em>{{ hz.guidance or '' }}</em></div>
+                </div>
+            </div>
+            <div class="hex-section-block">
+                <div class="hex-section-title">Lore &amp; Clues to Discover</div>
+                <div class="hex-meta-grid">
+                    <div class="hex-meta-item"><strong>{{ spk.type or 'Discovery' }}:</strong> {{ spk.prompt or '' }}</div>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Encounter Section -->
+        {% if cell.details.encounter %}
+            {% set enc = cell.details.encounter %}
+            <div class="hex-section-block">
+                <div class="hex-section-title">Wilderness Encounter Check</div>
+                <div class="hex-meta-grid">
+                    <div class="hex-meta-item"><strong>Creature:</strong> {{ enc.creature }}</div>
+                    <div class="hex-meta-item"><strong>Threat Level:</strong> <span style="color: var(--gold-primary);">{{ enc.danger }}</span></div>
+                    <div class="hex-meta-item"><strong>Behavior:</strong> <em>{{ enc.activity }}</em></div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

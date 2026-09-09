@@ -1,0 +1,78 @@
+{
+  "name": "area_dressing",
+  "dice": "d12",
+  "entries": [
+    {
+      "min": 1,
+      "max": 1,
+      "category": "Breeze / Sound / Echo",
+      "flavor": "A faint draft sighs through hairline seams in the stone, carrying a distant, hollow echo."
+    },
+    {
+      "min": 2,
+      "max": 2,
+      "category": "Smell / Odor / Stench",
+      "flavor": "The air hangs heavy with a sharp odor of ozone, sulfur, and ancient damp mildew."
+    },
+    {
+      "min": 3,
+      "max": 3,
+      "category": "Lichen / Mold / Fungus",
+      "flavor": "Velvety patches of black mold and pale bioluminescent lichen crust the damp masonry."
+    },
+    {
+      "min": 4,
+      "max": 4,
+      "category": "Drip / Seep / Puddle",
+      "flavor": "A persistent, rhythmic dripping drops into shallow mineral puddles pooled across the uneven floor."
+    },
+    {
+      "min": 5,
+      "max": 5,
+      "category": "Tracks / Scratches",
+      "flavor": "Jagged claw gouges and dragging trails are freshly pressed into the thick silt and dust."
+    },
+    {
+      "min": 6,
+      "max": 6,
+      "category": "Sign of Struggle / Battle",
+      "flavor": "Notched weapon scoring, broken arrow shafts, and dried dark stains testify to a desperate clash."
+    },
+    {
+      "min": 7,
+      "max": 7,
+      "category": "Bones / Remains",
+      "flavor": "Scattered calcified bones and gnawed ribs lie partially buried beneath crumbled plaster."
+    },
+    {
+      "min": 8,
+      "max": 8,
+      "category": "Junk / Debris / Refuse",
+      "flavor": "A heap of discarded refuse, splintered crates, and corroded iron buckles clutters the shadows."
+    },
+    {
+      "min": 9,
+      "max": 9,
+      "category": "Broken Structure / Furniture",
+      "flavor": "A toppled stone balustrade and splintered timber beams lie collapsed in a chaotic tangle."
+    },
+    {
+      "min": 10,
+      "max": 10,
+      "category": "Inscription / Ornamentation",
+      "flavor": "Faded geometric glyphs and chiseled warning pictograms wrap around the lintel and threshold."
+    },
+    {
+      "min": 11,
+      "max": 11,
+      "category": "Unnatural Distortion / Oddity",
+      "flavor": "Shadows lean at unnatural angles, and dust motes hang suspended as if caught in localized stasis."
+    },
+    {
+      "min": 12,
+      "max": 12,
+      "category": "Ominous Atmosphere",
+      "flavor": "A suffocating, dead silence grips the chamber; your own heartbeat thumps loudly in your ears."
+    }
+  ]
+}

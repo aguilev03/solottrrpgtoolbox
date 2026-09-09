@@ -1,0 +1,375 @@
+{
+  "name": "hex_biomes",
+  "biomes": {
+    "Grassland": {
+      "color": "#7da05a",
+      "icon": "\ud83c\udf3e",
+      "travel_pace": "Normal",
+      "description": "Rolling plains, tall amber prairie grasses, and scattered copses under an open sky.",
+      "encounters": [
+        {
+          "min": 2,
+          "max": 2,
+          "creature": "Prehistoric Behemoth / Dinosaurs",
+          "danger": "Deadly"
+        },
+        {
+          "min": 3,
+          "max": 3,
+          "creature": "Ogre Scavengers (1d3)",
+          "danger": "Hard"
+        },
+        {
+          "min": 4,
+          "max": 4,
+          "creature": "Gnoll Hunting Pack (2d4)",
+          "danger": "Medium"
+        },
+        {
+          "min": 5,
+          "max": 5,
+          "creature": "Orc Outriders on Worgs (1d6)",
+          "danger": "Medium"
+        },
+        {
+          "min": 6,
+          "max": 6,
+          "creature": "Goblin Scouts (2d4)",
+          "danger": "Low"
+        },
+        {
+          "min": 7,
+          "max": 7,
+          "creature": "Giant Prairie Rats / Jackals",
+          "danger": "Low"
+        },
+        {
+          "min": 8,
+          "max": 8,
+          "creature": "Grey Wolf Pack (2d4)",
+          "danger": "Medium"
+        },
+        {
+          "min": 9,
+          "max": 9,
+          "creature": "Bandit Highwaymen (1d6+2)",
+          "danger": "Medium"
+        },
+        {
+          "min": 10,
+          "max": 10,
+          "creature": "Nomadic Berserkers (1d4+1)",
+          "danger": "Hard"
+        },
+        {
+          "min": 11,
+          "max": 11,
+          "creature": "Worg Stalkers (1d4)",
+          "danger": "Hard"
+        },
+        {
+          "min": 12,
+          "max": 12,
+          "creature": "Lurking Werewolf in Human Guise",
+          "danger": "Deadly"
+        }
+      ]
+    },
+    "Forest": {
+      "color": "#3f6e43",
+      "icon": "\ud83c\udf32",
+      "travel_pace": "Slow",
+      "description": "Dense ancient canopy, tangle of mossy roots, and dappled sunbeams through leaves.",
+      "encounters": [
+        {
+          "min": 2,
+          "max": 2,
+          "creature": "Colossal Forest Treant / Ancient Guardian",
+          "danger": "Deadly"
+        },
+        {
+          "min": 3,
+          "max": 3,
+          "creature": "Giant Web-Spinning Spiders (1d4)",
+          "danger": "Hard"
+        },
+        {
+          "min": 4,
+          "max": 4,
+          "creature": "Territorial Owlbear",
+          "danger": "Hard"
+        },
+        {
+          "min": 5,
+          "max": 5,
+          "creature": "Woodland Elf Wardens (1d6)",
+          "danger": "Neutral / Cautious"
+        },
+        {
+          "min": 6,
+          "max": 6,
+          "creature": "Forest Goblin Ambushers (2d4)",
+          "danger": "Low"
+        },
+        {
+          "min": 7,
+          "max": 7,
+          "creature": "Timber Wolves (1d6+2)",
+          "danger": "Medium"
+        },
+        {
+          "min": 8,
+          "max": 8,
+          "creature": "Outlaw Poachers / Forest Bandits (1d6)",
+          "danger": "Medium"
+        },
+        {
+          "min": 9,
+          "max": 9,
+          "creature": "Fierce Wild Boar (1d3)",
+          "danger": "Medium"
+        },
+        {
+          "min": 10,
+          "max": 10,
+          "creature": "Centaur Hunters (1d4)",
+          "danger": "Neutral / Proud"
+        },
+        {
+          "min": 11,
+          "max": 11,
+          "creature": "Luring Forest Dryad or Fey Nymph",
+          "danger": "Mysterious"
+        },
+        {
+          "min": 12,
+          "max": 12,
+          "creature": "Green Wyrmling / Forest Dragon",
+          "danger": "Deadly"
+        }
+      ]
+    },
+    "Hills": {
+      "color": "#8c7853",
+      "icon": "\u26f0\ufe0f",
+      "travel_pace": "Slow",
+      "description": "Rugged windswept ridges, rocky scree slopes, and ancient barrows.",
+      "encounters": [
+        {
+          "min": 2,
+          "max": 2,
+          "creature": "Hill Giant Brute",
+          "danger": "Deadly"
+        },
+        {
+          "min": 3,
+          "max": 3,
+          "creature": "Soaring Griffin Pair",
+          "danger": "Hard"
+        },
+        {
+          "min": 4,
+          "max": 4,
+          "creature": "Stone-Cutter Dwarf Prospectors (1d6)",
+          "danger": "Friendly / Trade"
+        },
+        {
+          "min": 5,
+          "max": 5,
+          "creature": "Ogre Foragers (1d3)",
+          "danger": "Hard"
+        },
+        {
+          "min": 6,
+          "max": 6,
+          "creature": "Orc Hill-Raiders (2d4)",
+          "danger": "Medium"
+        },
+        {
+          "min": 7,
+          "max": 7,
+          "creature": "Highway Cutpurses (1d6)",
+          "danger": "Medium"
+        },
+        {
+          "min": 8,
+          "max": 8,
+          "creature": "Kobold Tunnelers (2d6)",
+          "danger": "Low"
+        },
+        {
+          "min": 9,
+          "max": 9,
+          "creature": "Flock of Shrieking Harpies (1d4)",
+          "danger": "Hard"
+        },
+        {
+          "min": 10,
+          "max": 10,
+          "creature": "Stalking Mountain Lion (1d2)",
+          "danger": "Medium"
+        },
+        {
+          "min": 11,
+          "max": 11,
+          "creature": "Cave Troll Reeking of Slime",
+          "danger": "Hard"
+        },
+        {
+          "min": 12,
+          "max": 12,
+          "creature": "Ancient Barrow Wight & Phantoms",
+          "danger": "Deadly"
+        }
+      ]
+    },
+    "Marsh": {
+      "color": "#4d645b",
+      "icon": "\ud83c\udf3f",
+      "travel_pace": "Very Slow",
+      "description": "Stagnant black waters, mist-shrouded reeds, weeping willows, and sucking bogs.",
+      "encounters": [
+        {
+          "min": 2,
+          "max": 2,
+          "creature": "Multi-Headed Swamp Hydra",
+          "danger": "Deadly"
+        },
+        {
+          "min": 3,
+          "max": 3,
+          "creature": "Lizardfolk Hunting Party (2d4)",
+          "danger": "Hostile / Territorial"
+        },
+        {
+          "min": 4,
+          "max": 4,
+          "creature": "Flickering Will-o-Wisps (1d4)",
+          "danger": "Deceptive"
+        },
+        {
+          "min": 5,
+          "max": 5,
+          "creature": "Subterranean Troglodytes (2d4)",
+          "danger": "Medium"
+        },
+        {
+          "min": 6,
+          "max": 6,
+          "creature": "Giant Carnivorous Frogs (1d4)",
+          "danger": "Medium"
+        },
+        {
+          "min": 7,
+          "max": 7,
+          "creature": "Swarm of Blood Leeches / Insects",
+          "danger": "Low / Annoying"
+        },
+        {
+          "min": 8,
+          "max": 8,
+          "creature": "Armored Marsh Crocodile (1d2)",
+          "danger": "Hard"
+        },
+        {
+          "min": 9,
+          "max": 9,
+          "creature": "Cackling Bog Hag & Cauldron",
+          "danger": "Deadly"
+        },
+        {
+          "min": 10,
+          "max": 10,
+          "creature": "Shambling Mud Golem",
+          "danger": "Hard"
+        },
+        {
+          "min": 11,
+          "max": 11,
+          "creature": "Black Dragon Hatchling",
+          "danger": "Deadly"
+        },
+        {
+          "min": 12,
+          "max": 12,
+          "creature": "Ancient Sunken Tomb Revenants",
+          "danger": "Deadly"
+        }
+      ]
+    },
+    "Mountains": {
+      "color": "#636d7e",
+      "icon": "\ud83c\udfd4\ufe0f",
+      "travel_pace": "Hazardous",
+      "description": "Towering snow-crowned jagged peaks, yawning abysses, and icy howling gales.",
+      "encounters": [
+        {
+          "min": 2,
+          "max": 2,
+          "creature": "Old Red / White Mountain Dragon",
+          "danger": "Deadly"
+        },
+        {
+          "min": 3,
+          "max": 3,
+          "creature": "Giant Roc Soaring Overhead",
+          "danger": "Deadly"
+        },
+        {
+          "min": 4,
+          "max": 4,
+          "creature": "Stone Giant Hermit",
+          "danger": "Neutral / Powerful"
+        },
+        {
+          "min": 5,
+          "max": 5,
+          "creature": "Venomous Wyvern on the Prowl",
+          "danger": "Hard"
+        },
+        {
+          "min": 6,
+          "max": 6,
+          "creature": "Dwarven Peak Sentinels (1d6)",
+          "danger": "Cautious / Trade"
+        },
+        {
+          "min": 7,
+          "max": 7,
+          "creature": "Crag Goats / Mountain Bighorns",
+          "danger": "Harmless"
+        },
+        {
+          "min": 8,
+          "max": 8,
+          "creature": "Ferocious Mountain Yeti",
+          "danger": "Hard"
+        },
+        {
+          "min": 9,
+          "max": 9,
+          "creature": "Kobold Cliff-Dwellers (2d6)",
+          "danger": "Low"
+        },
+        {
+          "min": 10,
+          "max": 10,
+          "creature": "Frost Wolf Pack (1d6)",
+          "danger": "Hard"
+        },
+        {
+          "min": 11,
+          "max": 11,
+          "creature": "Three-Headed Chimera",
+          "danger": "Deadly"
+        },
+        {
+          "min": 12,
+          "max": 12,
+          "creature": "Storm Giant atop the Clouds",
+          "danger": "Epic"
+        }
+      ]
+    }
+  }
+}

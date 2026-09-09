@@ -48,6 +48,7 @@ class RoomState:
     trap_revealed: bool = False
     trap_data: Optional[Dict[str, Any]] = None
     objects: List[str] = field(default_factory=list)
+    dressing: str = ""
 
     @property
     def title(self) -> str:
@@ -117,6 +118,8 @@ class DungeonState:
     progress_points: int = 0
     current_room_id: Optional[int] = None
     is_complete: bool = False
+    danger_mode: str = "standard"
+    theme: str = ""
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
 
@@ -296,9 +299,28 @@ class DungeonEngine:
                     return True, trap_entry
         return False, None
 
-    def roll_trap(self) -> Dict[str, Any]:
-        """Rolls a trap directly from traps.json."""
-        res = self.tables.resolve_table("traps", recursive=False)
+    def roll_dressing(self) -> str:
+        """Rolls an atmospheric environmental sensory dressing from area_dressing.json."""
+        if "area_dressing" in self.tables.tables:
+            res = self.tables.resolve_table("area_dressing", recursive=False)
+            return res["entry"].get("flavor", "")
+        return ""
+
+    def roll_theme(self) -> str:
+        """Rolls a thematic category and prompt from dungeon_themes.json."""
+        if "dungeon_themes" not in self.tables.tables:
+            return ""
+        cat_res = self.tables.resolve_table("dungeon_themes", recursive=False)
+        cat_name = cat_res["entry"]["category"]
+        themes = self.tables.tables["dungeon_themes"].get("categories", {}).get(cat_name, [])
+        if themes:
+            return f"{cat_name}: {random.choice(themes)}"
+        return cat_name
+
+    def roll_trap(self, danger_mode: str = "standard") -> Dict[str, Any]:
+        """Rolls a trap directly from traps.json (standard) or expanded_traps.json (expanded)."""
+        tbl = "expanded_traps" if danger_mode == "expanded" and "expanded_traps" in self.tables.tables else "traps"
+        res = self.tables.resolve_table(tbl, recursive=False)
         return res["entry"]
 
     def roll_room_objects(self, count: int = 3) -> List[str]:
@@ -313,17 +335,18 @@ class DungeonEngine:
         chosen = random.sample(entries, k)
         return [entry.get("name", entry.get("value", str(entry))) for entry in chosen]
 
-    def reveal_trap(self, room: RoomState) -> Tuple[Dict[str, Any], str]:
+    def reveal_trap(self, room: RoomState, dungeon: Optional[DungeonState] = None) -> Tuple[Dict[str, Any], str]:
         """
         Reveals the trap in the room:
-        - If trap_data is not yet determined, rolls from traps.json.
+        - If trap_data is not yet determined, rolls from traps.json or expanded_traps.json.
         - Sets room.trap_revealed = True.
         - Returns (trap_data, log_message).
         """
         if not room.has_trap:
             raise ValueError("No trap exists in this chamber.")
         if not room.trap_data:
-            room.trap_data = self.roll_trap()
+            danger_mode = dungeon.danger_mode if dungeon else "standard"
+            room.trap_data = self.roll_trap(danger_mode=danger_mode)
         room.trap_revealed = True
 
         trap_title = room.trap_display_name
@@ -343,6 +366,7 @@ class DungeonEngine:
         room_type = self.tables.get_room_type(dungeon.dungeon_type)
         routes = self.compose_routes()
         objects = self.roll_room_objects(3)
+        dressing = self.roll_dressing()
         contents_res = self.tables.resolve_table("contents", recursive=True)
         has_trap, trap_data = self._extract_trap_from_contents(contents_res)
 
@@ -352,6 +376,7 @@ class DungeonEngine:
             room_number=dungeon.current_room_number,
             descriptor=descriptor,
             room_type=room_type,
+            dressing=dressing,
             is_unique=False,
             is_entrance=True,
             is_final_room=False,
@@ -440,6 +465,7 @@ class DungeonEngine:
         room_type = self.tables.get_room_type(dungeon.dungeon_type)
         routes = self.compose_routes()
         objects = self.roll_room_objects(3)
+        dressing = self.roll_dressing()
 
         if progress_result.outcome == "strong":
             # STRONG SUCCESS: Generate Unique Room!
@@ -455,6 +481,7 @@ class DungeonEngine:
                 room_number=dungeon.current_room_number,
                 descriptor=descriptor,
                 room_type=room_type,
+                dressing=dressing,
                 is_unique=True,
                 is_entrance=False,
                 is_final_room=is_final,
@@ -487,6 +514,7 @@ class DungeonEngine:
                 room_number=dungeon.current_room_number,
                 descriptor=descriptor,
                 room_type=room_type,
+                dressing=dressing,
                 is_unique=False,
                 is_entrance=False,
                 is_final_room=False,
@@ -516,6 +544,7 @@ class DungeonEngine:
                 room_number=dungeon.current_room_number,
                 descriptor=descriptor,
                 room_type=room_type,
+                dressing=dressing,
                 is_unique=False,
                 is_entrance=False,
                 is_final_room=False,

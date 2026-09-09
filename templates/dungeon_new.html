@@ -21,7 +21,7 @@
             <label for="dungeon_type" class="form-label">Dungeon Type</label>
             <select id="dungeon_type" name="dungeon_type" class="form-select" onchange="fetchRandomName()">
                 {% for t in dungeon_types %}
-                    <option value="{{ t }}" {% if t == 'Tomb' %}selected{% endif %}>{{ t }}</option>
+                    <option value="{{ t }}" {% if t == (selected_type or 'Tomb') %}selected{% endif %}>{{ t }}</option>
                 {% endfor %}
             </select>
             <span class="form-hint">Determines architecture, hazards, unique landmarks, and name flavor.</span>
@@ -46,6 +46,30 @@
                 {% endfor %}
             </select>
             <span class="form-hint">Influences hidden floor depth (Small: 1 floor, Medium: 1–2 floors, Large: 2–3 floors). Unannounced to the player.</span>
+        </div>
+
+        <!-- Dungeon Theme -->
+        <div class="form-group">
+            <label for="theme" class="form-label">Dungeon Theme (The Perilous Tables)</label>
+            <select id="theme" name="theme" class="form-select">
+                <option value="random" selected>Random (Roll Perilous Theme: Hopeful, Mysterious, Grim, Gonzo)</option>
+                <option value="none">None (Pure Architecture)</option>
+                <option value="Hopeful">Hopeful (Wonder, Healing, Light, Prophecy)</option>
+                <option value="Mysterious">Mysterious (Secrets, Shadows, Cryptic Lore, Glamour)</option>
+                <option value="Grim">Grim (Darkness, Corruption, Wrath, Sacrifice)</option>
+                <option value="Gonzo">Gonzo (Clockwork, Alien Life, Temporal Rifts, Weird)</option>
+            </select>
+            <span class="form-hint">Injects overarching narrative and sensory flavor into the delve.</span>
+        </div>
+
+        <!-- Trap & Hazard Complexity -->
+        <div class="form-group">
+            <label for="danger_mode" class="form-label">Danger &amp; Trap Complexity</label>
+            <select id="danger_mode" name="danger_mode" class="form-select">
+                <option value="expanded" selected>Expanded Perils (50 Traps &amp; Hazards with Tactical Hints from Sandbox Generator)</option>
+                <option value="standard">Classic (20 Core Traps)</option>
+            </select>
+            <span class="form-hint">Select between classic d20 traps or the expanded d50 system with triggers and countermeasures.</span>
         </div>
 
         <div class="form-actions">

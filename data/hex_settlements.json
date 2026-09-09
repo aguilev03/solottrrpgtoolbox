@@ -1,0 +1,191 @@
+{
+  "name": "hex_settlements",
+  "types": {
+    "Hamlet": {
+      "population": "10-30 inhabitants",
+      "description": "A quiet cluster of thatched huts around a single central trade or farmstead.",
+      "main_buildings": [
+        "Cider Brewery & Orchard",
+        "Wayside Stone Chapel",
+        "Goat & Dairy Ranch",
+        "Water Mill on the Creek",
+        "Tannery & Smokehouse",
+        "Timber Logging Yard",
+        "Peat Cutter Hovel",
+        "Potter Kiln Workshop",
+        "Herbalist Drying Barn",
+        "Charcoal Burner Camp"
+      ],
+      "secrets": [
+        "None (honest, weary folk)",
+        "The elders practice blood offerings at midnight for good harvest",
+        "Harboring an exiled prince or wanted fugitive in the attic",
+        "Several villagers have been replaced by dopplegangers or mimics",
+        "The hamlet hides a curse: lycanthropy runs through the bloodline",
+        "A hidden smuggler cellar beneath the chapel stores contraband silver"
+      ]
+    },
+    "Village": {
+      "population": "50-250 inhabitants",
+      "description": "A fortified rural settlement with communal square, tavern, and craft shops.",
+      "specialties": [
+        "Iron mining & master smithing",
+        "Fine wool weavers & dye pits",
+        "Vineyards & cask vintners",
+        "Horse breeding for heavy cavalry",
+        "River fishing & salt curing",
+        "Timber milling & carpentry",
+        "Stone quarrying & masonry",
+        "Apiaries & aromatic candle-wax"
+      ],
+      "rulers": [
+        "Elected village bailiff / alderman",
+        "Hereditary landed knight",
+        "Venerable high priest / druid elder",
+        "Wealthy guild factor / merchant mayor",
+        "Council of matriarchs",
+        "Stern militia captain"
+      ],
+      "troubles": [
+        "Demanding tithes from an extortionate neighboring robber-baron",
+        "Lurking pack of worgs picking off lone shepherds at twilight",
+        "Severe water contamination caused by a poisoned upstream spring",
+        "A sharp dispute between the smithing guild and the church elders",
+        "Famine reserves running dangerously low before winter sets in",
+        "Corrupt bailiff skimming the kingdom tax collector ledger"
+      ],
+      "tavern_names": [
+        "The Silver Sturgeon",
+        "The Drunken Griffin",
+        "The Rusty Horseshoe",
+        "The Maiden & Wheel",
+        "The Boar & Flagon",
+        "The Weeping Willow Taproom",
+        "The Golden Anvil",
+        "The Black Ram Tavern"
+      ]
+    },
+    "City": {
+      "population": "1,000-10,000+ inhabitants",
+      "description": "Sprawling fortified metropolis ringed with stone walls, crowded markets, and bustling guilds.",
+      "districts": [
+        "High Merchant Quarter",
+        "The Harbor Docks & Warehouses",
+        "The Grand Cathedral Plaza",
+        "The Artisan Guildhall Ward",
+        "The Warrens & Beggar Slums",
+        "The Citadel Barracks"
+      ],
+      "rulers": [
+        "Lord Mayor and Guild Council",
+        "High Prince or Duchess",
+        "Archbishop of the Holy Synod",
+        "Military Governor under martial decree",
+        "Oligarchy of Grand Merchants"
+      ]
+    },
+    "Castle": {
+      "population": "100-500 garrison & court",
+      "description": "A formidable fortress of high stone curtain walls, dry moats, and iron-toothed portcullises.",
+      "garrison": [
+        "Knight-Commander & Men-at-Arms",
+        "Mercenary Halberdiers",
+        "Longbow Archers on the Ramparts",
+        "Heavy Armored Shock Cavalry",
+        "Castle Crossbowmen"
+      ],
+      "defenses": [
+        "Deep dry moat spanned by counterweighted drawbridge",
+        "Machicolations and murder holes pouring boiling pitch",
+        "Massive concentric curtain walls with square bastions",
+        "Heavy iron portcullises and reinforced oak gates"
+      ],
+      "rulers": [
+        "Baron / Earl of the border marches",
+        "Fierce veteran warlord",
+        "Solemn hereditary castellan",
+        "Ruthless noble scheming to seize the provincial throne"
+      ]
+    },
+    "Tower": {
+      "population": "5-25 acolytes & guards",
+      "description": "A lone, imposing stone spire rising above the wilderness, humming with dormant arcane power.",
+      "inhabitants": [
+        "Reclusive Astrologer observing the night sky",
+        "Elementalist Wizard experimenting with alchemy",
+        "Eccentric Illusionist paranoid of visitors",
+        "Necromancer studying forbidden tomes",
+        "Clockwork Artificer attended by bronze automata"
+      ],
+      "features": [
+        "Rooftop observatory with giant bronze astrolabe",
+        "Subterranean alchemy laboratory with bubbling alembics",
+        "Labyrinthine library lined with trapped spellbooks",
+        "Enchanted gargoyles perched on the parapets serving as sentries"
+      ]
+    },
+    "Abbey": {
+      "population": "30-150 monks or nuns",
+      "description": "A tranquil monastic sanctuary enclosed within high stone perimeter walls.",
+      "activities": [
+        "Viticulture and fine herbal liqueurs",
+        "Copying ancient manuscripts in the scriptorium",
+        "Herbal healing, infirmary care, and alchemy",
+        "Breeding warhorses and draft oxen",
+        "Guarding a revered saint relic in the crypt"
+      ],
+      "relics": [
+        "The Silver Fingerbone of Saint Geffrey",
+        "The Weeping Icon of the Blessed Mother",
+        "The Unbroken Lance of the Martyr Knight",
+        "The Sun-Gold Chalice of Deliverance"
+      ]
+    }
+  },
+  "name_generators": {
+    "prefixes": [
+      "Oakhaven",
+      "Stone",
+      "Raven",
+      "Iron",
+      "High",
+      "Deep",
+      "Silver",
+      "Cold",
+      "Black",
+      "Green",
+      "White",
+      "Fair",
+      "Wolf",
+      "Barrow",
+      "Crest",
+      "Red",
+      "Sun",
+      "Ash",
+      "Storm",
+      "Shadow"
+    ],
+    "suffixes": [
+      "ford",
+      "haven",
+      "dale",
+      "stead",
+      "burg",
+      "ton",
+      "mill",
+      "cross",
+      "bridge",
+      "wick",
+      "hollow",
+      "fell",
+      "glen",
+      "mere",
+      "keep",
+      "crest",
+      "marsh",
+      "hall",
+      "vale",
+      "port"
+    ]
+  }
+}

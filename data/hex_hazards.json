@@ -1,0 +1,146 @@
+{
+  "name": "hex_hazards",
+  "dice": "d20",
+  "entries": [
+    {
+      "min": 1,
+      "max": 1,
+      "name": "Acid Pools",
+      "effect": "Corrosive steaming pools eat through boots and gear.",
+      "guidance": "Navigate single-file with caution or suffer gear degradation."
+    },
+    {
+      "min": 2,
+      "max": 2,
+      "name": "Allergenic & Poisonous Plants",
+      "effect": "Pungent pollen causes burning eyes, coughing fits, and rash.",
+      "guidance": "Cover face with dampened cloth or suffer -1 on checks."
+    },
+    {
+      "min": 3,
+      "max": 3,
+      "name": "Ancient Dormant Sickness",
+      "effect": "Plague-bearing mist or mold in old hollows.",
+      "guidance": "Test constitution or contract shivering ague."
+    },
+    {
+      "min": 4,
+      "max": 4,
+      "name": "Lurking Curse",
+      "effect": "An invisible hex clings to trespassers.",
+      "guidance": "Spurs misfortune on the next critical encounter."
+    },
+    {
+      "min": 5,
+      "max": 5,
+      "name": "Treacherous Footing",
+      "effect": "Slippery shale, boggy moss, or loose scree slows progress to a crawl.",
+      "guidance": "Travel takes double time or risk sprained ankles."
+    },
+    {
+      "min": 6,
+      "max": 6,
+      "name": "Disorienting Terrain",
+      "effect": "Confusing ridgelines or identical copses make it easy to get lost.",
+      "guidance": "Navigation check required or lose half a day doubling back."
+    },
+    {
+      "min": 7,
+      "max": 7,
+      "name": "Blinding Fog",
+      "effect": "Dense white pea-soup mist blankets the entire hex.",
+      "guidance": "Visibility reduced to 10 paces; surprise checks are at disadvantage."
+    },
+    {
+      "min": 8,
+      "max": 8,
+      "name": "Noxious Fumes",
+      "effect": "Volcanic sulfur or decaying peat gas chokes the lungs.",
+      "guidance": "Hasten through the area or suffer fatigue."
+    },
+    {
+      "min": 9,
+      "max": 9,
+      "name": "Restless Hauntings",
+      "effect": "Spirits of massacred wanderers follow with chilling wails.",
+      "guidance": "Interrupts restful sleep; camping here grants no recovery."
+    },
+    {
+      "min": 10,
+      "max": 10,
+      "name": "Hallucinogenic Spores",
+      "effect": "Puffball mushrooms burst into vibrant psychedelic clouds.",
+      "guidance": "Visions, disorientation, and paranoia plague the party."
+    },
+    {
+      "min": 11,
+      "max": 11,
+      "name": "Concealed Natural Pits",
+      "effect": "Deep fissures overgrown with brambles and vines.",
+      "guidance": "Front scout must test alertness to avoid tumbling 20 feet."
+    },
+    {
+      "min": 12,
+      "max": 12,
+      "name": "Old Hunting Traps",
+      "effect": "Rusted iron wolf traps and deadfalls set by poachers.",
+      "guidance": "Careful search required to avoid severe leg wound."
+    },
+    {
+      "min": 13,
+      "max": 13,
+      "name": "Eldritch Taint",
+      "effect": "Warped mutations, violet grass, and reversed shadows.",
+      "guidance": "Prolonged exposure risks strange cosmetic or behavioral afflictions."
+    },
+    {
+      "min": 14,
+      "max": 14,
+      "name": "Outbreak / Contaminated Water",
+      "effect": "The streams and ponds are tainted with rotting carcasses.",
+      "guidance": "Drinking unboiled water causes debilitating cramps."
+    },
+    {
+      "min": 15,
+      "max": 15,
+      "name": "Quicksand / Mud Sink",
+      "effect": "Firm-looking ground gives way into a sucking mire.",
+      "guidance": "Requires rope and teamwork to extract trapped pack beasts."
+    },
+    {
+      "min": 16,
+      "max": 16,
+      "name": "Arcane Radiation",
+      "effect": "Faint blue hum warms metal armor and sickens creatures.",
+      "guidance": "Iron grows hot to the touch; spellcasting causes unpredictable surges."
+    },
+    {
+      "min": 17,
+      "max": 17,
+      "name": "Sabotaged Trail",
+      "effect": "Felled timber and booby-trapped ropes placed by bandits.",
+      "guidance": "Ambush is likely if the trap is triggered."
+    },
+    {
+      "min": 18,
+      "max": 18,
+      "name": "Unstable Cliff / Overhang",
+      "effect": "Cracking rock ledges liable to shear off under pack weight.",
+      "guidance": "Tether party members together while traversing heights."
+    },
+    {
+      "min": 19,
+      "max": 19,
+      "name": "Venomous Swarm",
+      "effect": "Nests of red hornets, vipers, or black scorpions.",
+      "guidance": "Scout ahead with smoke or detour around nesting grounds."
+    },
+    {
+      "min": 20,
+      "max": 20,
+      "name": "Active Thermal Vent",
+      "effect": "Superheated geysers and spurts of scalding mud.",
+      "guidance": "Listen for rumbling ground to avoid scalding eruptions."
+    }
+  ]
+}

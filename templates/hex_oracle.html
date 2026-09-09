@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Travel &amp; Weather Oracle — Solo TTRPG Tools{% endblock %}
+
+{% block header_nav %}
+<nav class="breadcrumb">
+    <a href="{{ url_for('hex_menu') }}">&larr; Wilderness Menu</a>
+    <span class="sep">/</span>
+    <span class="current">Travel &amp; Weather Oracle</span>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="hex-container" style="max-width: 900px;">
+    <div class="hero-section" style="margin-bottom: 2rem;">
+        <h2 class="hero-title">TRAVEL &amp; ORACLE REFEREE</h2>
+        <p class="hero-subtitle">Procedural wilderness travel, weather changes, random encounters, and wandering NPCs.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: start;">
+        <!-- Column 1: Weather & Travel Pace -->
+        <div class="card" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 1.5rem;">
+            <h3 style="font-family: var(--font-serif); color: var(--gold-primary); margin-bottom: 0.5rem;">Weather &amp; Travel Pace</h3>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.25rem;">Roll for regional atmospheric changes affecting visibility and march speed.</p>
+
+            <form method="POST" action="{{ url_for('hex_oracle') }}">
+                <input type="hidden" name="action" value="weather">
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Roll Weather Change</button>
+            </form>
+
+            {% if weather_result %}
+            <div style="margin-top: 1.25rem; padding: 1rem; background: rgba(20, 24, 30, 0.7); border: 1px solid rgba(100, 130, 160, 0.3); border-radius: 4px;">
+                <div style="font-size: 1.1rem; color: #9eb5cc; font-family: var(--font-serif); margin-bottom: 0.25rem;">
+                    {{ weather_result.condition }}
+                </div>
+                <div style="font-size: 0.88rem; color: #dfd8c8; margin-bottom: 0.5rem;">
+                    <strong>Temperature:</strong> {{ weather_result.temperature }} ({{ weather_result.temp_desc }})
+                    <br>
+                    <strong>Wind:</strong> {{ weather_result.wind }} ({{ weather_result.wind_desc }})
+                </div>
+                <div style="font-size: 0.82rem; color: var(--gold-primary); border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 0.4rem;">
+                    <strong>Travel Impact:</strong> {{ weather_result.travel_impact }} &mdash; <em>{{ weather_result.condition_desc }}</em>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Column 2: Wilderness Encounter Check -->
+        <div class="card" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 1.5rem;">
+            <h3 style="font-family: var(--font-serif); color: var(--gold-primary); margin-bottom: 0.5rem;">Wilderness Encounter Check</h3>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.25rem;">Roll 2d6 against the terrain encounter tables (<em>Sandbox Generator</em> p. 10).</p>
+
+            <form method="POST" action="{{ url_for('hex_oracle') }}">
+                <input type="hidden" name="action" value="encounter">
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label for="enc_biome" class="form-label">Current Biome</label>
+                    <select id="enc_biome" name="biome" class="form-select">
+                        <option value="Grassland" {% if selected_enc_biome == 'Grassland' %}selected{% endif %}>Grassland (Plains &amp; Prairie)</option>
+                        <option value="Forest" {% if selected_enc_biome == 'Forest' %}selected{% endif %}>Forest (Dense Woodlands)</option>
+                        <option value="Hills" {% if selected_enc_biome == 'Hills' %}selected{% endif %}>Hills (Crags &amp; Ridges)</option>
+                        <option value="Marsh" {% if selected_enc_biome == 'Marsh' %}selected{% endif %}>Marsh (Bogs &amp; Swamps)</option>
+                        <option value="Mountains" {% if selected_enc_biome == 'Mountains' %}selected{% endif %}>Mountains (High Peaks)</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Roll Random Encounter</button>
+            </form>
+
+            {% if enc_result %}
+            <div style="margin-top: 1.25rem; padding: 1rem; background: rgba(30, 26, 20, 0.7); border: 1px solid var(--gold-secondary); border-radius: 4px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                    <span style="font-family: var(--font-serif); font-size: 1.05rem; color: #f5f0e6;">{{ enc_result.creature }}</span>
+                    <span style="font-size: 0.8rem; color: var(--gold-primary); font-weight: bold;">Threat: {{ enc_result.danger }}</span>
+                </div>
+                <div style="font-size: 0.85rem; color: #dfd8c8;">
+                    <strong>Behavior / Disposition:</strong> <em>{{ enc_result.activity }}</em>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Full-width Section: Wandering NPC Generator -->
+    <div class="card" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 1.5rem; margin-top: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <div>
+                <h3 style="font-family: var(--font-serif); color: var(--gold-primary); margin: 0 0 0.25rem 0;">Wandering NPC Generator</h3>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Create an immediate, multi-dimensional traveler with background, demeanor, dream, and secret.</p>
+            </div>
+            <form method="POST" action="{{ url_for('hex_oracle') }}">
+                <input type="hidden" name="action" value="npc">
+                <button type="submit" class="btn btn-primary">Generate Wandering NPC</button>
+            </form>
+        </div>
+
+        {% if npc_result %}
+        <div style="padding: 1.25rem; background: rgba(26, 22, 16, 0.85); border: 1px solid var(--border-color); border-radius: 6px;">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.75rem;">
+                <h4 style="font-family: var(--font-serif); font-size: 1.25rem; color: #f5f0e6; margin: 0;">{{ npc_result.name }}</h4>
+                <span class="hex-feature-badge">{{ npc_result.occupation }}</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; font-size: 0.88rem; color: #dfd8c8;">
+                <div><strong>Clothing:</strong> {{ npc_result.clothing }}</div>
+                <div><strong>Appearance:</strong> {{ npc_result.particularity }}</div>
+                <div><strong>First Impression:</strong> {{ npc_result.attitude }}</div>
+                <div><strong>Ambition / Dream:</strong> <em>{{ npc_result.dream }}</em></div>
+            </div>
+            {% if npc_result.secret and npc_result.secret != 'None' %}
+            <div style="margin-top: 0.75rem; padding-top: 0.5rem; border-top: 1px dashed rgba(255,255,255,0.1); font-size: 0.85rem; color: #f2a0a0;">
+                <strong>Hidden Secret:</strong> {{ npc_result.secret }}
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

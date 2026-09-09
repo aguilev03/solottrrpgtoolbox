@@ -1,0 +1,233 @@
+{
+  "name": "hex_landmarks",
+  "categories": {
+    "Natural": {
+      "subcategories": {
+        "Fauna": [
+          "Animal boneyard of giant mammoths or beasts",
+          "Towering mud anthill with industrious insects",
+          "Massive timber beaver dam creating a swamp basin",
+          "Giant beast skeleton / fossilized titan carapace",
+          "Colossal raptor or roc nest atop crags",
+          "Enormous hollow spiral snail shell turned into shelter",
+          "Yawning subterranean gallery opening in the hillside",
+          "Bleak grove covered in thousands of cawing crows",
+          "Predator hunting ground littered with claw marks",
+          "Ransacked clearing littered with broken branches and blood"
+        ],
+        "Flora A": [
+          "Thicket of wild, sweet blackberries and thorn briars",
+          "Dense, impenetrable wall of thorny brambles",
+          "Burnt, blackened clearing from a lightning strike",
+          "Centennial ancient oak towering over the terrain",
+          "Dead, petrified tree holding an eagle aerie",
+          "Exotic luminescent flowering tree",
+          "Colossal fallen trunk forming a natural bridge",
+          "Perfect fairy circle of vibrant blue wildflowers",
+          "Orchard grove of wild pear and apple trees",
+          "Giant carnivorous orchid emitting sweet musk"
+        ],
+        "Flora B": [
+          "Canopy of giant plate mushrooms",
+          "Hollow elder tree large enough to camp inside",
+          "Impenetrable thicket of interwoven creepers",
+          "Bioluminescent spore ring of fairy mushrooms",
+          "Lush patch of rare healing medicinal fungi",
+          "Sprawling network of creeping white mycelium",
+          "Cluster of rare alchemical frost-lilies",
+          "Massive root archway spanning an earthen trench",
+          "Uncanny straight alignment of ancient silver birches",
+          "Pitcher plant reservoir collecting crystal rain water"
+        ],
+        "Geology A": [
+          "Naturally sculpted rock resembling a roaring bear",
+          "Dark limestone cave mouth exhaling cool air",
+          "Yawning vertical chasm with echoes below",
+          "Impact crater with glassy melted edges",
+          "Crystalline proliferation sprouting from rock face",
+          "Pillar of uncut smoky quartz crystal",
+          "Bubbling subterranean mudpool or sulfur pit",
+          "Dangerous sinkhole surrounded by loose scree",
+          "Deep geological fault fissure with rising heat",
+          "Surface outcropping vein of silver or copper ore"
+        ],
+        "Geology B": [
+          "Deep eroded ravine with sheer sandstone walls",
+          "Tectonic rift split open by ancient tremors",
+          "Smooth natural blowhole whistle in the rock",
+          "Slender stone needle spire defying gravity",
+          "Treacherous talus slope of loose sliding shale",
+          "Concealed karst sinkhole choked with moss",
+          "Monumental natural stone arch framing the horizon",
+          "Natural basalt bridge spanning a wild torrent",
+          "Weather-carved stepped rock terraces",
+          "Monolithic erratic boulder deposited by ancient ice"
+        ],
+        "Hydrology": [
+          "Pebbled river ford suitable for wagons",
+          "Steaming mineral hot spring rimmed with algae",
+          "Placid mirror-like mountain tarn or lake",
+          "Reed-lined freshwater pond alive with frogs",
+          "Rushing whitewater rapids churning past rocks",
+          "Meandering broad river with sandy embankments",
+          "Artesian cold spring bubbling from a cliff base",
+          "Crystal-clear babbling brook over gravel",
+          "Subterranean flooded grotto accessible by swimming",
+          "Thundering waterfall plunging into a misty plunge pool"
+        ]
+      }
+    },
+    "Artificial": {
+      "subcategories": {
+        "Labor": [
+          "Weathered timber barn filled with dry hay",
+          "Logging clearing with freshly felled tree trunks",
+          "Furrowed crop field bordered by stone dikes",
+          "Stilt-raised granary sealed against vermin",
+          "Abandoned charcoal burner camp and smoldering pits",
+          "Fenced meadow dotted with grazing sheep",
+          "Excavated stone quarry with abandoned crane tackle",
+          "Ragged straw effigy scarecrow tied to a pole",
+          "Ash-strewn swidden slash-and-burn field",
+          "Timber water tower feeding wooden aqueduct chutes"
+        ],
+        "Mystery": [
+          "Carved boulder bearing spiral proto-runes",
+          "Megalithic dolmen table stone resting on three pillars",
+          "Hanging bone chimes strung from ancient boughs",
+          "Severed heads impaled on row of warning pikes",
+          "Terrifying wooden masks nailed to boundary trees",
+          "Heap of sun-bleached skulls arranged in a pyramid",
+          "Cairn of stacked river stones marking an ancient spot",
+          "Circle of weathered standing menhir stones",
+          "Creepy straw poppets hung from woven grass loops",
+          "Painted wooden clan totem pole adorned with feathers"
+        ],
+        "Ruin": [
+          "Burned-out wayside tavern with charred stone hearth",
+          "Collapsed timber barn reclaimed by creeping vines",
+          "Shaft entrance of an abandoned collapsed silver mine",
+          "Crumbling aristocratic manor house with sunken roof",
+          "Desecrated stone chapel with shattered stained glass",
+          "Smashed peasant cottage with broken thatch",
+          "Ivy-strangled watchtower overlooking the road",
+          "Field of mossy masonry rubble and fallen pillars",
+          "Ghostly razed village foundations overtaken by nettles",
+          "Ruined border fortress with cracked curtain walls"
+        ],
+        "Small Structure": [
+          "Stone traveler bench sheltered under an elm",
+          "Cleared bivouac camp ringed with dry fire-stones",
+          "Ornate octagonal wooden gazebo with rotting lattice",
+          "Rough-hewn timber hunter cabin with pelt stretchers",
+          "Sturdy wooden hunting blind perched high in the branches",
+          "Fenced hound kennel with rusted iron latches",
+          "Timber outhouse with carved heart door",
+          "Defensive wooden palisade barrier across trail",
+          "Stone well with copper bucket and winch",
+          "Zigzag split-rail cedar fence stretching across hills"
+        ],
+        "Travel": [
+          "Rot-resistant log boardwalk laid across black peat",
+          "Chiseled granite boundary stone marking baron land",
+          "Arched stone packhorse bridge spanning a gorge",
+          "Broken timber bridge with washed-out midspan",
+          "Carved wooden danger marker warning of monsters",
+          "Narrow ledge carved into cliffside trail",
+          "Weathered wooden guidepost with pointing arrows",
+          "Rough stone staircase ascending a steep precipice",
+          "Swaying hemp and rope suspension footbridge",
+          "Iron cable zipline with pulley for hauling gear"
+        ],
+        "Worship": [
+          "Hanging iron monastery bell on wooden gallows frame",
+          "Stone calvary crucifix at a three-way crossroads",
+          "Overgrown roadside cemetery with crooked headstones",
+          "Carved wooden wayside shrine to the Traveler Saint",
+          "Hallowed holy spring surrounded by coin offerings",
+          "Carved stone idol smeared with ochre and tallow",
+          "Small stone alcove shrine sheltering a patron saint",
+          "Chiseled tomb slab dedicated to a fallen knight",
+          "Prehistoric earthen tumulus mound covered in wildflowers",
+          "Sealed family burial vault carved into sandstone"
+        ]
+      }
+    },
+    "Magical": {
+      "subcategories": {
+        "Area under a Spell": [
+          "Perpetual snowfall microclimate within a 100-yard ring",
+          "Dampening anti-magic dead zone where no sparks light",
+          "Necromantic soil that causes dead insects to twitch",
+          "Blighted earth where seeds instantly wither and blacken",
+          "Hexed misfortune zone where equipment frequently snaps",
+          "Hemispherical dome of impenetrable magical gloom",
+          "Shimmering translucent force barrier enclosing a grove",
+          "Localized incessant whirlwind whipping dust into eyes",
+          "Sanctified zone warded against fiends and undead",
+          "Temporal stasis pocket where falling leaves hang motionless"
+        ],
+        "Enchanted Item": [
+          "Curative stone basin whose water restores vigor",
+          "Resonant silver bell that rings when evil approaches",
+          "Monolithic fertility stone garlanded with dry herbs",
+          "Prismatic fountain whose water tastes of honey and wine",
+          "Bough of golden apples that grant sudden inspiration",
+          "Bubbling mutagenic pit that alters coloration and traits",
+          "Carved runic stone that whispers forgotten languages",
+          "Corroded iron blade thrust deep into solid granite",
+          "Stagnant pool that reveals visions of distant events",
+          "Enormous iron witch cauldron bubbling with pungent broth"
+        ],
+        "Magic Path": [
+          "Stream of breathable enchanted water flowing up hill",
+          "Bioluminescent trail of spores only visible in total dark",
+          "Illusory cobblestone road leading across thin air",
+          "Invisible crystal bridge spanning a deadly canyon",
+          "Floating flight of stone steps spiraling into the clouds",
+          "Free-standing mirror gate reflecting another location",
+          "Arched rainbow bridge of solid refracted daylight",
+          "Talking riddle bridge that requires a riddle to cross",
+          "Mirror-smooth lake surface solid enough to walk upon",
+          "Swirling spatial rift connecting two distant hillsides"
+        ],
+        "Magic Remains": [
+          "Glade dusted in iridescent, shimmering fairy dust",
+          "Desecrated stone altar caked with blackened blood",
+          "Petrified corpse crystallized into glittering amethyst",
+          "Arcane scorched earth where grass grows in violet spirals",
+          "Shattered remnants of an ancient bronze war golem",
+          "Old wizard battlefield littered with warped spells and ash",
+          "Ruined arcane shrine with floating stone fragments",
+          "Statues of terrified travelers turned to stone by a basilisk",
+          "Runic circle marked by burnt ceremonial candles and salt",
+          "Glass crater created by a catastrophic arcane explosion"
+        ],
+        "Place of Power": [
+          "Ancient barrow mound humming with dormant ley-line power",
+          "Shrine marking the birthplace or martyrdom of a great saint",
+          "Arcane beacon spire that channels starlight into a beam",
+          "Mana well brimming with concentrated liquid sorcery",
+          "Neolithic astronomical stone ring aligned to equinoxes",
+          "Unspoiled primordial grove untouched by mortal decay",
+          "Enormous root node believed to connect to the World Tree",
+          "Luminescent sacred pool where water glows under moonlight",
+          "Polished gold solar disk focusing sunlight into raw power",
+          "Stepped basalt ziggurat humped over subterranean chambers"
+        ],
+        "Strange Phenomenon": [
+          "Living oak whose leaves burn with harmless emerald flame",
+          "Glacier spur that perpetually melts but never diminishes",
+          "Floating crystal prism rotating slowly in empty air",
+          "Spectral phantom manor that only appears at twilight",
+          "Glowing hieroglyphs pulsing with rhythm on natural cliffs",
+          "Inverse waterfall that cascades upward toward the clouds",
+          "Singing quartz crystal cluster that hums melodic chords",
+          "Lodestone deposit that forcefully attracts all iron gear",
+          "Ancient weathered boulder that speaks cryptic warnings",
+          "Whispering wind that repeats travelers secrets aloud"
+        ]
+      }
+    }
+  }
+}
