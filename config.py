@@ -4,8 +4,8 @@ import os
 
 class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY", "solo-ttrpg-tools-dev-secret-key-change-in-prod")
-    HOST = os.environ.get("HOST", "0.0.0.0")
-    PORT = int(os.environ.get("PORT", 8080))
+    HOST = os.environ.get("HOST", "127.0.0.1")
+    PORT = int(os.environ.get("PORT", 5000))
     DEBUG = os.environ.get("DEBUG", "false").lower() in ("true", "1", "yes")
 
     # Debug mode flag for dungeon generation rolls
