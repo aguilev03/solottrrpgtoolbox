@@ -3,14 +3,14 @@
 {% block title %}Hexroll 3 Sandbox & VTT — Solo TTRPG Tools{% endblock %}
 
 {% block header_nav %}
-<nav class="play-nav" style="display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
+<nav class="play-nav" style="display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap;">
     <span class="badge" style="color: var(--gold-primary); font-family: var(--font-serif); font-size: 0.85rem; letter-spacing: 1px; margin-right: 0.25rem;">&#127757; HEXROLL 3 (BACKER EDITION)</span>
     
     <!-- Quick Zoom Controls (Tablet Friendly) -->
-    <button type="button" class="btn btn-secondary btn-sm" onclick="sendZoom(-1)" title="Zoom In on Map (Scroll Up)">
+    <button type="button" class="btn btn-secondary btn-sm" onclick="sendZoom(-1)" title="Zoom In on Map">
         &#xFF0B; In
     </button>
-    <button type="button" class="btn btn-secondary btn-sm" onclick="sendZoom(1)" title="Zoom Out on Map (Scroll Down)">
+    <button type="button" class="btn btn-secondary btn-sm" onclick="sendZoom(1)" title="Zoom Out on Map">
         &#xFF0D; Out
     </button>
     
@@ -84,7 +84,7 @@
     #hexroll-touch-overlay {
         position: absolute;
         inset: 0;
-        z-index: 4;
+        z-index: 5;
         pointer-events: none;
         touch-action: none;
         cursor: grab;
@@ -101,20 +101,20 @@
     #pan-mode-banner {
         display: none;
         position: absolute;
-        top: 12px;
+        top: 10px;
         left: 50%;
         transform: translateX(-50%);
-        background: rgba(26, 20, 14, 0.95);
+        background: rgba(26, 20, 14, 0.96);
         border: 1px solid var(--gold-primary);
         color: var(--gold-primary);
-        padding: 6px 18px;
+        padding: 6px 16px;
         border-radius: 20px;
-        font-size: 0.82rem;
+        font-size: 0.8rem;
         font-family: var(--font-serif);
         letter-spacing: 0.5px;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.8);
-        pointer-events: none;
-        z-index: 6;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.85);
+        pointer-events: auto;
+        z-index: 7;
         white-space: nowrap;
     }
 
@@ -123,13 +123,13 @@
         position: absolute;
         bottom: 16px;
         right: 16px;
-        z-index: 8;
-        background: rgba(20, 16, 12, 0.92);
+        z-index: 9;
+        background: rgba(20, 16, 12, 0.94);
         border: 1px solid var(--gold-primary);
         border-radius: 12px;
         padding: 10px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.85);
-        backdrop-filter: blur(4px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.9);
+        backdrop-filter: blur(6px);
         user-select: none;
         -webkit-user-select: none;
         display: flex;
@@ -148,8 +148,8 @@
         position: absolute;
         bottom: 16px;
         right: 16px;
-        z-index: 8;
-        background: rgba(20, 16, 12, 0.92);
+        z-index: 9;
+        background: rgba(20, 16, 12, 0.94);
         border: 1px solid var(--gold-primary);
         color: var(--gold-primary);
         padding: 8px 14px;
@@ -157,13 +157,13 @@
         font-family: var(--font-serif);
         font-size: 0.82rem;
         cursor: pointer;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.7);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.75);
     }
 
     .dpad-grid {
         display: grid;
-        grid-template-columns: repeat(3, 40px);
-        grid-template-rows: repeat(3, 40px);
+        grid-template-columns: repeat(3, 42px);
+        grid-template-rows: repeat(3, 42px);
         gap: 4px;
         justify-items: center;
         align-items: center;
@@ -176,7 +176,7 @@
         border: 1px solid var(--border-color);
         color: #f5f0e6;
         border-radius: 6px;
-        font-size: 1rem;
+        font-size: 1.05rem;
         font-weight: bold;
         display: flex;
         align-items: center;
@@ -227,6 +227,25 @@
         color: #1a140e;
     }
 
+    .hud-btn-sub {
+        flex: 1;
+        padding: 4px 0;
+        background: rgba(35, 30, 22, 0.85);
+        border: 1px solid var(--border-color);
+        color: #dfd8c8;
+        border-radius: 4px;
+        font-size: 0.72rem;
+        font-family: var(--font-serif);
+        cursor: pointer;
+        text-align: center;
+    }
+    .hud-btn-sub.active {
+        background: var(--gold-primary);
+        color: #1a140e;
+        border-color: #fff;
+        font-weight: bold;
+    }
+
     .hud-header {
         display: flex;
         width: 100%;
@@ -267,7 +286,10 @@
 
     <!-- Pan Mode Fullscreen Touch Overlay -->
     <div id="hexroll-touch-overlay"></div>
-    <div id="pan-mode-banner">&#x270B; PAN MODE ACTIVE &mdash; Drag with 1 finger to pan map. Tap &ldquo;Select&rdquo; to click hexes.</div>
+    <div id="pan-mode-banner">
+        <span>&#x270B; <strong>PAN MODE ACTIVE</strong> &mdash; Swipe 1 finger to glide map.</span>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="togglePanMode()" style="margin-left: 8px; padding: 2px 8px; font-size: 0.75rem;">Switch to Select</button>
+    </div>
 
     <!-- Floating Touch Navigation HUD -->
     <div id="touch-hud">
@@ -297,6 +319,16 @@
             <button type="button" class="hud-action-btn" onclick="sendZoom(1)" title="Zoom Out">
                 &#xFF0D; Zoom Out
             </button>
+        </div>
+
+        <!-- Drag Button Switcher (Left vs Right vs Middle Click) -->
+        <div style="width: 100%;">
+            <div style="font-size: 0.68rem; color: var(--text-muted); margin-bottom: 3px; text-align: left;">Drag Button:</div>
+            <div class="hud-row">
+                <button type="button" class="hud-btn-sub active" id="btn-mouse-left" onclick="setDragButton(0)" title="Left-Click Drag (Standard)">Left</button>
+                <button type="button" class="hud-btn-sub" id="btn-mouse-right" onclick="setDragButton(2)" title="Right-Click Drag (Camera Orbit/Pan)">Right</button>
+                <button type="button" class="hud-btn-sub" id="btn-mouse-mid" onclick="setDragButton(1)" title="Middle-Click Drag (VTT Pan)">Middle</button>
+            </div>
         </div>
 
         <!-- Mode Toggle Row -->
@@ -382,17 +414,102 @@ function getIframeTarget() {
     try {
         const doc = iframe.contentDocument || iframe.contentWindow.document;
         if (!doc) return null;
-        // In Xpra HTML5, the main render target is the canvas inside #screen
+        // In Xpra HTML5, the canvas is the primary surface, with screen/window containers
         const canvas = doc.querySelector('canvas') || doc.getElementById('screen') || doc.body;
-        return { target: canvas, doc: doc, win: iframe.contentWindow };
+        return { target: canvas, doc: doc, win: iframe.contentWindow, iframe: iframe };
     } catch (e) {
         console.warn('Cannot access iframe contentDocument directly:', e);
         return null;
     }
 }
 
+function getTouchPosInIframe(touch) {
+    const iframe = document.getElementById('hexroll-iframe');
+    const rect = iframe.getBoundingClientRect();
+    return {
+        x: touch.clientX - rect.left,
+        y: touch.clientY - rect.top
+    };
+}
+
+// Active Mouse Drag Button: 0 = Left, 2 = Right, 1 = Middle
+let currentDragButton = 0;
+
+function setDragButton(btn) {
+    currentDragButton = btn;
+    document.querySelectorAll('.hud-btn-sub').forEach(b => b.classList.remove('active'));
+    if (btn === 0) document.getElementById('btn-mouse-left').classList.add('active');
+    else if (btn === 2) document.getElementById('btn-mouse-right').classList.add('active');
+    else if (btn === 1) document.getElementById('btn-mouse-mid').classList.add('active');
+}
+
 // ==========================================
-// 4. Zoom Engine (Mouse Wheel Simulation)
+// 4. Low-Level Native Mouse Dispatchers
+// ==========================================
+function dispatchMouseDown(x, y, button = 0) {
+    const ctx = getIframeTarget();
+    if (!ctx) return;
+    const { target, doc, win } = ctx;
+    const btns = button === 0 ? 1 : (button === 2 ? 2 : 4);
+
+    const ev = new MouseEvent('mousedown', {
+        bubbles: true,
+        cancelable: true,
+        view: win,
+        clientX: x,
+        clientY: y,
+        screenX: x,
+        screenY: y,
+        button: button,
+        buttons: btns
+    });
+    target.dispatchEvent(ev);
+    doc.dispatchEvent(ev);
+}
+
+function dispatchMouseMove(x, y, button = 0) {
+    const ctx = getIframeTarget();
+    if (!ctx) return;
+    const { target, doc, win } = ctx;
+    const btns = button === 0 ? 1 : (button === 2 ? 2 : 4);
+
+    const ev = new MouseEvent('mousemove', {
+        bubbles: true,
+        cancelable: true,
+        view: win,
+        clientX: x,
+        clientY: y,
+        screenX: x,
+        screenY: y,
+        button: button,
+        buttons: btns
+    });
+    target.dispatchEvent(ev);
+    doc.dispatchEvent(ev);
+}
+
+function dispatchMouseUp(x, y, button = 0) {
+    const ctx = getIframeTarget();
+    if (!ctx) return;
+    const { target, doc, win } = ctx;
+
+    const ev = new MouseEvent('mouseup', {
+        bubbles: true,
+        cancelable: true,
+        view: win,
+        clientX: x,
+        clientY: y,
+        screenX: x,
+        screenY: y,
+        button: button,
+        buttons: 0
+    });
+    target.dispatchEvent(ev);
+    doc.dispatchEvent(ev);
+}
+
+// ==========================================
+// 5. Zoom Engine (Mouse Wheel + Key Fallbacks)
 // ==========================================
 function sendZoom(direction) {
     // direction: -1 is Zoom In (scroll up), +1 is Zoom Out (scroll down)
@@ -401,16 +518,16 @@ function sendZoom(direction) {
 
     const { target, doc, win } = ctx;
     const rect = target.getBoundingClientRect ? target.getBoundingClientRect() : { left: 0, top: 0, width: win.innerWidth, height: win.innerHeight };
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
+    const cx = rect.width / 2;
+    const cy = rect.height / 2;
     const delta = direction * 120;
 
-    // Dispatch modern WheelEvent
+    // 1. Dispatch WheelEvent (bubbles up from target to document and window)
     const wheelEv = new WheelEvent('wheel', {
         deltaY: delta,
         deltaX: 0,
         deltaZ: 0,
-        deltaMode: 0, // DOM_DELTA_PIXEL
+        deltaMode: 0,
         clientX: cx,
         clientY: cy,
         screenX: cx,
@@ -420,8 +537,10 @@ function sendZoom(direction) {
         view: win
     });
     target.dispatchEvent(wheelEv);
+    doc.dispatchEvent(wheelEv);
+    win.dispatchEvent(wheelEv);
 
-    // Also dispatch legacy mousewheel event for older Xpra listeners
+    // 2. Dispatch legacy mousewheel event
     try {
         const legacyEv = new win.CustomEvent('mousewheel', { bubbles: true, cancelable: true });
         legacyEv.wheelDelta = -delta;
@@ -430,142 +549,171 @@ function sendZoom(direction) {
         legacyEv.clientY = cy;
         target.dispatchEvent(legacyEv);
     } catch (err) {}
-}
 
-// ==========================================
-// 5. Map Panning Simulation (Mouse Drag + Keys)
-// ==========================================
-function panBy(dx, dy) {
-    const ctx = getIframeTarget();
-    if (!ctx) return;
+    // 3. Also send keyboard zoom keys (+ / - and PageUp / PageDown)
+    const keyConfig = direction < 0
+        ? { key: '=', code: 'Equal', keyCode: 187 }
+        : { key: '-', code: 'Minus', keyCode: 189 };
 
-    const { target, doc, win } = ctx;
-    const rect = target.getBoundingClientRect ? target.getBoundingClientRect() : { left: 0, top: 0, width: win.innerWidth, height: win.innerHeight };
-    const startX = rect.left + rect.width / 2;
-    const startY = rect.top + rect.height / 2;
-    const endX = startX + dx;
-    const endY = startY + dy;
-
-    // Simulate Left-Click Drag (Button 0, buttons: 1)
-    target.dispatchEvent(new MouseEvent('mousedown', {
-        bubbles: true,
-        cancelable: true,
-        view: win,
-        clientX: startX,
-        clientY: startY,
-        screenX: startX,
-        screenY: startY,
-        button: 0,
-        buttons: 1
-    }));
-
-    // Interpolate in 4 intermediate steps
-    const steps = 4;
-    for (let i = 1; i <= steps; i++) {
-        const curX = startX + (endX - startX) * (i / steps);
-        const curY = startY + (endY - startY) * (i / steps);
-        target.dispatchEvent(new MouseEvent('mousemove', {
-            bubbles: true,
-            cancelable: true,
-            view: win,
-            clientX: curX,
-            clientY: curY,
-            screenX: curX,
-            screenY: curY,
-            button: 0,
-            buttons: 1
-        }));
-    }
-
-    target.dispatchEvent(new MouseEvent('mouseup', {
-        bubbles: true,
-        cancelable: true,
-        view: win,
-        clientX: endX,
-        clientY: endY,
-        screenX: endX,
-        screenY: endY,
-        button: 0,
-        buttons: 0
-    }));
-
-    // Also dispatch keyboard arrow keys as a fallback for camera movement
-    if (Math.abs(dx) > Math.abs(dy)) {
-        if (dx > 0) sendKeyboardKey('ArrowLeft', 'KeyA', 37);
-        else sendKeyboardKey('ArrowRight', 'KeyD', 39);
-    } else {
-        if (dy > 0) sendKeyboardKey('ArrowUp', 'KeyW', 38);
-        else sendKeyboardKey('ArrowDown', 'KeyS', 40);
-    }
-}
-
-function sendKeyboardKey(keyName, code, keyCode) {
-    const ctx = getIframeTarget();
-    if (!ctx) return;
-    const { target, win } = ctx;
-
-    target.dispatchEvent(new KeyboardEvent('keydown', {
-        key: keyName,
-        code: code,
-        keyCode: keyCode,
-        which: keyCode,
-        bubbles: true,
-        cancelable: true,
-        view: win
-    }));
+    const keyEvDown = new KeyboardEvent('keydown', { ...keyConfig, bubbles: true, cancelable: true, view: win });
+    target.dispatchEvent(keyEvDown);
+    doc.dispatchEvent(keyEvDown);
     setTimeout(() => {
-        target.dispatchEvent(new KeyboardEvent('keyup', {
-            key: keyName,
-            code: code,
-            keyCode: keyCode,
-            which: keyCode,
+        const keyEvUp = new KeyboardEvent('keyup', { ...keyConfig, bubbles: true, cancelable: true, view: win });
+        target.dispatchEvent(keyEvUp);
+        doc.dispatchEvent(keyEvUp);
+    }, 60);
+}
+
+// ==========================================
+// 6. Directional Key Dispatcher (WASD + Arrows)
+// ==========================================
+function sendDirectionKeys(direction) {
+    const ctx = getIframeTarget();
+    if (!ctx) return;
+    const { target, doc, win } = ctx;
+
+    const keyMap = {
+        'up': [
+            { key: 'ArrowUp', code: 'ArrowUp', keyCode: 38 },
+            { key: 'w', code: 'KeyW', keyCode: 87 }
+        ],
+        'down': [
+            { key: 'ArrowDown', code: 'ArrowDown', keyCode: 40 },
+            { key: 's', code: 'KeyS', keyCode: 83 }
+        ],
+        'left': [
+            { key: 'ArrowLeft', code: 'ArrowLeft', keyCode: 37 },
+            { key: 'a', code: 'KeyA', keyCode: 65 }
+        ],
+        'right': [
+            { key: 'ArrowRight', code: 'ArrowRight', keyCode: 39 },
+            { key: 'd', code: 'KeyD', keyCode: 68 }
+        ]
+    };
+
+    const keys = keyMap[direction] || [];
+    keys.forEach(k => {
+        const evDown = new KeyboardEvent('keydown', {
+            key: k.key,
+            code: k.code,
+            keyCode: k.keyCode,
+            which: k.keyCode,
             bubbles: true,
             cancelable: true,
             view: win
-        }));
-    }, 40);
+        });
+        target.dispatchEvent(evDown);
+        doc.dispatchEvent(evDown);
+
+        setTimeout(() => {
+            const evUp = new KeyboardEvent('keyup', {
+                key: k.key,
+                code: k.code,
+                keyCode: k.keyCode,
+                which: k.keyCode,
+                bubbles: true,
+                cancelable: true,
+                view: win
+            });
+            target.dispatchEvent(evUp);
+            doc.dispatchEvent(evUp);
+        }, 80);
+    });
 }
 
 // ==========================================
-// 6. D-Pad Press & Hold Continuous Gliding
+// 7. Smooth Animated Drag for D-Pad Buttons
 // ==========================================
-function setupContinuousButton(btnId, dx, dy) {
+let dpadInterval = null;
+
+function startDpadDrag(dirX, dirY) {
+    performAnimatedStroke(dirX, dirY);
+    clearInterval(dpadInterval);
+    dpadInterval = setInterval(() => {
+        performAnimatedStroke(dirX, dirY);
+    }, 280);
+}
+
+function stopDpadDrag() {
+    clearInterval(dpadInterval);
+    dpadInterval = null;
+}
+
+function performAnimatedStroke(dirX, dirY) {
+    const ctx = getIframeTarget();
+    if (!ctx) return;
+    const { target } = ctx;
+
+    const rect = target.getBoundingClientRect ? target.getBoundingClientRect() : { width: 800, height: 600 };
+    const cx = rect.width / 2;
+    const cy = rect.height / 2;
+
+    const strokeDistance = 140;
+    const targetX = cx + dirX * strokeDistance;
+    const targetY = cy + dirY * strokeDistance;
+
+    // Dispatch mousedown at center
+    dispatchMouseDown(cx, cy, currentDragButton);
+
+    const startTime = performance.now();
+    const duration = 200; // 200ms human drag stroke
+
+    function step(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1.0);
+        // Smooth sine ease
+        const ease = 0.5 - 0.5 * Math.cos(progress * Math.PI);
+        const curX = cx + (targetX - cx) * ease;
+        const curY = cy + (targetY - cy) * ease;
+
+        dispatchMouseMove(curX, curY, currentDragButton);
+
+        if (progress < 1.0) {
+            requestAnimationFrame(step);
+        } else {
+            dispatchMouseUp(targetX, targetY, currentDragButton);
+        }
+    }
+
+    requestAnimationFrame(step);
+
+    // Send directional keys simultaneously
+    if (dirX < 0) sendDirectionKeys('right');
+    else if (dirX > 0) sendDirectionKeys('left');
+    if (dirY < 0) sendDirectionKeys('down');
+    else if (dirY > 0) sendDirectionKeys('up');
+}
+
+function bindDpad(btnId, dirX, dirY) {
     const btn = document.getElementById(btnId);
     if (!btn) return;
-    let timer = null;
 
-    const start = (e) => {
-        e.preventDefault();
-        panBy(dx, dy);
-        clearInterval(timer);
-        timer = setInterval(() => {
-            panBy(dx, dy);
-        }, 120);
-    };
+    btn.addEventListener('mousedown', (e) => { e.preventDefault(); startDpadDrag(dirX, dirY); });
+    btn.addEventListener('mouseup', (e) => { e.preventDefault(); stopDpadDrag(); });
+    btn.addEventListener('mouseleave', stopDpadDrag);
 
-    const stop = (e) => {
-        clearInterval(timer);
-        timer = null;
-    };
-
-    btn.addEventListener('mousedown', start);
-    btn.addEventListener('mouseup', stop);
-    btn.addEventListener('mouseleave', stop);
-    btn.addEventListener('touchstart', start, { passive: false });
-    btn.addEventListener('touchend', stop);
-    btn.addEventListener('touchcancel', stop);
+    btn.addEventListener('touchstart', (e) => { e.preventDefault(); startDpadDrag(dirX, dirY); }, { passive: false });
+    btn.addEventListener('touchend', (e) => { e.preventDefault(); stopDpadDrag(); });
+    btn.addEventListener('touchcancel', stopDpadDrag);
 }
 
-// Configure 4 D-Pad directions (Step: 70px)
-setupContinuousButton('dpad-up', 0, 70);
-setupContinuousButton('dpad-down', 0, -70);
-setupContinuousButton('dpad-left', 70, 0);
-setupContinuousButton('dpad-right', -70, 0);
+// Bind D-Pad directions:
+// Click Up: Drag map downward to show higher map (+1 Y)
+// Click Down: Drag map upward to show lower map (-1 Y)
+// Click Left: Drag map rightward to show left map (+1 X)
+// Click Right: Drag map leftward to show right map (-1 X)
+bindDpad('dpad-up', 0, 1);
+bindDpad('dpad-down', 0, -1);
+bindDpad('dpad-left', 1, 0);
+bindDpad('dpad-right', -1, 0);
 
 // ==========================================
-// 7. Pan Mode Toggle (Single-Finger Drag)
+// 8. Pan Mode Toggle & True Touch Dragging
 // ==========================================
 let isPanModeActive = false;
+let touchDragging = false;
+let initialPinchDistance = null;
 
 function togglePanMode() {
     isPanModeActive = !isPanModeActive;
@@ -576,7 +724,7 @@ function togglePanMode() {
 
     if (isPanModeActive) {
         overlay.classList.add('active');
-        banner.style.display = 'block';
+        banner.style.display = 'flex';
         topBtn.classList.add('btn-primary');
         topBtn.classList.remove('btn-secondary');
         topBtn.innerHTML = '&#x1F446; Select Mode';
@@ -584,6 +732,10 @@ function togglePanMode() {
         hudBtn.style.background = 'var(--gold-primary)';
         hudBtn.style.color = '#1a140e';
     } else {
+        if (touchDragging) {
+            touchDragging = false;
+            dispatchMouseUp(0, 0, currentDragButton);
+        }
         overlay.classList.remove('active');
         banner.style.display = 'none';
         topBtn.classList.remove('btn-primary');
@@ -595,99 +747,87 @@ function togglePanMode() {
     }
 }
 
-// Drag logic on overlay when Pan Mode is ON
+// True Continuous Dragging on Overlay
 const overlay = document.getElementById('hexroll-touch-overlay');
-let lastTouchX = null;
-let lastTouchY = null;
-let initialPinchDistance = null;
 
 overlay.addEventListener('touchstart', (e) => {
     if (e.touches.length === 1) {
-        lastTouchX = e.touches[0].clientX;
-        lastTouchY = e.touches[0].clientY;
+        const pos = getTouchPosInIframe(e.touches[0]);
+        touchDragging = true;
+        // Send mousedown ONCE at start of touch
+        dispatchMouseDown(pos.x, pos.y, currentDragButton);
     } else if (e.touches.length === 2) {
-        const dx = e.touches[0].clientX - e.touches[1].clientX;
-        const dy = e.touches[0].clientY - e.touches[1].clientY;
-        initialPinchDistance = Math.hypot(dx, dy);
+        // Switch to pinch
+        if (touchDragging) {
+            touchDragging = false;
+            const pos = getTouchPosInIframe(e.touches[0]);
+            dispatchMouseUp(pos.x, pos.y, currentDragButton);
+        }
+        initialPinchDistance = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+        );
     }
 }, { passive: false });
 
 overlay.addEventListener('touchmove', (e) => {
     e.preventDefault();
 
-    // 2-Finger Pinch to Zoom
-    if (e.touches.length === 2 && initialPinchDistance !== null) {
-        const dx = e.touches[0].clientX - e.touches[1].clientX;
-        const dy = e.touches[0].clientY - e.touches[1].clientY;
-        const dist = Math.hypot(dx, dy);
+    if (e.touches.length === 1 && touchDragging) {
+        const pos = getTouchPosInIframe(e.touches[0]);
+        // Send continuous mousemove while button stays down
+        dispatchMouseMove(pos.x, pos.y, currentDragButton);
+    } else if (e.touches.length === 2 && initialPinchDistance !== null) {
+        // Two-finger pinch to zoom
+        const dist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+        );
         const diff = dist - initialPinchDistance;
-
-        if (Math.abs(diff) > 18) {
-            if (diff > 0) {
-                sendZoom(-1); // Pinch out -> Zoom In
-            } else {
-                sendZoom(1);  // Pinch in -> Zoom Out
-            }
+        if (Math.abs(diff) > 20) {
+            sendZoom(diff > 0 ? -1 : 1);
             initialPinchDistance = dist;
-        }
-        return;
-    }
-
-    // 1-Finger Pan
-    if (e.touches.length === 1 && lastTouchX !== null && lastTouchY !== null) {
-        const curX = e.touches[0].clientX;
-        const curY = e.touches[0].clientY;
-        const dx = curX - lastTouchX;
-        const dy = curY - lastTouchY;
-
-        if (Math.hypot(dx, dy) > 6) {
-            panBy(dx * 1.5, dy * 1.5);
-            lastTouchX = curX;
-            lastTouchY = curY;
         }
     }
 }, { passive: false });
 
 overlay.addEventListener('touchend', (e) => {
+    if (touchDragging) {
+        touchDragging = false;
+        const pos = e.changedTouches.length ? getTouchPosInIframe(e.changedTouches[0]) : { x: 0, y: 0 };
+        // Send mouseup ONCE when finger lifts
+        dispatchMouseUp(pos.x, pos.y, currentDragButton);
+    }
     if (e.touches.length === 0) {
-        lastTouchX = null;
-        lastTouchY = null;
         initialPinchDistance = null;
-    } else if (e.touches.length === 1) {
-        initialPinchDistance = null;
-        lastTouchX = e.touches[0].clientX;
-        lastTouchY = e.touches[0].clientY;
     }
 });
 
 // Also support desktop mouse drag on overlay when Pan Mode is ON
-let isMouseDown = false;
-let lastMouseX = null;
-let lastMouseY = null;
+let mouseDragging = false;
 
 overlay.addEventListener('mousedown', (e) => {
-    isMouseDown = true;
-    lastMouseX = e.clientX;
-    lastMouseY = e.clientY;
+    mouseDragging = true;
+    const pos = getTouchPosInIframe(e);
+    dispatchMouseDown(pos.x, pos.y, currentDragButton);
 });
 
 overlay.addEventListener('mousemove', (e) => {
-    if (!isMouseDown) return;
-    const dx = e.clientX - lastMouseX;
-    const dy = e.clientY - lastMouseY;
-    if (Math.hypot(dx, dy) > 6) {
-        panBy(dx * 1.5, dy * 1.5);
-        lastMouseX = e.clientX;
-        lastMouseY = e.clientY;
+    if (!mouseDragging) return;
+    const pos = getTouchPosInIframe(e);
+    dispatchMouseMove(pos.x, pos.y, currentDragButton);
+});
+
+overlay.addEventListener('mouseup', (e) => {
+    if (mouseDragging) {
+        mouseDragging = false;
+        const pos = getTouchPosInIframe(e);
+        dispatchMouseUp(pos.x, pos.y, currentDragButton);
     }
 });
 
-overlay.addEventListener('mouseup', () => {
-    isMouseDown = false;
-});
-
 // ==========================================
-// 8. Attach Native Pinch-to-Zoom inside Iframe
+// 9. Attach Native Pinch-to-Zoom inside Iframe
 // ==========================================
 function attachIframeGestures() {
     try {
@@ -703,23 +843,24 @@ function attachIframeGestures() {
 
         canvas.addEventListener('touchstart', (e) => {
             if (e.touches.length === 2) {
-                const dx = e.touches[0].clientX - e.touches[1].clientX;
-                const dy = e.touches[0].clientY - e.touches[1].clientY;
-                iframePinchDist = Math.hypot(dx, dy);
+                iframePinchDist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
             }
         }, { passive: false });
 
         canvas.addEventListener('touchmove', (e) => {
             if (e.touches.length === 2 && iframePinchDist !== null) {
                 e.preventDefault();
-                const dx = e.touches[0].clientX - e.touches[1].clientX;
-                const dy = e.touches[0].clientY - e.touches[1].clientY;
-                const dist = Math.hypot(dx, dy);
+                const dist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
                 const diff = dist - iframePinchDist;
 
-                if (Math.abs(diff) > 18) {
-                    if (diff > 0) sendZoom(-1);
-                    else sendZoom(1);
+                if (Math.abs(diff) > 20) {
+                    sendZoom(diff > 0 ? -1 : 1);
                     iframePinchDist = dist;
                 }
             }
@@ -733,7 +874,6 @@ function attachIframeGestures() {
     }
 }
 
-// Try attaching on iframe load and after delay
 const iframeEl = document.getElementById('hexroll-iframe');
 if (iframeEl) {
     iframeEl.addEventListener('load', () => {
