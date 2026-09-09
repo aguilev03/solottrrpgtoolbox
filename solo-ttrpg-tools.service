@@ -3,20 +3,20 @@ Description=Solo TTRPG Tools Web Application
 After=network.target
 
 [Service]
-Type=notify
-# Change User and Group to match your Debian LXC user (e.g., www-data, debian, or your username)
-User=www-data
-Group=www-data
-WorkingDirectory=/opt/solo-ttrpg-tools
-Environment="PATH=/opt/solo-ttrpg-tools/.venv/bin:/usr/local/bin:/usr/bin:/bin"
+Type=simple
+# User and Group matching your Debian LXC
+User=hexroll
+Group=hexroll
+WorkingDirectory=/home/hexroll/solottrrpgtoolbox
+Environment="PATH=/home/hexroll/solottrrpgtoolbox/.venv/bin:/usr/local/bin:/usr/bin:/bin"
 Environment="PORT=8080"
-Environment="HOST=0.0.0.0"
+Environment="HOST=127.0.0.1"
 Environment="DEBUG_DUNGEON_ROLLS=false"
 
-# Production execution with Gunicorn (3 worker processes)
-ExecStart=/opt/solo-ttrpg-tools/.venv/bin/gunicorn \
+# Production execution with Gunicorn (3 worker processes) bound to 127.0.0.1
+ExecStart=/home/hexroll/solottrrpgtoolbox/.venv/bin/gunicorn \
     --workers 3 \
-    --bind 0.0.0.0:8080 \
+    --bind 127.0.0.1:8080 \
     --access-logfile - \
     --error-logfile - \
     app:app
