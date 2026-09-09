@@ -3,44 +3,76 @@
 {% block title %}Hexroll 3 Sandbox & VTT — Solo TTRPG Tools{% endblock %}
 
 {% block header_nav %}
-<nav class="play-nav">
+<nav class="play-nav" style="display: flex; align-items: center; gap: 0.5rem;">
+    <span class="badge" style="color: var(--gold-primary); font-family: var(--font-serif); font-size: 0.85rem; letter-spacing: 1px; margin-right: 0.25rem;">&#127757; HEXROLL 3 (BACKER EDITION)</span>
+    <button type="button" class="btn btn-secondary btn-sm" onclick="reloadFrame()" title="Reload Stream">
+        &#8635; Reload
+    </button>
+    <button type="button" class="btn btn-secondary btn-sm" onclick="toggleFullscreen()" id="fullscreen-btn" title="Toggle Fullscreen">
+        &#x26F6; Fullscreen
+    </button>
+    <a href="{{ hexroll_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" title="Open in new window or tab">
+        &#8599; Pop Out
+    </a>
     <a href="{{ url_for('index') }}" class="btn btn-secondary btn-sm">&larr; Home</a>
-    <a href="{{ url_for('dungeon_menu') }}" class="btn btn-secondary btn-sm">Dungeon Crawler</a>
-    <a href="{{ url_for('emulator_main') }}" class="btn btn-secondary btn-sm">Emulator</a>
 </nav>
 {% endblock %}
 
 {% block main_class %}hexroll-fullscreen-container{% endblock %}
 
 {% block content %}
-<div class="hexroll-wrapper">
-    <div class="hexroll-bar">
-        <div class="hexroll-bar-title">
-            <span>&#127757;</span>
-            <span>HEXROLL 3 (BACKER EDITION)</span>
-        </div>
-        <div class="hexroll-bar-actions">
-            <button type="button" class="btn btn-secondary btn-sm" onclick="reloadFrame()" title="Reload Stream">
-                &#8635; Reload
-            </button>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="toggleFullscreen()" id="fullscreen-btn" title="Toggle Fullscreen">
-                &#x26F6; Fullscreen
-            </button>
-            <a href="{{ hexroll_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" title="Open in new window or tab">
-                &#8599; Pop Out
-            </a>
-        </div>
-    </div>
-    
-    <div class="hexroll-frame-container" id="hexroll-container">
-        <iframe
-            id="hexroll-iframe"
-            class="hexroll-iframe"
-            src="{{ hexroll_url }}"
-            allow="fullscreen; clipboard-read; clipboard-write; autoplay"
-            title="Hexroll 3 VTT Interface">
-        </iframe>
-    </div>
+<style>
+    /* Ensure iframe takes over entire bottom viewport below header */
+    html, body {
+        height: 100%;
+        overflow: hidden;
+    }
+    .site-header {
+        flex-shrink: 0;
+        z-index: 10;
+    }
+    .main-content.hexroll-fullscreen-container {
+        max-width: 100% !important;
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        flex: 1 1 auto;
+        min-height: 0;
+        height: calc(100vh - 58px);
+        height: calc(100dvh - 58px);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        position: relative;
+    }
+    .hexroll-frame-container {
+        flex: 1 1 auto;
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+        position: relative;
+        background: #0d0d0d;
+        overflow: hidden;
+    }
+    .hexroll-iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+        display: block;
+    }
+</style>
+
+<div class="hexroll-frame-container" id="hexroll-container">
+    <iframe
+        id="hexroll-iframe"
+        class="hexroll-iframe"
+        src="{{ hexroll_url }}"
+        allow="fullscreen; clipboard-read; clipboard-write; autoplay"
+        title="Hexroll 3 VTT Interface">
+    </iframe>
 </div>
 
 <script>
