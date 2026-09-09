@@ -3,8 +3,22 @@
 {% block title %}Hexroll 3 Sandbox & VTT — Solo TTRPG Tools{% endblock %}
 
 {% block header_nav %}
-<nav class="play-nav" style="display: flex; align-items: center; gap: 0.5rem;">
+<nav class="play-nav" style="display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
     <span class="badge" style="color: var(--gold-primary); font-family: var(--font-serif); font-size: 0.85rem; letter-spacing: 1px; margin-right: 0.25rem;">&#127757; HEXROLL 3 (BACKER EDITION)</span>
+    
+    <!-- Quick Zoom Controls (Tablet Friendly) -->
+    <button type="button" class="btn btn-secondary btn-sm" onclick="sendZoom(-1)" title="Zoom In on Map (Scroll Up)">
+        &#xFF0B; In
+    </button>
+    <button type="button" class="btn btn-secondary btn-sm" onclick="sendZoom(1)" title="Zoom Out on Map (Scroll Down)">
+        &#xFF0D; Out
+    </button>
+    
+    <!-- Mode Toggle: Pan vs Select -->
+    <button type="button" class="btn btn-secondary btn-sm" id="pan-toggle-btn" onclick="togglePanMode()" title="Toggle Single-Finger Pan Mode">
+        &#x270B; Pan Mode
+    </button>
+
     <button type="button" class="btn btn-secondary btn-sm" onclick="reloadFrame()" title="Reload Stream">
         &#8635; Reload
     </button>
@@ -26,6 +40,7 @@
     html, body {
         height: 100%;
         overflow: hidden;
+        touch-action: none;
     }
     .site-header {
         flex-shrink: 0;
@@ -62,6 +77,182 @@
         height: 100%;
         border: none;
         display: block;
+        touch-action: none;
+    }
+
+    /* Pan Mode Touch Overlay */
+    #hexroll-touch-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 4;
+        pointer-events: none;
+        touch-action: none;
+        cursor: grab;
+    }
+    #hexroll-touch-overlay.active {
+        pointer-events: auto;
+        background: rgba(0, 0, 0, 0.01);
+    }
+    #hexroll-touch-overlay.active:active {
+        cursor: grabbing;
+    }
+
+    /* Pan Mode Status Banner */
+    #pan-mode-banner {
+        display: none;
+        position: absolute;
+        top: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(26, 20, 14, 0.95);
+        border: 1px solid var(--gold-primary);
+        color: var(--gold-primary);
+        padding: 6px 18px;
+        border-radius: 20px;
+        font-size: 0.82rem;
+        font-family: var(--font-serif);
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.8);
+        pointer-events: none;
+        z-index: 6;
+        white-space: nowrap;
+    }
+
+    /* Floating Touch Navigation HUD */
+    #touch-hud {
+        position: absolute;
+        bottom: 16px;
+        right: 16px;
+        z-index: 8;
+        background: rgba(20, 16, 12, 0.92);
+        border: 1px solid var(--gold-primary);
+        border-radius: 12px;
+        padding: 10px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(4px);
+        user-select: none;
+        -webkit-user-select: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    #touch-hud.minimized {
+        display: none;
+    }
+
+    #hud-open-btn {
+        display: none;
+        position: absolute;
+        bottom: 16px;
+        right: 16px;
+        z-index: 8;
+        background: rgba(20, 16, 12, 0.92);
+        border: 1px solid var(--gold-primary);
+        color: var(--gold-primary);
+        padding: 8px 14px;
+        border-radius: 20px;
+        font-family: var(--font-serif);
+        font-size: 0.82rem;
+        cursor: pointer;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.7);
+    }
+
+    .dpad-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 40px);
+        grid-template-rows: repeat(3, 40px);
+        gap: 4px;
+        justify-items: center;
+        align-items: center;
+    }
+
+    .hud-btn {
+        width: 100%;
+        height: 100%;
+        background: rgba(45, 38, 28, 0.85);
+        border: 1px solid var(--border-color);
+        color: #f5f0e6;
+        border-radius: 6px;
+        font-size: 1rem;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        touch-action: manipulation;
+        transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    }
+
+    .hud-btn:active, .hud-btn.active {
+        background: var(--gold-primary);
+        color: #1a140e;
+        border-color: #fff;
+        transform: scale(0.95);
+    }
+
+    .hud-btn-center {
+        font-size: 0.75rem;
+        background: rgba(30, 25, 18, 0.9);
+        color: var(--gold-primary);
+    }
+
+    .hud-row {
+        display: flex;
+        width: 100%;
+        gap: 6px;
+        justify-content: space-between;
+    }
+
+    .hud-action-btn {
+        flex: 1;
+        padding: 6px 0;
+        background: rgba(45, 38, 28, 0.85);
+        border: 1px solid var(--border-color);
+        color: #f5f0e6;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-family: var(--font-serif);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+    }
+
+    .hud-action-btn:active {
+        background: var(--gold-primary);
+        color: #1a140e;
+    }
+
+    .hud-header {
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid rgba(212, 163, 89, 0.2);
+        padding-bottom: 4px;
+        margin-bottom: 2px;
+    }
+
+    .hud-title {
+        font-size: 0.72rem;
+        letter-spacing: 1px;
+        color: var(--gold-primary);
+        font-family: var(--font-serif);
+        font-weight: bold;
+    }
+
+    .hud-close-btn {
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        font-size: 1rem;
+        cursor: pointer;
+        line-height: 1;
+        padding: 0 4px;
     }
 </style>
 
@@ -73,9 +264,59 @@
         allow="fullscreen; clipboard-read; clipboard-write; autoplay"
         title="Hexroll 3 VTT Interface">
     </iframe>
+
+    <!-- Pan Mode Fullscreen Touch Overlay -->
+    <div id="hexroll-touch-overlay"></div>
+    <div id="pan-mode-banner">&#x270B; PAN MODE ACTIVE &mdash; Drag with 1 finger to pan map. Tap &ldquo;Select&rdquo; to click hexes.</div>
+
+    <!-- Floating Touch Navigation HUD -->
+    <div id="touch-hud">
+        <div class="hud-header">
+            <span class="hud-title">&#128506; MAP NAVIGATOR</span>
+            <button type="button" class="hud-close-btn" onclick="toggleHud(false)" title="Minimize HUD">&times;</button>
+        </div>
+
+        <!-- D-Pad for Panning -->
+        <div class="dpad-grid">
+            <div></div>
+            <button type="button" class="hud-btn" id="dpad-up" title="Pan Up (Hold to glide)">&#x25B2;</button>
+            <div></div>
+            <button type="button" class="hud-btn" id="dpad-left" title="Pan Left (Hold to glide)">&#x25C0;</button>
+            <button type="button" class="hud-btn hud-btn-center" onclick="sendZoom(-1)" title="Zoom In">&#xFF0B;</button>
+            <button type="button" class="hud-btn" id="dpad-right" title="Pan Right (Hold to glide)">&#x25B6;</button>
+            <div></div>
+            <button type="button" class="hud-btn" id="dpad-down" title="Pan Down (Hold to glide)">&#x25BC;</button>
+            <div></div>
+        </div>
+
+        <!-- Zoom In & Out Row -->
+        <div class="hud-row">
+            <button type="button" class="hud-action-btn" onclick="sendZoom(-1)" title="Zoom In">
+                &#xFF0B; Zoom In
+            </button>
+            <button type="button" class="hud-action-btn" onclick="sendZoom(1)" title="Zoom Out">
+                &#xFF0D; Zoom Out
+            </button>
+        </div>
+
+        <!-- Mode Toggle Row -->
+        <div class="hud-row">
+            <button type="button" class="hud-action-btn" id="hud-pan-toggle" onclick="togglePanMode()" style="width: 100%;">
+                &#x270B; Pan Mode: OFF
+            </button>
+        </div>
+    </div>
+
+    <!-- Minimized HUD Button -->
+    <button type="button" id="hud-open-btn" onclick="toggleHud(true)" title="Open Touch Controls">
+        &#128506; Controls
+    </button>
 </div>
 
 <script>
+// ==========================================
+// 1. Fullscreen and Frame Reload Controls
+// ==========================================
 function toggleFullscreen() {
     const container = document.getElementById('hexroll-container');
     const btn = document.getElementById('fullscreen-btn');
@@ -111,5 +352,395 @@ function reloadFrame() {
         iframe.src = iframe.src;
     }
 }
+
+// ==========================================
+// 2. HUD Open / Minimize Toggle
+// ==========================================
+function toggleHud(show) {
+    const hud = document.getElementById('touch-hud');
+    const openBtn = document.getElementById('hud-open-btn');
+    if (show) {
+        hud.classList.remove('minimized');
+        openBtn.style.display = 'none';
+    } else {
+        hud.classList.add('minimized');
+        openBtn.style.display = 'block';
+    }
+}
+
+// Auto-minimize HUD on very small mobile screens
+if (window.innerWidth < 600) {
+    toggleHud(false);
+}
+
+// ==========================================
+// 3. Target Element Extraction (Same-Origin)
+// ==========================================
+function getIframeTarget() {
+    const iframe = document.getElementById('hexroll-iframe');
+    if (!iframe) return null;
+    try {
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
+        if (!doc) return null;
+        // In Xpra HTML5, the main render target is the canvas inside #screen
+        const canvas = doc.querySelector('canvas') || doc.getElementById('screen') || doc.body;
+        return { target: canvas, doc: doc, win: iframe.contentWindow };
+    } catch (e) {
+        console.warn('Cannot access iframe contentDocument directly:', e);
+        return null;
+    }
+}
+
+// ==========================================
+// 4. Zoom Engine (Mouse Wheel Simulation)
+// ==========================================
+function sendZoom(direction) {
+    // direction: -1 is Zoom In (scroll up), +1 is Zoom Out (scroll down)
+    const ctx = getIframeTarget();
+    if (!ctx) return;
+
+    const { target, doc, win } = ctx;
+    const rect = target.getBoundingClientRect ? target.getBoundingClientRect() : { left: 0, top: 0, width: win.innerWidth, height: win.innerHeight };
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const delta = direction * 120;
+
+    // Dispatch modern WheelEvent
+    const wheelEv = new WheelEvent('wheel', {
+        deltaY: delta,
+        deltaX: 0,
+        deltaZ: 0,
+        deltaMode: 0, // DOM_DELTA_PIXEL
+        clientX: cx,
+        clientY: cy,
+        screenX: cx,
+        screenY: cy,
+        bubbles: true,
+        cancelable: true,
+        view: win
+    });
+    target.dispatchEvent(wheelEv);
+
+    // Also dispatch legacy mousewheel event for older Xpra listeners
+    try {
+        const legacyEv = new win.CustomEvent('mousewheel', { bubbles: true, cancelable: true });
+        legacyEv.wheelDelta = -delta;
+        legacyEv.detail = direction * 3;
+        legacyEv.clientX = cx;
+        legacyEv.clientY = cy;
+        target.dispatchEvent(legacyEv);
+    } catch (err) {}
+}
+
+// ==========================================
+// 5. Map Panning Simulation (Mouse Drag + Keys)
+// ==========================================
+function panBy(dx, dy) {
+    const ctx = getIframeTarget();
+    if (!ctx) return;
+
+    const { target, doc, win } = ctx;
+    const rect = target.getBoundingClientRect ? target.getBoundingClientRect() : { left: 0, top: 0, width: win.innerWidth, height: win.innerHeight };
+    const startX = rect.left + rect.width / 2;
+    const startY = rect.top + rect.height / 2;
+    const endX = startX + dx;
+    const endY = startY + dy;
+
+    // Simulate Left-Click Drag (Button 0, buttons: 1)
+    target.dispatchEvent(new MouseEvent('mousedown', {
+        bubbles: true,
+        cancelable: true,
+        view: win,
+        clientX: startX,
+        clientY: startY,
+        screenX: startX,
+        screenY: startY,
+        button: 0,
+        buttons: 1
+    }));
+
+    // Interpolate in 4 intermediate steps
+    const steps = 4;
+    for (let i = 1; i <= steps; i++) {
+        const curX = startX + (endX - startX) * (i / steps);
+        const curY = startY + (endY - startY) * (i / steps);
+        target.dispatchEvent(new MouseEvent('mousemove', {
+            bubbles: true,
+            cancelable: true,
+            view: win,
+            clientX: curX,
+            clientY: curY,
+            screenX: curX,
+            screenY: curY,
+            button: 0,
+            buttons: 1
+        }));
+    }
+
+    target.dispatchEvent(new MouseEvent('mouseup', {
+        bubbles: true,
+        cancelable: true,
+        view: win,
+        clientX: endX,
+        clientY: endY,
+        screenX: endX,
+        screenY: endY,
+        button: 0,
+        buttons: 0
+    }));
+
+    // Also dispatch keyboard arrow keys as a fallback for camera movement
+    if (Math.abs(dx) > Math.abs(dy)) {
+        if (dx > 0) sendKeyboardKey('ArrowLeft', 'KeyA', 37);
+        else sendKeyboardKey('ArrowRight', 'KeyD', 39);
+    } else {
+        if (dy > 0) sendKeyboardKey('ArrowUp', 'KeyW', 38);
+        else sendKeyboardKey('ArrowDown', 'KeyS', 40);
+    }
+}
+
+function sendKeyboardKey(keyName, code, keyCode) {
+    const ctx = getIframeTarget();
+    if (!ctx) return;
+    const { target, win } = ctx;
+
+    target.dispatchEvent(new KeyboardEvent('keydown', {
+        key: keyName,
+        code: code,
+        keyCode: keyCode,
+        which: keyCode,
+        bubbles: true,
+        cancelable: true,
+        view: win
+    }));
+    setTimeout(() => {
+        target.dispatchEvent(new KeyboardEvent('keyup', {
+            key: keyName,
+            code: code,
+            keyCode: keyCode,
+            which: keyCode,
+            bubbles: true,
+            cancelable: true,
+            view: win
+        }));
+    }, 40);
+}
+
+// ==========================================
+// 6. D-Pad Press & Hold Continuous Gliding
+// ==========================================
+function setupContinuousButton(btnId, dx, dy) {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    let timer = null;
+
+    const start = (e) => {
+        e.preventDefault();
+        panBy(dx, dy);
+        clearInterval(timer);
+        timer = setInterval(() => {
+            panBy(dx, dy);
+        }, 120);
+    };
+
+    const stop = (e) => {
+        clearInterval(timer);
+        timer = null;
+    };
+
+    btn.addEventListener('mousedown', start);
+    btn.addEventListener('mouseup', stop);
+    btn.addEventListener('mouseleave', stop);
+    btn.addEventListener('touchstart', start, { passive: false });
+    btn.addEventListener('touchend', stop);
+    btn.addEventListener('touchcancel', stop);
+}
+
+// Configure 4 D-Pad directions (Step: 70px)
+setupContinuousButton('dpad-up', 0, 70);
+setupContinuousButton('dpad-down', 0, -70);
+setupContinuousButton('dpad-left', 70, 0);
+setupContinuousButton('dpad-right', -70, 0);
+
+// ==========================================
+// 7. Pan Mode Toggle (Single-Finger Drag)
+// ==========================================
+let isPanModeActive = false;
+
+function togglePanMode() {
+    isPanModeActive = !isPanModeActive;
+    const overlay = document.getElementById('hexroll-touch-overlay');
+    const banner = document.getElementById('pan-mode-banner');
+    const topBtn = document.getElementById('pan-toggle-btn');
+    const hudBtn = document.getElementById('hud-pan-toggle');
+
+    if (isPanModeActive) {
+        overlay.classList.add('active');
+        banner.style.display = 'block';
+        topBtn.classList.add('btn-primary');
+        topBtn.classList.remove('btn-secondary');
+        topBtn.innerHTML = '&#x1F446; Select Mode';
+        hudBtn.innerHTML = '&#x270B; Pan Mode: ON';
+        hudBtn.style.background = 'var(--gold-primary)';
+        hudBtn.style.color = '#1a140e';
+    } else {
+        overlay.classList.remove('active');
+        banner.style.display = 'none';
+        topBtn.classList.remove('btn-primary');
+        topBtn.classList.add('btn-secondary');
+        topBtn.innerHTML = '&#x270B; Pan Mode';
+        hudBtn.innerHTML = '&#x270B; Pan Mode: OFF';
+        hudBtn.style.background = '';
+        hudBtn.style.color = '';
+    }
+}
+
+// Drag logic on overlay when Pan Mode is ON
+const overlay = document.getElementById('hexroll-touch-overlay');
+let lastTouchX = null;
+let lastTouchY = null;
+let initialPinchDistance = null;
+
+overlay.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) {
+        lastTouchX = e.touches[0].clientX;
+        lastTouchY = e.touches[0].clientY;
+    } else if (e.touches.length === 2) {
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        initialPinchDistance = Math.hypot(dx, dy);
+    }
+}, { passive: false });
+
+overlay.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+
+    // 2-Finger Pinch to Zoom
+    if (e.touches.length === 2 && initialPinchDistance !== null) {
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        const dist = Math.hypot(dx, dy);
+        const diff = dist - initialPinchDistance;
+
+        if (Math.abs(diff) > 18) {
+            if (diff > 0) {
+                sendZoom(-1); // Pinch out -> Zoom In
+            } else {
+                sendZoom(1);  // Pinch in -> Zoom Out
+            }
+            initialPinchDistance = dist;
+        }
+        return;
+    }
+
+    // 1-Finger Pan
+    if (e.touches.length === 1 && lastTouchX !== null && lastTouchY !== null) {
+        const curX = e.touches[0].clientX;
+        const curY = e.touches[0].clientY;
+        const dx = curX - lastTouchX;
+        const dy = curY - lastTouchY;
+
+        if (Math.hypot(dx, dy) > 6) {
+            panBy(dx * 1.5, dy * 1.5);
+            lastTouchX = curX;
+            lastTouchY = curY;
+        }
+    }
+}, { passive: false });
+
+overlay.addEventListener('touchend', (e) => {
+    if (e.touches.length === 0) {
+        lastTouchX = null;
+        lastTouchY = null;
+        initialPinchDistance = null;
+    } else if (e.touches.length === 1) {
+        initialPinchDistance = null;
+        lastTouchX = e.touches[0].clientX;
+        lastTouchY = e.touches[0].clientY;
+    }
+});
+
+// Also support desktop mouse drag on overlay when Pan Mode is ON
+let isMouseDown = false;
+let lastMouseX = null;
+let lastMouseY = null;
+
+overlay.addEventListener('mousedown', (e) => {
+    isMouseDown = true;
+    lastMouseX = e.clientX;
+    lastMouseY = e.clientY;
+});
+
+overlay.addEventListener('mousemove', (e) => {
+    if (!isMouseDown) return;
+    const dx = e.clientX - lastMouseX;
+    const dy = e.clientY - lastMouseY;
+    if (Math.hypot(dx, dy) > 6) {
+        panBy(dx * 1.5, dy * 1.5);
+        lastMouseX = e.clientX;
+        lastMouseY = e.clientY;
+    }
+});
+
+overlay.addEventListener('mouseup', () => {
+    isMouseDown = false;
+});
+
+// ==========================================
+// 8. Attach Native Pinch-to-Zoom inside Iframe
+// ==========================================
+function attachIframeGestures() {
+    try {
+        const iframe = document.getElementById('hexroll-iframe');
+        if (!iframe) return;
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
+        if (!doc) return;
+        const canvas = doc.querySelector('canvas') || doc.body;
+        if (!canvas || canvas._touchGesturesAttached) return;
+        canvas._touchGesturesAttached = true;
+
+        let iframePinchDist = null;
+
+        canvas.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 2) {
+                const dx = e.touches[0].clientX - e.touches[1].clientX;
+                const dy = e.touches[0].clientY - e.touches[1].clientY;
+                iframePinchDist = Math.hypot(dx, dy);
+            }
+        }, { passive: false });
+
+        canvas.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 2 && iframePinchDist !== null) {
+                e.preventDefault();
+                const dx = e.touches[0].clientX - e.touches[1].clientX;
+                const dy = e.touches[0].clientY - e.touches[1].clientY;
+                const dist = Math.hypot(dx, dy);
+                const diff = dist - iframePinchDist;
+
+                if (Math.abs(diff) > 18) {
+                    if (diff > 0) sendZoom(-1);
+                    else sendZoom(1);
+                    iframePinchDist = dist;
+                }
+            }
+        }, { passive: false });
+
+        canvas.addEventListener('touchend', (e) => {
+            if (e.touches.length < 2) iframePinchDist = null;
+        });
+    } catch (e) {
+        console.log('Iframe gesture attachment notice:', e);
+    }
+}
+
+// Try attaching on iframe load and after delay
+const iframeEl = document.getElementById('hexroll-iframe');
+if (iframeEl) {
+    iframeEl.addEventListener('load', () => {
+        setTimeout(attachIframeGestures, 1000);
+        setTimeout(attachIframeGestures, 3000);
+    });
+}
+setTimeout(attachIframeGestures, 2000);
 </script>
 {% endblock %}
