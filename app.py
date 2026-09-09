@@ -3,6 +3,7 @@
 import os
 from functools import wraps
 from flask import Flask, Response, flash, jsonify, redirect, render_template, request, session, url_for
+from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.security import check_password_hash, generate_password_hash
 from config import Config
 from database import get_db
@@ -12,6 +13,9 @@ from table_loader import get_table_manager
 
 app = Flask(__name__)
 app.config.from_object(Config)
+
+# Support reverse proxy headers (Nginx / Cloudflare)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 
 # Initialize database and table manager
 db = get_db(app.config["DATABASE_PATH"])

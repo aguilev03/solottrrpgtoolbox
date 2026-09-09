@@ -11,6 +11,11 @@ class Config:
     # Debug mode flag for dungeon generation rolls
     DEBUG_DUNGEON_ROLLS = os.environ.get("DEBUG_DUNGEON_ROLLS", "false").lower() in ("true", "1", "yes")
 
+    # Production cookie security
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = "Lax"
+    SESSION_COOKIE_SECURE = os.environ.get("SESSION_COOKIE_SECURE", "false").lower() in ("true", "1", "yes")
+
     # Flag to disable auth checks (useful in automated tests)
     LOGIN_DISABLED = os.environ.get("LOGIN_DISABLED", "false").lower() in ("true", "1", "yes")
 
