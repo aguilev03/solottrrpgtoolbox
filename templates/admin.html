@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Panel — Solo TTRPG Tools{% endblock %}
+
+{% block header_nav %}
+<nav class="play-nav">
+    <a href="{{ url_for('index') }}" class="btn btn-secondary btn-sm">&larr; Home</a>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="hero-section">
+        <h2 class="hero-title">&#9881; ADMINISTRATION PANEL</h2>
+        <p class="hero-subtitle">Manage user accounts, permissions, and security.</p>
+    </div>
+
+    <!-- Users Overview Table -->
+    <div class="admin-section">
+        <h3 class="section-title">Active Accounts</h3>
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Created</th>
+                        <th>Last Login</th>
+                        <th style="text-align: right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr>
+                        <td>#{{ u.id }}</td>
+                        <td>
+                            <strong>{{ u.username }}</strong>
+                            {% if current_user and current_user.id == u.id %}
+                            <span class="badge badge-you">You</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if u.is_admin %}
+                            <span class="badge badge-admin">&#9881; Administrator</span>
+                            {% else %}
+                            <span class="badge badge-user">&#128100; Standard User</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted">{{ u.created_at[:10] if u.created_at else '—' }}</td>
+                        <td class="text-muted">{{ u.last_login[:16] if u.last_login else 'Never' }}</td>
+                        <td style="text-align: right;">
+                            {% if current_user and current_user.id == u.id %}
+                            <span class="text-dim">Active session</span>
+                            {% else %}
+                            <form method="POST" action="{{ url_for('admin_delete_user', user_id=u.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete user \'{{ u.username }}\'?');">
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Account Actions Grid -->
+    <div class="admin-grid">
+        <!-- Card 1: Add New User -->
+        <div class="admin-card">
+            <h4 class="card-heading">&#10010; Create New User</h4>
+            <p class="card-subheading">Add another player or administrator to your suite.</p>
+
+            <form method="POST" action="{{ url_for('admin_create_user') }}" class="admin-form">
+                <div class="form-group">
+                    <label for="new_username" class="form-label">Username</label>
+                    <input type="text" id="new_username" name="username" class="form-control" required placeholder="Username">
+                </div>
+
+                <div class="form-group">
+                    <label for="new_password" class="form-label">Password</label>
+                    <input type="password" id="new_password" name="password" class="form-control" required minlength="4" placeholder="Min. 4 characters">
+                </div>
+
+                <div class="form-group-checkbox">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="is_admin" value="1">
+                        <span>Grant Administrator privileges</span>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+            </form>
+        </div>
+
+        <!-- Card 2: Reset User Password -->
+        <div class="admin-card">
+            <h4 class="card-heading">&#128273; Reset Password</h4>
+            <p class="card-subheading">Update the password for any user account.</p>
+
+            <form method="POST" id="reset-password-form" class="admin-form" onsubmit="return submitPasswordReset(event)">
+                <div class="form-group">
+                    <label for="reset_user_id" class="form-label">Select User</label>
+                    <select id="reset_user_id" class="form-control" required>
+                        {% for u in users %}
+                        <option value="{{ u.id }}">{{ u.username }}{% if u.is_admin %} (Admin){% endif %}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="reset_password" class="form-label">New Password</label>
+                    <input type="password" id="reset_password" name="password" class="form-control" required minlength="4" placeholder="New password">
+                </div>
+
+                <button type="submit" class="btn btn-secondary btn-block">Update Password</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function submitPasswordReset(event) {
+    event.preventDefault();
+    const select = document.getElementById('reset_user_id');
+    const userId = select.value;
+    const form = document.getElementById('reset-password-form');
+    form.action = `/admin/user/${userId}/password`;
+    form.submit();
+}
+</script>
+{% endblock %}

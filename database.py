@@ -114,11 +114,23 @@ class Database:
                 );
             """)
 
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS users (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    username TEXT UNIQUE NOT NULL COLLATE NOCASE,
+                    password_hash TEXT NOT NULL,
+                    is_admin INTEGER NOT NULL DEFAULT 0,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    last_login TIMESTAMP
+                );
+            """)
+
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_rooms_dungeon ON rooms(dungeon_id);")
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_logs_dungeon ON dungeon_logs(dungeon_id);")
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_npcs_current ON npcs(current);")
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_npcs_party ON npcs(party_member);")
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_npc_traits_npc ON npc_traits(npc_id);")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);")
             conn.commit()
 
     def create_dungeon(self, dungeon: DungeonState) -> int:
@@ -662,6 +674,78 @@ class Database:
                     """, (npc_id, status, trait_text, category))
             cursor.execute("UPDATE npcs SET updated_at = CURRENT_TIMESTAMP WHERE id = ?", (npc_id,))
             conn.commit()
+
+    # ==========================================
+    # USER & AUTH MANAGEMENT
+    # ==========================================
+
+    def create_user(self, username: str, password_hash: str, is_admin: bool = False) -> int:
+        """Create a new user account."""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO users (username, password_hash, is_admin)
+                VALUES (?, ?, ?)
+            """, (username.strip(), password_hash, 1 if is_admin else 0))
+            conn.commit()
+            return cursor.lastrowid
+
+    def get_user_by_id(self, user_id: int) -> Optional[Dict[str, Any]]:
+        """Retrieve a user by their ID."""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT id, username, password_hash, is_admin, created_at, last_login FROM users WHERE id = ?", (user_id,))
+            row = cursor.fetchone()
+            if not row:
+                return None
+            return dict(row)
+
+    def get_user_by_username(self, username: str) -> Optional[Dict[str, Any]]:
+        """Retrieve a user by their username (case-insensitive)."""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT id, username, password_hash, is_admin, created_at, last_login FROM users WHERE username = ?", (username.strip(),))
+            row = cursor.fetchone()
+            if not row:
+                return None
+            return dict(row)
+
+    def list_users(self) -> List[Dict[str, Any]]:
+        """List all users."""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT id, username, is_admin, created_at, last_login FROM users ORDER BY id ASC")
+            return [dict(r) for r in cursor.fetchall()]
+
+    def update_user_password(self, user_id: int, password_hash: str) -> bool:
+        """Update a user's password hash."""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("UPDATE users SET password_hash = ? WHERE id = ?", (password_hash, user_id))
+            conn.commit()
+            return cursor.rowcount > 0
+
+    def update_user_last_login(self, user_id: int) -> None:
+        """Update last_login timestamp for a user."""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?", (user_id,))
+            conn.commit()
+
+    def delete_user(self, user_id: int) -> bool:
+        """Delete a user by ID."""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM users WHERE id = ?", (user_id,))
+            conn.commit()
+            return cursor.rowcount > 0
+
+    def count_users(self) -> int:
+        """Count total registered users."""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT COUNT(*) as count FROM users")
+            return cursor.fetchone()["count"]
 
 
 _DEFAULT_DB: Optional[Database] = None

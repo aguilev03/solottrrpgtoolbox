@@ -1989,3 +1989,228 @@ body {
     display: block;
 }
 
+/* ==========================================
+   AUTHENTICATION & USER NAVIGATION
+   ========================================== */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.user-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-left: 1px solid var(--border-subtle);
+    padding-left: 0.75rem;
+}
+
+.user-badge {
+    font-size: 0.85rem;
+    color: var(--gold-primary);
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    background: rgba(212, 163, 89, 0.1);
+    border-radius: 4px;
+    border: 1px solid var(--border-subtle);
+}
+
+.btn-admin {
+    border-color: var(--border-accent);
+}
+
+.btn-logout {
+    color: var(--text-muted);
+}
+
+.btn-logout:hover {
+    color: var(--accent-red-hover);
+    border-color: var(--accent-red);
+}
+
+.btn-danger {
+    background: var(--accent-red);
+    color: #fff;
+    border-color: var(--accent-red-hover);
+}
+
+.btn-danger:hover {
+    background: var(--accent-red-hover);
+}
+
+.flash-container {
+    max-width: 800px;
+    margin: 1rem auto 0 auto;
+    width: 100%;
+    padding: 0 1.25rem;
+}
+
+.flash-alert {
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.flash-error {
+    background: rgba(158, 54, 54, 0.2);
+    border: 1px solid var(--accent-red);
+    color: #f5b5b5;
+}
+
+.flash-success {
+    background: rgba(75, 110, 75, 0.2);
+    border: 1px solid var(--accent-green);
+    color: #c0dfc0;
+}
+
+/* Auth Pages (Login / Setup) */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 55vh;
+    padding: 2rem 0;
+}
+
+.auth-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 2.25rem;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 1.75rem;
+}
+
+.auth-title {
+    font-family: var(--font-serif);
+    font-size: 1.25rem;
+    color: var(--gold-primary);
+    letter-spacing: 1.5px;
+    margin-bottom: 0.4rem;
+}
+
+.auth-subtitle {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+}
+
+.auth-btn {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.form-group-checkbox {
+    margin-bottom: 1.25rem;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.88rem;
+    color: var(--text-main);
+    cursor: pointer;
+}
+
+/* ==========================================
+   ADMIN PANEL
+   ========================================== */
+.admin-container {
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.admin-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.admin-table th {
+    text-align: left;
+    padding: 0.75rem;
+    border-bottom: 2px solid var(--border-accent);
+    color: var(--gold-primary);
+    font-family: var(--font-serif);
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+}
+
+.admin-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    vertical-align: middle;
+}
+
+.admin-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+.admin-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 1.5rem;
+}
+
+.card-heading {
+    font-family: var(--font-serif);
+    font-size: 1.05rem;
+    color: var(--gold-primary);
+    margin-bottom: 0.25rem;
+}
+
+.card-subheading {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin-bottom: 1.25rem;
+}
+
+.badge-you {
+    background: rgba(212, 163, 89, 0.2);
+    color: var(--gold-primary);
+    font-size: 0.72rem;
+    padding: 0.15rem 0.4rem;
+    border-radius: 3px;
+    margin-left: 0.4rem;
+}
+
+.badge-admin {
+    background: rgba(158, 54, 54, 0.25);
+    border: 1px solid var(--accent-red);
+    color: #f2a0a0;
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+}
+
+.badge-user {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+}
+

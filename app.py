@@ -1,7 +1,9 @@
 """Solo TTRPG Tools - Flask Application."""
 
 import os
-from flask import Flask, Response, jsonify, redirect, render_template, request, url_for
+from functools import wraps
+from flask import Flask, Response, flash, jsonify, redirect, render_template, request, session, url_for
+from werkzeug.security import check_password_hash, generate_password_hash
 from config import Config
 from database import get_db
 from dungeon_engine import DungeonEngine, DungeonState, format_dungeon_time
@@ -17,13 +19,220 @@ table_manager = get_table_manager(app.config["DATA_DIR"])
 engine = DungeonEngine(table_manager)
 emulator = get_emulator_engine(app.config["DATA_DIR"])
 
+PUBLIC_ENDPOINTS = {"login", "setup", "static", "auth_check"}
+
+
+@app.before_request
+def check_authentication():
+    """Protect all application endpoints unless explicitly public or login is disabled."""
+    if app.config.get("LOGIN_DISABLED", False):
+        return None
+
+    # Static assets are always public
+    if request.path.startswith("/static/"):
+        return None
+
+    # Allow public auth endpoints
+    if request.endpoint in PUBLIC_ENDPOINTS:
+        return None
+
+    user_id = session.get("user_id")
+    if not user_id:
+        if db.count_users() == 0:
+            return redirect(url_for("setup"))
+        return redirect(url_for("login", next=request.url))
+
+    return None
+
+
+def admin_required(f):
+    """Decorator requiring the logged-in user to have administrator privileges."""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if app.config.get("LOGIN_DISABLED", False):
+            return f(*args, **kwargs)
+        user_id = session.get("user_id")
+        if not user_id:
+            if db.count_users() == 0:
+                return redirect(url_for("setup"))
+            return redirect(url_for("login", next=request.url))
+        user = db.get_user_by_id(user_id)
+        if not user or not user["is_admin"]:
+            flash("Administrator privileges required.", "error")
+            return redirect(url_for("index"))
+        return f(*args, **kwargs)
+    return decorated_function
+
 
 @app.context_processor
 def inject_globals():
+    user_id = session.get("user_id")
+    current_user = db.get_user_by_id(user_id) if user_id else None
     return {
         "debug_rolls": app.config.get("DEBUG_DUNGEON_ROLLS", False),
         "format_time": format_dungeon_time,
+        "current_user": current_user,
     }
+
+
+# ==========================================
+# AUTHENTICATION & SETUP
+# ==========================================
+
+@app.route("/setup", methods=["GET", "POST"])
+def setup():
+    """First-run setup wizard to create the initial admin account."""
+    if db.count_users() > 0:
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "").strip()
+        confirm_password = request.form.get("confirm_password", "").strip()
+
+        if not username:
+            flash("Username is required.", "error")
+            return render_template("setup.html")
+        if len(password) < 4:
+            flash("Password must be at least 4 characters long.", "error")
+            return render_template("setup.html")
+        if password != confirm_password:
+            flash("Passwords do not match.", "error")
+            return render_template("setup.html")
+
+        # Create initial admin account
+        pwd_hash = generate_password_hash(password)
+        user_id = db.create_user(username, pwd_hash, is_admin=True)
+        session["user_id"] = user_id
+        flash(f"Welcome, {username}! Initial administrator account created successfully.", "success")
+        return redirect(url_for("index"))
+
+    return render_template("setup.html")
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    """User login endpoint."""
+    if db.count_users() == 0:
+        return redirect(url_for("setup"))
+
+    if session.get("user_id"):
+        return redirect(url_for("index"))
+
+    next_url = request.args.get("next")
+
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "").strip()
+        next_url = request.form.get("next") or url_for("index")
+
+        user = db.get_user_by_username(username)
+        if user and check_password_hash(user["password_hash"], password):
+            session["user_id"] = user["id"]
+            db.update_user_last_login(user["id"])
+            flash(f"Logged in as {user['username']}.", "success")
+            return redirect(next_url)
+        else:
+            flash("Invalid username or password.", "error")
+
+    return render_template("login.html", next=next_url)
+
+
+@app.route("/logout")
+def logout():
+    """Log out current user and clear session."""
+    session.clear()
+    flash("You have been logged out.", "success")
+    return redirect(url_for("login"))
+
+
+@app.route("/auth/check")
+def auth_check():
+    """Internal auth verification endpoint for Nginx auth_request."""
+    if app.config.get("LOGIN_DISABLED", False) or session.get("user_id"):
+        return Response("OK", status=200)
+    return Response("Unauthorized", status=401)
+
+
+# ==========================================
+# ADMIN PANEL
+# ==========================================
+
+@app.route("/admin")
+@admin_required
+def admin_panel():
+    """Admin dashboard to manage users and security."""
+    users = db.list_users()
+    return render_template("admin.html", users=users)
+
+
+@app.route("/admin/user/new", methods=["POST"])
+@admin_required
+def admin_create_user():
+    """Admin creates a new user account."""
+    username = request.form.get("username", "").strip()
+    password = request.form.get("password", "").strip()
+    is_admin = request.form.get("is_admin") == "1"
+
+    if not username:
+        flash("Username is required.", "error")
+        return redirect(url_for("admin_panel"))
+    if len(password) < 4:
+        flash("Password must be at least 4 characters long.", "error")
+        return redirect(url_for("admin_panel"))
+    if db.get_user_by_username(username):
+        flash(f"Username '{username}' already exists.", "error")
+        return redirect(url_for("admin_panel"))
+
+    pwd_hash = generate_password_hash(password)
+    db.create_user(username, pwd_hash, is_admin=is_admin)
+    flash(f"User '{username}' created successfully.", "success")
+    return redirect(url_for("admin_panel"))
+
+
+@app.route("/admin/user/<int:user_id>/password", methods=["POST"])
+@admin_required
+def admin_change_password(user_id: int):
+    """Admin updates a user's password."""
+    user = db.get_user_by_id(user_id)
+    if not user:
+        flash("User not found.", "error")
+        return redirect(url_for("admin_panel"))
+
+    password = request.form.get("password", "").strip()
+    if len(password) < 4:
+        flash("Password must be at least 4 characters long.", "error")
+        return redirect(url_for("admin_panel"))
+
+    pwd_hash = generate_password_hash(password)
+    db.update_user_password(user_id, pwd_hash)
+    flash(f"Password for '{user['username']}' updated successfully.", "success")
+    return redirect(url_for("admin_panel"))
+
+
+@app.route("/admin/user/<int:user_id>/delete", methods=["POST"])
+@admin_required
+def admin_delete_user(user_id: int):
+    """Admin deletes a user account."""
+    current_user_id = session.get("user_id")
+    if user_id == current_user_id:
+        flash("You cannot delete your own active account.", "error")
+        return redirect(url_for("admin_panel"))
+
+    user = db.get_user_by_id(user_id)
+    if not user:
+        flash("User not found.", "error")
+        return redirect(url_for("admin_panel"))
+
+    if user["is_admin"]:
+        admins = [u for u in db.list_users() if u["is_admin"]]
+        if len(admins) <= 1:
+            flash("Cannot delete the only remaining administrator account.", "error")
+            return redirect(url_for("admin_panel"))
+
+    db.delete_user(user_id)
+    flash(f"User '{user['username']}' deleted.", "success")
+    return redirect(url_for("admin_panel"))
 
 
 # ==========================================

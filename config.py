@@ -11,6 +11,9 @@ class Config:
     # Debug mode flag for dungeon generation rolls
     DEBUG_DUNGEON_ROLLS = os.environ.get("DEBUG_DUNGEON_ROLLS", "false").lower() in ("true", "1", "yes")
 
+    # Flag to disable auth checks (useful in automated tests)
+    LOGIN_DISABLED = os.environ.get("LOGIN_DISABLED", "false").lower() in ("true", "1", "yes")
+
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     DATA_DIR = os.path.join(BASE_DIR, "data")
     INSTANCE_DIR = os.path.join(BASE_DIR, "instance")

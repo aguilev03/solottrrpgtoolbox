@@ -17,6 +17,7 @@ def test_client():
     os.close(fd)
 
     app.config["TESTING"] = True
+    app.config["LOGIN_DISABLED"] = True
     app.config["DATABASE_PATH"] = temp_db_path
     test_db = Database(temp_db_path)
 

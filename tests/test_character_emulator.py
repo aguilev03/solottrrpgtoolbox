@@ -27,6 +27,7 @@ def emulator_engine():
 @pytest.fixture
 def client(temp_db):
     app.config["TESTING"] = True
+    app.config["LOGIN_DISABLED"] = True
     app.config["DATABASE_PATH"] = temp_db.db_path
 
     # Patch global db
