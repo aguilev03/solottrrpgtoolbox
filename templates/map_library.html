@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 {% block title %}Map Library — HexWorld{% endblock %}
+{% block header_nav %}<nav class="breadcrumb"><a href="{{ url_for('index') }}">&larr; Main Menu</a></nav>{% endblock %}
 {% block content %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/maps.css') }}">
 <div id="map-library" data-token="{{ maps_csrf }}">
-  <p><a href="{{ url_for('index') }}">Home</a></p>
   <h2>Map Library</h2>
   <p>Editable projects saved on HexWorld, grouped by campaign. Each map keeps its original editor and supports that editor’s levels.</p>
   <p id="library-status" role="status" aria-live="polite"></p>

@@ -93,6 +93,8 @@
     --card-deco: linear-gradient(180deg, rgba(217, 169, 92, 0.05), transparent 40%);
     --header-bg: rgba(22, 19, 15, 0.82);
     --divider-ornament: "\2766";   /* ❦ */
+    --felt: #23362d;               /* card tabletop: green baize */
+    --felt-bg: radial-gradient(ellipse at 50% 30%, rgba(255, 255, 255, 0.06), transparent 70%);
     --brand-mark: "\2694";         /* ⚔ */
 }
 
@@ -180,6 +182,11 @@
         linear-gradient(180deg, rgba(63, 214, 236, 0.05), transparent 45%);
     --header-bg: rgba(6, 11, 20, 0.8);
     --divider-ornament: "\25C6";   /* ◆ */
+    --felt: #071a26;               /* card tabletop: holo-table */
+    --felt-bg:
+        radial-gradient(ellipse at 50% 30%, rgba(63, 214, 236, 0.12), transparent 70%),
+        linear-gradient(rgba(63, 214, 236, 0.07) 1px, transparent 1px) 0 0 / 24px 24px,
+        linear-gradient(90deg, rgba(63, 214, 236, 0.07) 1px, transparent 1px) 0 0 / 24px 24px;
     --brand-mark: "\2B22";         /* ⬢ */
 }
 
@@ -3058,6 +3065,50 @@ body::before {
     .npc-result-grid {
         grid-template-columns: 1fr !important;
     }
+}
+
+/* ---------- Map library / editors / custom tools ---------- */
+#map-library form.map-toolbar {
+    padding: 1rem 1.25rem;
+    background: var(--card-deco), var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+}
+
+.map-toolbar label,
+.custom-tools label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.map-toolbar input:not([type=file]),
+.map-toolbar select {
+    background: var(--bg-input);
+    color: var(--text-main);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 0.5rem 0.75rem;
+    font: inherit;
+}
+
+.map-toolbar input:focus,
+.map-toolbar select:focus,
+.custom-tools input:focus,
+.custom-tools textarea:focus,
+.custom-tools select:focus {
+    outline: none;
+    border-color: var(--gold-primary);
+    box-shadow: var(--focus-ring);
+}
+
+#map-library h2,
+#map-editor h2,
+.custom-tools h2 {
+    font-family: var(--font-serif);
+    color: var(--gold-primary);
+    letter-spacing: 0.04em;
 }
 
 /* ---------- Sci-fi specific flourishes ---------- */
