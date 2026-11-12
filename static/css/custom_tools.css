@@ -130,3 +130,24 @@ div.dealer-card-back { aspect-ratio: 5 / 7; background: var(--card-back); border
     .dealer-viewport { height: 62vh; border-width: 3px; }
     .deck-stack { min-height: 56px; }
 }
+
+/* ---------- Dealer's table: saved layouts ---------- */
+.table-saves { padding: 1rem 1.2rem; }
+.table-saves h3 { margin: 0 0 .2rem; }
+.table-saves-head p { margin: 0 0 .6rem !important; font-size: .85rem; }
+.save-form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: .6rem; margin: 0 0 .4rem !important; }
+.save-form .save-name { flex: 1 1 260px; margin: 0 !important; }
+.save-list { list-style: none; display: grid; gap: .5rem; margin: .6rem 0 0; padding: 0; }
+.custom-tools .save-list li { margin-left: 0; }
+.save-item { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1rem; padding: .6rem .8rem; background: var(--bg-inset); border: 1px solid var(--border-subtle); border-left: 3px solid var(--gold-primary); border-radius: var(--radius); }
+.save-info { display: flex; flex-direction: column; min-width: 0; }
+.save-info strong { color: var(--gold-bright); }
+.save-info .text-muted { font-size: .8rem; }
+.save-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
+.save-actions form { margin: 0 !important; }
+.save-rename { position: relative; }
+.save-rename summary { list-style: none; }
+.save-rename summary::-webkit-details-marker { display: none; }
+.save-rename[open] form { position: absolute; right: 0; top: calc(100% + 4px); z-index: 20; display: flex; gap: .4rem; padding: .5rem; width: max-content; background: var(--bg-elevated); border: 1px solid var(--border-accent); border-radius: var(--radius); box-shadow: var(--shadow-lift); }
+.save-rename[open] input { width: 220px; }
+.save-empty { margin: .4rem 0 0 !important; font-size: .85rem; }

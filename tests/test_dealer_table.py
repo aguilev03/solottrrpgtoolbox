@@ -135,3 +135,74 @@ def test_migration_adds_columns_to_existing_database(tmp_path):
     row = conn.execute('SELECT x, rotation, table_id, face_down FROM custom_cards').fetchone()
     assert row == (12, 0, None, 0)
     conn.close()
+
+
+def test_save_instance_suspends_and_resumes_exact_layout(custom):
+    client, db, token = custom
+    deck = deck_with_cards(custom, 4)
+    table = make_table(client, token)
+    room1 = [post(client, token, f'/tables/{table}/draw', json={'deck_id': deck, 'x': 100 + i * 200, 'y': 300}).json for i in range(2)]
+    post(client, token, f'/tables/{table}/cards/{room1[0]["id"]}', json={'rotation': 90, 'face_down': True})
+    post(client, token, f'/tables/{table}/edit', json={'width': 5000})
+    before = {r['id']: (r['table_x'], r['table_y'], r['rotation'], r['face_down'], r['table_z'])
+              for r in rows(db, 'SELECT * FROM custom_cards WHERE table_id=?', (table,))}
+
+    saved = post(client, token, f'/tables/{table}/saves',
+                 json={'name': 'Room 1 - Crypt', 'zoom': 0.5, 'view_x': 1200, 'view_y': 700}).json
+    assert saved['cards'] == 2 and saved['name'] == 'Room 1 - Crypt'
+    # Table is clear, cards are held by the save and are NOT back in the deck.
+    assert rows(db, 'SELECT count(*) AS n FROM custom_cards WHERE table_id=?', (table,))[0]['n'] == 0
+    assert rows(db, 'SELECT count(*) AS n FROM custom_cards WHERE save_id=?', (saved['id'],))[0]['n'] == 2
+    assert rows(db, 'SELECT count(*) AS n FROM custom_cards WHERE deck_id=? AND drawn_order IS NULL', (deck,))[0]['n'] == 2
+    page = client.get(f'/tables/{table}').data
+    assert b'Room 1 - Crypt' in page and b'2 cards' in page
+    # Saved cards don't appear on the deck's own tabletop.
+    assert b'class="table-card"' not in client.get(f'/decks/{deck}').data
+
+    # Deal the next room, then resume room 1: room 2 is auto-saved first.
+    room2 = post(client, token, f'/tables/{table}/draw', json={'deck_id': deck}).json
+    post(client, token, f'/tables/{table}/edit', json={'width': 2400})
+    resumed = post(client, token, f'/tables/{table}/saves/{saved["id"]}/resume', json={'zoom': 1, 'view_x': 10, 'view_y': 10}).json
+    assert resumed['view'] == {'zoom': 0.5, 'x': 1200, 'y': 700}
+    assert resumed['autosave_id']
+    after = {r['id']: (r['table_x'], r['table_y'], r['rotation'], r['face_down'], r['table_z'])
+             for r in rows(db, 'SELECT * FROM custom_cards WHERE table_id=?', (table,))}
+    assert after == before
+    assert rows(db, 'SELECT width FROM custom_dealer_tables WHERE id=?', (table,))[0]['width'] == 5000
+    assert rows(db, 'SELECT count(*) AS n FROM custom_table_saves WHERE id=?', (saved['id'],))[0]['n'] == 0
+    auto = rows(db, 'SELECT * FROM custom_cards WHERE save_id=?', (resumed['autosave_id'],))
+    assert [c['id'] for c in auto] == [room2['id']]
+    assert b'Auto-saved before resuming Room 1 - Crypt' in client.get(f'/tables/{table}').data
+
+    # Form posts redirect back with the saved view in the URL.
+    response = client.post(f'/tables/{table}/saves/{resumed["autosave_id"]}/resume', data={'csrf_token': token})
+    assert response.status_code == 302 and 'zoom=' in response.headers['Location']
+
+
+def test_save_validation_rename_discard_and_cleanup(custom):
+    client, db, token = custom
+    deck = deck_with_cards(custom, 3)
+    table = make_table(client, token)
+    assert post(client, token, f'/tables/{table}/saves', json={'name': 'Empty'}).status_code == 400
+    post(client, token, f'/tables/{table}/draw', json={'deck_id': deck})
+    first = post(client, token, f'/tables/{table}/saves', json={}).json
+    assert first['name'] == 'Save 1'
+    assert post(client, token, f'/tables/{table}/saves/{first["id"]}/rename', json={'name': 'Room 7'}).json['name'] == 'Room 7'
+    assert post(client, token, f'/tables/{table}/saves/999/resume').status_code == 404
+    other = make_table(client, token, 'Other')
+    assert post(client, token, f'/tables/{other}/saves/{first["id"]}/resume').status_code == 404
+    # Discard returns the cards to the deck.
+    post(client, token, f'/tables/{table}/saves/{first["id"]}/delete')
+    assert rows(db, 'SELECT count(*) AS n FROM custom_cards WHERE deck_id=? AND drawn_order IS NULL', (deck,))[0]['n'] == 3
+    # Deleting a table discards its saves and returns their cards.
+    post(client, token, f'/tables/{table}/draw', json={'deck_id': deck})
+    post(client, token, f'/tables/{table}/saves', json={'name': 'Kept'})
+    post(client, token, f'/tables/{table}/delete')
+    assert rows(db, 'SELECT count(*) AS n FROM custom_table_saves')[0]['n'] == 0
+    assert all(c['drawn_order'] is None and c['save_id'] is None for c in rows(db, 'SELECT * FROM custom_cards'))
+    # Reshuffling a deck also pulls its cards out of saved layouts.
+    table = make_table(client, token)
+    post(client, token, f'/tables/{table}/draw', json={'deck_id': deck})
+    post(client, token, f'/tables/{table}/saves', json={'name': 'Room'})
+    post(client, token, f'/decks/{deck}/reshuffle')
+    assert rows(db, 'SELECT count(*) AS n FROM custom_cards WHERE save_id IS NOT NULL')[0]['n'] == 0

@@ -25,6 +25,44 @@
   </div>
 </section>
 
+<section class="table-saves custom-panel" aria-labelledby="saves-title">
+  <div class="table-saves-head">
+    <h3 id="saves-title">Saved layouts</h3>
+    <p class="text-muted">Suspend this table (for example, the room you are leaving) and resume it later exactly as it was. Saved cards stay out of their decks until you resume or discard them.</p>
+  </div>
+  <form class="save-form" method="post" action="{{ url_for('custom.save_table', table_id=table.id) }}" data-capture-view>
+    {{ token() }}
+    <input type="hidden" name="zoom" value="1"><input type="hidden" name="view_x" value="0"><input type="hidden" name="view_y" value="0">
+    <label class="save-name">Name <input name="name" maxlength="200" placeholder="e.g. Room 3 &ndash; Flooded crypt"></label>
+    <button class="btn btn-primary" {% if not cards %}disabled title="Deal some cards first"{% endif %} data-needs-cards>&#128190; Save &amp; clear table</button>
+  </form>
+  {% if saves %}
+  <ul class="save-list">
+    {% for sv in saves %}
+    <li class="save-item">
+      <div class="save-info">
+        <strong>{{ sv.name }}</strong>
+        <span class="text-muted">{{ sv.cards }} card{{ '' if sv.cards == 1 else 's' }} &middot; {{ sv.width }} &times; {{ sv.height }} &middot; saved {{ sv.created_at }} UTC</span>
+      </div>
+      <div class="save-actions">
+        <form method="post" action="{{ url_for('custom.resume_table', table_id=table.id, save_id=sv.id) }}" data-capture-view data-confirm-when-occupied="The cards on the table now will be saved automatically before {{ sv.name }} is restored. Continue?">
+          {{ token() }}
+          <input type="hidden" name="zoom" value="1"><input type="hidden" name="view_x" value="0"><input type="hidden" name="view_y" value="0">
+          <button class="btn btn-primary btn-sm">&#9654; Resume</button>
+        </form>
+        <details class="save-rename"><summary class="btn btn-secondary btn-sm">Rename</summary>
+          <form method="post" action="{{ url_for('custom.rename_save', table_id=table.id, save_id=sv.id) }}">{{ token() }}<input name="name" value="{{ sv.name }}" maxlength="200" required aria-label="New name"><button class="btn btn-secondary btn-sm">Save name</button></form>
+        </details>
+        <form method="post" action="{{ url_for('custom.discard_save', table_id=table.id, save_id=sv.id) }}" data-confirm="Discard {{ sv.name }} and shuffle its cards back into their decks?">{{ token() }}<button class="btn btn-secondary btn-sm">Discard</button></form>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="text-muted save-empty">No saved layouts yet.</p>
+  {% endif %}
+</section>
+
 <div class="dealer-toolbar" role="toolbar" aria-label="Table view">
   <div class="dealer-toolgroup" aria-label="Zoom">
     <button type="button" class="btn btn-secondary btn-sm" data-zoom="-1" aria-label="Zoom out">&minus;</button>

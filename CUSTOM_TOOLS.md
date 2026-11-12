@@ -60,6 +60,24 @@ Positions, rotation, face-down state, stacking order and table size are saved in
 SQLite on every change, so a table looks the same after a reload or on another
 device.
 
+### Saved layouts (suspend and resume)
+
+Use **Saved layouts** to suspend a table and come back to it later, for example
+one layout per dungeon room:
+
+- **Save & clear table** stores every card's position, rotation, face-down state and
+  stacking order, plus the table size, zoom and view, under a name (default
+  `Save N`), then clears the table for the next spread.
+- Saved cards stay **out of their decks**, so a suspended room's cards can't be drawn
+  elsewhere in the meantime.
+- **Resume** restores the layout exactly, including the zoom and where you were
+  looking. If the table has cards on it, they are first saved automatically as
+  `Auto-saved before resuming <name>`, so switching rooms never loses anything.
+  Resuming removes the save from the list (save again when you leave).
+- **Rename** a save at any time. **Discard** deletes it and shuffles its cards back
+  into their decks. Deleting the table discards its saves too, and reshuffling a deck
+  pulls its cards out of every saved layout.
+
 ## Using custom sparks
 
 A compact **Fate Oracle** sits above the table buttons. Choose **Odds** and press
@@ -139,6 +157,7 @@ runs the additive, idempotent `custom_tools.migrate()` migration. New tables:
 | `custom_decks` | Name, reversal probability and optional back file |
 | `custom_cards` | Deck FK, optional name, face file, unique shuffled rank, unique nullable draw order, reversal, x/y offset, `rotation` (0/90/180/270), dealer-table placement (`table_id`, `table_x`, `table_y`, `table_z`, `face_down`) |
 | `custom_dealer_tables` | Name, `width`, `height` (pixels, 800/600–20000) |
+| `custom_table_saves` | Table FK (cascade), name, table size, `zoom`, view centre (`view_x`, `view_y`), `created_at`; cards point at a save through `custom_cards.save_id` |
 | `custom_spark_tables` | Name, JSON entry array, remaining entry indices, last sampling mode and batch size |
 | `custom_spark_results` | Table FK and result text; increasing ID supplies chronology |
 | `custom_spark_favorites` | User/table pair; foreign keys cascade on user or table deletion |
@@ -217,7 +236,11 @@ uploads use multipart form data. GET requests never mutate library state.
 | POST | `/tables/<table_id>/cards/<card_id>` | Any of `x`, `y`, `rotation`, `face_down`, `raise` (bring to top); JSON response |
 | POST | `/tables/<table_id>/cards/<card_id>/return` | Shuffle the card back into its deck |
 | POST | `/tables/<table_id>/clear` | Shuffle every card on the table back into its deck |
-| POST | `/tables/<table_id>/delete` | Return its cards, then delete the table |
+| POST | `/tables/<table_id>/delete` | Return its cards (including saved layouts), then delete the table |
+| POST | `/tables/<table_id>/saves` | Save & clear: optional `name`, `zoom`, `view_x`, `view_y`; 400 if the table is empty |
+| POST | `/tables/<table_id>/saves/<save_id>/resume` | Restore the layout (auto-saving current cards first); JSON includes `view`, `autosave_id`; forms redirect with the view in the URL |
+| POST | `/tables/<table_id>/saves/<save_id>/rename` | `name` |
+| POST | `/tables/<table_id>/saves/<save_id>/delete` | Discard the save and shuffle its cards back into their decks |
 | GET | `/sparks?table=<table_id>&q=<query>` | Table buttons, current user favorites, name search, shared log and selected table |
 | POST | `/sparks/<table_id>/favorite` | Authenticated user only; `favorite` (`1` to add, `0` to remove); JSON includes `favorite`, `table_id` |
 | POST | `/sparks/oracle/roll` | `odds` (one of nine labels); JSON includes `odds`, `roll`, `outcome`, `log_entries`; appends to shared log |

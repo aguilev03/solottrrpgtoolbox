@@ -438,7 +438,37 @@
         if (event.key === 'Escape' && selected && !viewer.open) select(null);
     });
 
+    // ------------------------------------------------------------ save/resume
+    // Saved layouts remember the zoom and the centre of the view so a resumed
+    // room opens where you left it.
+    document.querySelectorAll('form[data-capture-view]').forEach(form => {
+        form.addEventListener('submit', event => {
+            const message = form.dataset.confirmWhenOccupied;
+            if (message && cards.size && !confirm(message)) { event.preventDefault(); return; }
+            form.elements.zoom.value = zoom;
+            form.elements.view_x.value = Math.round((viewport.scrollLeft + viewport.clientWidth / 2) / zoom);
+            form.elements.view_y.value = Math.round((viewport.scrollTop + viewport.clientHeight / 2) / zoom);
+        });
+    });
+
+    function syncSaveButton() {
+        document.querySelectorAll('[data-needs-cards]').forEach(button => {
+            button.disabled = cards.size === 0;
+            button.title = cards.size ? '' : 'Deal some cards first';
+        });
+    }
+    new MutationObserver(syncSaveButton).observe(felt, {childList: true});
+
     // ------------------------------------------------------------------ init
     applySize();
     JSON.parse(document.getElementById('table-cards').textContent).forEach(build);
+    const params = new URLSearchParams(location.search);
+    if (params.has('zoom')) {
+        const saved = Math.max(0.25, Math.min(2, +params.get('zoom') || 1));
+        setZoom(ZOOMS.reduce((a, b) => (Math.abs(b - saved) < Math.abs(a - saved) ? b : a)));
+        viewport.scrollLeft = (+params.get('x') || 0) * zoom - viewport.clientWidth / 2;
+        viewport.scrollTop = (+params.get('y') || 0) * zoom - viewport.clientHeight / 2;
+        history.replaceState(null, '', location.pathname);
+    }
+    if (document.querySelector('.save-list') && params.has('zoom')) say('Layout resumed.');
 })();
