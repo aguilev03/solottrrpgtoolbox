@@ -27,6 +27,38 @@ and restore the previous position if the server cannot save.
 pool and randomizes its order. It keeps names, images, settings and deck identity.
 Uploading more cards mixes them into the remaining pool without changing existing
 draws. Deleting a card removes it from both the library and tabletop.
+Press **↻** under a drawn card to turn it 90° clockwise; the turn is saved and is
+independent of the draw-time reversal.
+
+## Using dealer's tables
+
+A dealer's table (**Dealer's tables** in the custom-tools menu) is one large,
+shared surface for dealing from any number of decks at once. Create as many named
+tables as you like.
+
+- **Deal**: the deck shelf shows every deck with its remaining count. Press a deck
+  to draw its next card into the middle of the visible part of the table. Tick
+  **Deal face down** to deal cards showing the deck's back (or a themed pattern
+  when the deck has no back image). Draws share the deck's pool, so a card dealt to
+  a table is no longer available on the deck's own page, and vice versa.
+- **Arrange**: drag cards anywhere; the dragged card comes to the top. Tap or click
+  a card for its action bar: rotate left/right 90°, flip face up/down, enlarge, or
+  **Return** (shuffle it back into its deck's undrawn pool). With a card focused:
+  `R` / `Shift+R` rotate, `F` flips, `Enter` enlarges, arrow keys nudge (Shift for
+  larger steps), `Escape` deselects.
+- **Pan and zoom**: drag empty table space with a mouse or pen, scroll, or swipe on
+  touch screens. Zoom from 25% to 200% with the − / + buttons or Ctrl/⌘ + wheel
+  (trackpad pinch).
+- **Grow**: tables start at 2400 × 1600. Holding a card near the right or bottom
+  edge of the view scrolls, and the table grows automatically as cards approach its
+  far edges. **Wider** / **Taller** add space, and **Fit to cards** shrinks the table
+  around the current spread. The maximum is 20000 × 20000.
+- **Gather all cards** shuffles every card on the table back into its deck. Deleting
+  a table does the same. Reshuffling a deck also pulls its cards off every table.
+
+Positions, rotation, face-down state, stacking order and table size are saved in
+SQLite on every change, so a table looks the same after a reload or on another
+device.
 
 ## Using custom sparks
 
@@ -105,7 +137,8 @@ runs the additive, idempotent `custom_tools.migrate()` migration. New tables:
 | Table | Contents |
 | --- | --- |
 | `custom_decks` | Name, reversal probability and optional back file |
-| `custom_cards` | Deck FK, optional name, face file, unique shuffled rank, unique nullable draw order, reversal, x/y offset |
+| `custom_cards` | Deck FK, optional name, face file, unique shuffled rank, unique nullable draw order, reversal, x/y offset, `rotation` (0/90/180/270), dealer-table placement (`table_id`, `table_x`, `table_y`, `table_z`, `face_down`) |
+| `custom_dealer_tables` | Name, `width`, `height` (pixels, 800/600–20000) |
 | `custom_spark_tables` | Name, JSON entry array, remaining entry indices, last sampling mode and batch size |
 | `custom_spark_results` | Table FK and result text; increasing ID supplies chronology |
 | `custom_spark_favorites` | User/table pair; foreign keys cascade on user or table deletion |
@@ -175,7 +208,16 @@ uploads use multipart form data. GET requests never mutate library state.
 | POST | `/decks/<deck_id>/delete` | Delete deck and files |
 | POST | `/decks/<deck_id>/cards/<card_id>/edit` | Optional `name` |
 | POST | `/decks/<deck_id>/cards/<card_id>/position` | `x` (−80–80), `y` (−200–200); JSON response |
+| POST | `/decks/<deck_id>/cards/<card_id>/rotate` | `rotation` (0, 90, 180 or 270) for a drawn card |
 | POST | `/decks/<deck_id>/cards/<card_id>/delete` | Delete card and face |
+| GET, POST | `/tables` | List / create dealer's table (`name`, default "Dealer's Table") |
+| GET | `/tables/<table_id>` | Table surface, deck shelf and cards |
+| POST | `/tables/<table_id>/edit` | Optional `name`, `width`, `height`; cards are kept on the surface when it shrinks |
+| POST | `/tables/<table_id>/draw` | `deck_id`, optional `x`, `y`, `face_down`; JSON card plus the deck's `remaining` |
+| POST | `/tables/<table_id>/cards/<card_id>` | Any of `x`, `y`, `rotation`, `face_down`, `raise` (bring to top); JSON response |
+| POST | `/tables/<table_id>/cards/<card_id>/return` | Shuffle the card back into its deck |
+| POST | `/tables/<table_id>/clear` | Shuffle every card on the table back into its deck |
+| POST | `/tables/<table_id>/delete` | Return its cards, then delete the table |
 | GET | `/sparks?table=<table_id>&q=<query>` | Table buttons, current user favorites, name search, shared log and selected table |
 | POST | `/sparks/<table_id>/favorite` | Authenticated user only; `favorite` (`1` to add, `0` to remove); JSON includes `favorite`, `table_id` |
 | POST | `/sparks/oracle/roll` | `odds` (one of nine labels); JSON includes `odds`, `roll`, `outcome`, `log_entries`; appends to shared log |

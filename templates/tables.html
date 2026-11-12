@@ -1,0 +1,11 @@
+{% extends 'custom_layout.html' %}
+{% from 'custom_forms.html' import token, delete with context %}
+{% block title %}Dealer's Tables{% endblock %}
+{% block tool_content %}
+<h2>Dealer's Tables</h2>
+<p class="text-muted">A big shared table for dealing from any of your decks at once. Drag cards anywhere, rotate or flip them, and grow the table as your spread expands.</p>
+<section class="custom-panel"><h3>New table</h3>
+<form method="post" action="{{ url_for('custom.create_table') }}">{{ token() }}<label>Table name <input name="name" maxlength="200" placeholder="Dealer's Table"></label><button class="btn btn-primary">Create table</button></form>
+</section>
+<div class="tools-grid">{% for t in tables %}<section class="custom-panel"><h3><a href="{{ url_for('custom.dealer_table', table_id=t.id) }}">{{ t.name }}</a></h3><p>{{ t.cards }} card{{ '' if t.cards == 1 else 's' }} on the table · {{ t.width }} × {{ t.height }}</p><div class="custom-toolbar"><a class="btn btn-primary" href="{{ url_for('custom.dealer_table', table_id=t.id) }}">Open table</a>{{ delete(url_for('custom.delete_table', table_id=t.id), 'Delete table') }}</div><p class="text-muted">Deleting a table shuffles its cards back into their decks.</p></section>{% else %}<p>No tables yet. Create one to start dealing.</p>{% endfor %}</div>
+{% endblock %}

@@ -57,8 +57,29 @@
             if (moved && event.detail !== 0) return;
             const source = card.querySelector('img'), target = viewer.querySelector('img');
             target.src = source.src; target.alt = source.alt; target.className = source.className;
-            viewer.querySelector('p').textContent = card.querySelector('figcaption').textContent;
+            target.style.rotate = `${card.dataset.rotation || 0}deg`;
+            viewer.querySelector('p').textContent = card.querySelector('figcaption').firstChild.textContent.trim();
             viewer.showModal();
+        });
+        const rotateButton = card.querySelector('.rotate-card');
+        if (rotateButton) rotateButton.addEventListener('click', async () => {
+            const previous = +card.dataset.rotation || 0, next = (previous + 90) % 360;
+            const status = document.getElementById('tabletop-status');
+            card.dataset.rotation = next;
+            button.style.setProperty('--card-rotation', `${next}deg`);
+            rotateButton.disabled = true;
+            try {
+                const response = await fetch(card.dataset.rotateUrl, {
+                    method: 'POST', headers: {'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-Token': token},
+                    body: JSON.stringify({rotation: next})
+                });
+                if (!response.ok) throw new Error('Save failed');
+                status.textContent = `Card turned to ${next}°.`;
+            } catch (_) {
+                card.dataset.rotation = previous;
+                button.style.setProperty('--card-rotation', `${previous}deg`);
+                status.textContent = 'Could not save rotation. Reload and try again.';
+            } finally { rotateButton.disabled = false; }
         });
     });
 })();

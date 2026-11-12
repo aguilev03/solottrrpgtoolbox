@@ -95,6 +95,7 @@
     --divider-ornament: "\2766";   /* ❦ */
     --felt: #23362d;               /* card tabletop: green baize */
     --felt-bg: radial-gradient(ellipse at 50% 30%, rgba(255, 255, 255, 0.06), transparent 70%);
+    --card-back: repeating-linear-gradient(45deg, #5a2a22 0 6px, #6e352b 6px 12px);
     --brand-mark: "\2694";         /* ⚔ */
 }
 
@@ -187,6 +188,7 @@
         radial-gradient(ellipse at 50% 30%, rgba(63, 214, 236, 0.12), transparent 70%),
         linear-gradient(rgba(63, 214, 236, 0.07) 1px, transparent 1px) 0 0 / 24px 24px,
         linear-gradient(90deg, rgba(63, 214, 236, 0.07) 1px, transparent 1px) 0 0 / 24px 24px;
+    --card-back: repeating-linear-gradient(45deg, #0e2a3e 0 6px, #123650 6px 12px);
     --brand-mark: "\2B22";         /* ⬢ */
 }
 
