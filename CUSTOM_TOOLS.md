@@ -30,13 +30,39 @@ draws. Deleting a card removes it from both the library and tabletop.
 
 ## Using custom sparks
 
-The main view shows every saved table as a button in a two-column grid. Press a
-button to roll one entry with replacement and append it to the shared Spark log
-on the right (below the buttons on narrow screens). Rolls appear oldest first,
-with the table name beside each result. The log is saved in SQLite across page
-reloads and devices, and has no automatic 30-result cutoff. **Reset log** clears
-this shared log without changing tables, sampling pools, or per-table recent
+A compact **Fate Oracle** sits above the table buttons. Choose **Odds** and press
+**Roll**. The server rolls an unbiased d100 (1–100 inclusive), resolves one of
+Exceptional Yes, Yes, No or Exceptional No, and records the result, selected odds
+and d100 value in the existing shared Spark log. The existing **Reset log** clears
+Oracle and table rolls together. There is no separate Oracle history or database
+migration. The selected odds are remembered in the current session, defaulting
+to **50/50 or Unknown**.
+
+The nine settings and inclusive ranges follow the **Ask The Game Master** chart
+from *One-Page Mythic*, originally in *Mythic Magazine #25*, by Tana Pigeon /
+[Word Mill Games](https://www.wordmillgames.com/onepagemythicgme.html).
+The chart was verified against the [original magazine document](https://treasure.fractumseraph.net/books/Mythic%20Magazine%20Compilation%205/Mythic%20Magazine%20Volume%2025.pdf).
+
+
+The main view uses three table columns on desktop, two on tablets and one on
+phones. The table area takes approximately 65% of the desktop workspace, with a
+sticky Spark log on the right. The log stays below navigation and scrolls its
+entries independently; on phones it appears below the tables.
+
+Press a table button to roll one entry with replacement. Rolls appear newest
+first, with the table name beside each result. The shared log is saved in SQLite
+across page reloads and devices, with no automatic 30-result cutoff. **Reset log**
+clears this log without changing tables, sampling pools, or per-table recent
 results. Editing or deleting a table also leaves the shared log intact.
+
+Use the separate star button to add or remove a favorite without rolling.
+Favorites appear above regular tables without duplication and stay visible while
+searching. Search filters only regular table names, ignoring case. Favorites are
+stored per authenticated user in SQLite and survive refreshes, logouts, logins
+and restarts. When login is disabled, anonymous users can still roll and search;
+they must sign in to save favorites. Tables and the log retain their existing
+shared visibility. Favorite requests derive user identity from the session and
+require the existing CSRF token. Deleting a user or table removes its favorites.
 
 Expand **Manage tables** for the existing create, import, edit, delete, batch
 and sampling controls. Batch rolls also append to the shared log. The separate
@@ -82,6 +108,7 @@ runs the additive, idempotent `custom_tools.migrate()` migration. New tables:
 | `custom_cards` | Deck FK, optional name, face file, unique shuffled rank, unique nullable draw order, reversal, x/y offset |
 | `custom_spark_tables` | Name, JSON entry array, remaining entry indices, last sampling mode and batch size |
 | `custom_spark_results` | Table FK and result text; increasing ID supplies chronology |
+| `custom_spark_favorites` | User/table pair; foreign keys cascade on user or table deletion |
 | `custom_spark_log` | Shared roll log with table-name snapshots and result text, retained until reset |
 
 Foreign keys cascade deck/card and table/result deletes. Existing tables and
@@ -149,7 +176,9 @@ uploads use multipart form data. GET requests never mutate library state.
 | POST | `/decks/<deck_id>/cards/<card_id>/edit` | Optional `name` |
 | POST | `/decks/<deck_id>/cards/<card_id>/position` | `x` (−80–80), `y` (−200–200); JSON response |
 | POST | `/decks/<deck_id>/cards/<card_id>/delete` | Delete card and face |
-| GET | `/sparks?table=<table_id>` | Table buttons, shared log, library and selected table |
+| GET | `/sparks?table=<table_id>&q=<query>` | Table buttons, current user favorites, name search, shared log and selected table |
+| POST | `/sparks/<table_id>/favorite` | Authenticated user only; `favorite` (`1` to add, `0` to remove); JSON includes `favorite`, `table_id` |
+| POST | `/sparks/oracle/roll` | `odds` (one of nine labels); JSON includes `odds`, `roll`, `outcome`, `log_entries`; appends to shared log |
 | POST | `/sparks/log/reset` | Clear shared log; keep tables and sampling pools |
 | POST | `/sparks` | Create: `name`, `entries`, `format` (`text` or `json`), optional `file` |
 | POST | `/sparks/<table_id>/edit` | Replace name and entries; same import fields |
@@ -166,7 +195,22 @@ concurrent independent-client draws, fresh-process restart persistence, additive
 migration preservation, spark imports/edits/deletes, malformed JSON, sampling,
 recent history, authentication and CSRF checks.
 
-Validation result: **107 tests passed**, including all existing regression tests.
+Current validation: **151 tests passed**, including per-user favorite isolation,
+CSRF/auth checks, logout/login persistence, additive migration, deletion cascades,
+search rendering, uniform index selection, newest-first rendering and existing
+rolling/reset regressions. Oracle tests cover all 900 odds/d100 combinations,
+all 72 range endpoints through the HTTP route, invalid odds, auth and CSRF,
+native forms, shared log persistence/reset and unchanged spark table state.
+
+Run `node tests/custom_sparks.browser.mjs` for isolated Chromium checks. This uses
+the existing Playwright installation under `build/dungeon-mapper-work/node_modules`
+and `/usr/bin/chromium`, with a temporary database and server on an ephemeral
+localhost port. It checks star/roll separation, favorites after login, live search,
+log ordering and reset, no-JavaScript forms, sticky positioning, initial log height,
+3/2/1 table columns and horizontal overflow at widths 1440, 1000, 768, 390 and 360.
+It also checks the two-control Oracle at all five widths, AJAX and native Oracle
+rolls, odds selection persistence and the shared reset. Screenshots are saved in
+the temporary directory printed by the test.
 
 Manual headless Chromium checks at 1280×1000, 768×1024 and 390×844 verified both pages,
 no horizontal overflow, multiple prominent sparks, card enlargement and pointer
@@ -183,3 +227,22 @@ pool; ordinary request failures clean up newly written files. No automatic orpha
 cleanup or global disk quota is included. Animated images are intentionally
 rejected. JavaScript is needed for drag/enlargement and delete confirmations;
 core forms and draws are server-rendered.
+
+
+## Deploying the spark layout and favorites update
+
+This update is validated locally; it has not been deployed. No new runtime
+packages or frontend build step are required.
+
+1. Stop application writes and back up the configured `SOLO_TOOLS_DB` database
+   and card upload directory using the existing backup procedure.
+2. Update the application checkout to the reviewed commit containing this change.
+3. Restart the existing application service (for the included unit,
+   `sudo systemctl restart solo-ttrpg-tools`). Database initialization creates the
+   additive `custom_spark_favorites` table automatically; existing entries,
+   sampling pools and spark history are retained.
+4. Sign in and verify table rolling, stars after logout/login, search, log reset
+   and the responsive layout. Refresh browser assets if an older layout is cached.
+
+Rolling back the application files leaves the additive favorites table harmlessly
+in the database; no destructive schema rollback is needed.

@@ -1,27 +1,59 @@
 {% extends 'custom_layout.html' %}
 {% from 'custom_forms.html' import token, delete with context %}
 {% block title %}Custom Spark Tables{% endblock %}
+{% block main_class %}spark-page{% endblock %}
+{% macro table_button(saved, favorite=false) %}
+<div class="spark-table" data-table-id="{{ saved.id }}" data-table-name="{{ saved.name }}" data-favorite="{{ 'true' if favorite else 'false' }}" {% if not favorite and search_query.lower() not in saved.name.lower() %}hidden{% endif %}>
+<form method="post" action="{{ url_for('custom.generate', table_id=saved.id) }}" data-spark-roll>
+{{ token() }}<input type="hidden" name="count" value="1"><input type="hidden" name="replacement" value="1">
+<button class="btn btn-primary spark-roll-button" type="submit">{{ saved.name }}</button>
+</form>
+<form method="post" action="{{ url_for('custom.favorite_spark', table_id=saved.id) }}" data-spark-favorite>
+{{ token() }}<input type="hidden" name="favorite" value="{{ '0' if favorite else '1' }}">
+<button class="btn btn-secondary spark-star" type="submit" aria-pressed="{{ 'true' if favorite else 'false' }}" aria-label="Favorite {{ saved.name }}" title="{{ 'Remove from favorites' if favorite else 'Add to favorites' }}" {% if not current_user %}disabled{% endif %}><span aria-hidden="true">{{ '★' if favorite else '☆' }}</span></button>
+</form>
+</div>
+{% endmacro %}
 {% block tool_content %}
 <h2>Custom Spark Tables</h2><p class="text-muted">Reusable inspiration for any system. Each entry has an equal chance.</p>
 <div class="spark-workspace">
 <section class="custom-panel" aria-labelledby="spark-tables-title">
+<section class="fate-oracle" aria-labelledby="fate-oracle-title">
+<h3 id="fate-oracle-title">Fate Oracle</h3>
+<form method="post" action="{{ url_for('custom.roll_fate_oracle') }}" data-fate-roll>
+{{ token() }}
+<label for="fate-odds">Odds<select id="fate-odds" name="odds" required>{% for odds in oracle_odds %}<option value="{{ odds }}" {% if odds == selected_odds %}selected{% endif %}>{{ odds }}</option>{% endfor %}</select></label>
+<button class="btn btn-primary" type="submit">Roll</button>
+</form>
+</section>
 <h3 id="spark-tables-title">Roll a table</h3>
 <p class="text-muted">Press a table to add one random spark to the log.</p>
-<div class="spark-buttons">
-{% for saved in tables %}
-<form method="post" action="{{ url_for('custom.generate', table_id=saved.id) }}" data-spark-roll>
-{{ token() }}<input type="hidden" name="count" value="1"><input type="hidden" name="replacement" value="1">
-<button class="btn btn-primary" type="submit">{{ saved.name }}</button>
-</form>
-{% else %}<p>Create or import a table below to start rolling.</p>{% endfor %}
+<section aria-labelledby="spark-favorites-title">
+<h3 id="spark-favorites-title">Favorites</h3>
+{% if not current_user %}<p class="text-muted">Sign in to save your favorite tables.</p>{% endif %}
+<p id="spark-favorites-empty" class="text-muted" {% if favorite_ids %}hidden{% endif %}>Star a table to keep it here.</p>
+<div id="spark-favorites" class="spark-buttons">
+{% for saved in tables if saved.id in favorite_ids %}{{ table_button(saved, true) }}{% endfor %}
 </div>
+</section>
+<section class="spark-regular-section" aria-labelledby="spark-regular-title">
+<h3 id="spark-regular-title">All tables</h3>
+<form method="get" action="{{ url_for('custom.sparks') }}" role="search" id="spark-search-form">
+<label for="spark-search">Search tables</label><input type="search" id="spark-search" name="q" value="{{ search_query }}" placeholder="Search by table name…" autocomplete="off" aria-controls="spark-regular-tables">
+<noscript><button class="btn btn-secondary" type="submit">Search</button></noscript>
+</form>
+<div id="spark-regular-tables" class="spark-buttons">
+{% for saved in tables if saved.id not in favorite_ids %}{{ table_button(saved) }}{% endfor %}
+</div>
+<p id="spark-search-empty" class="text-muted" role="status" {% if regular_matches %}hidden{% endif %}>No matching tables. Try another name or create a table below.</p>
+</section>
 </section>
 <section class="custom-panel spark-log-panel" aria-labelledby="spark-log-title">
 <div class="custom-toolbar"><h3 id="spark-log-title">Spark log</h3>
 <form method="post" action="{{ url_for('custom.reset_spark_log') }}" data-spark-reset>{{ token() }}<button class="btn btn-secondary" type="submit">Reset log</button></form></div>
-<p class="text-muted">All table rolls stay here until you reset the log. Oldest first.</p>
+<p class="text-muted">All table rolls stay here until you reset the log. Newest first.</p>
 <p id="spark-status" role="status"></p>
-<div id="spark-log" role="log" aria-label="Spark results" aria-live="polite" aria-relevant="additions">
+<div id="spark-log" tabindex="0" role="log" aria-label="Spark results" aria-live="polite" aria-relevant="additions">
 <p id="spark-log-empty" {% if spark_log %}hidden{% endif %}>Press a table button to generate your first spark.</p>
 <ol id="spark-log-entries">{% for entry in spark_log %}<li><strong>{{ entry.table_name }}</strong><p>{{ entry.result }}</p></li>{% endfor %}</ol>
 </div>

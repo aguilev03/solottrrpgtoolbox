@@ -11,7 +11,8 @@ from pathlib import Path
 from flask import (Blueprint, abort, current_app, jsonify, redirect,
                    render_template, request, send_from_directory, session, url_for)
 from PIL import Image, UnidentifiedImageError
-from werkzeug.exceptions import BadRequest, RequestEntityTooLarge, Conflict, NotFound
+from fate_oracle import ODDS, DEFAULT_ODDS, resolve as resolve_fate
+from werkzeug.exceptions import BadRequest, RequestEntityTooLarge, Conflict, NotFound, Unauthorized
 
 bp = Blueprint('custom', __name__)
 rng = secrets.SystemRandom()
@@ -40,6 +41,11 @@ def migrate(conn):
         CREATE TABLE IF NOT EXISTS custom_spark_results (
             id INTEGER PRIMARY KEY, table_id INTEGER NOT NULL REFERENCES custom_spark_tables(id) ON DELETE CASCADE,
             result TEXT NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS custom_spark_favorites (
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            table_id INTEGER NOT NULL REFERENCES custom_spark_tables(id) ON DELETE CASCADE,
+            PRIMARY KEY (user_id, table_id)
         );
         CREATE TABLE IF NOT EXISTS custom_spark_log (
             id INTEGER PRIMARY KEY, table_name TEXT NOT NULL, result TEXT NOT NULL
@@ -116,6 +122,7 @@ def csrf():
 @bp.errorhandler(BadRequest)
 @bp.errorhandler(Conflict)
 @bp.errorhandler(NotFound)
+@bp.errorhandler(Unauthorized)
 def invalid(error):
     message = str(error) if isinstance(error, ValueError) else error.description
     status = getattr(error, 'code', 400)
@@ -387,12 +394,51 @@ def spark_input():
 @bp.get('/sparks')
 def sparks():
     selected = request.args.get('table', type=int)
+    search_query = request.args.get('q', '').strip()
     with connection() as conn:
         tables = conn.execute('SELECT id,name FROM custom_spark_tables ORDER BY name,id').fetchall()
+        favorite_ids = {row['table_id'] for row in conn.execute(
+            'SELECT table_id FROM custom_spark_favorites WHERE user_id=?', (session.get('user_id'),))}
         table = required(conn, 'custom_spark_tables', selected) if selected else None
-        spark_log = conn.execute('SELECT id,table_name,result FROM custom_spark_log ORDER BY id').fetchall()
+        spark_log = conn.execute('SELECT id,table_name,result FROM custom_spark_log ORDER BY id DESC').fetchall()
         results = conn.execute('SELECT result FROM custom_spark_results WHERE table_id=? ORDER BY id DESC LIMIT 30', (selected,)).fetchall() if selected else []
-    return render_template('sparks.html', tables=tables, table=table, entries=json.loads(table['entries_json']) if table else [], entries_text=json.dumps(json.loads(table['entries_json']), ensure_ascii=False, indent=2) if table else '', remaining=len(json.loads(table['pool_json'])) if table else 0, results=results, spark_log=spark_log)
+    return render_template('sparks.html', tables=tables, table=table, entries=json.loads(table['entries_json']) if table else [], entries_text=json.dumps(json.loads(table['entries_json']), ensure_ascii=False, indent=2) if table else '', remaining=len(json.loads(table['pool_json'])) if table else 0, results=results, spark_log=spark_log, favorite_ids=favorite_ids, search_query=search_query, oracle_odds=ODDS, selected_odds=session.get('fate_odds', DEFAULT_ODDS), regular_matches=any(row['id'] not in favorite_ids and search_query.lower() in row['name'].lower() for row in tables))
+
+
+@bp.post('/sparks/oracle/roll')
+def roll_fate_oracle():
+    odds = payload().get('odds')
+    if not isinstance(odds, str) or odds not in ODDS:
+        raise ValueError('Choose one of the nine Fate Oracle odds settings.')
+    roll = rng.randint(1, 100)
+    outcome = resolve_fate(odds, roll)
+    result = f'{outcome} · Odds: {odds} · d100: {roll}'
+    with connection() as conn:
+        log_id = conn.execute('INSERT INTO custom_spark_log(table_name,result) VALUES (?,?)',
+                              ('Fate Oracle', result)).lastrowid
+    session['fate_odds'] = odds
+    return done('custom.sparks', {'odds': odds, 'roll': roll, 'outcome': outcome,
+                                'log_entries': [{'id': log_id, 'table_name': 'Fate Oracle', 'result': result}]})
+
+
+@bp.post('/sparks/<int:table_id>/favorite')
+def favorite_spark(table_id):
+    # Always derive ownership from the authenticated session, never request fields.
+    user_id = session.get('user_id')
+    data = payload()
+    favorite = data.get('favorite')
+    with connection() as conn:
+        conn.execute('BEGIN IMMEDIATE')
+        if not user_id or not conn.execute('SELECT id FROM users WHERE id=?', (user_id,)).fetchone():
+            abort(401, description='Sign in to save favorite tables.')
+        required(conn, 'custom_spark_tables', table_id)
+        if favorite not in ('0', '1'):
+            raise ValueError('Favorite must be 0 or 1.')
+        if favorite == '1':
+            conn.execute('INSERT OR IGNORE INTO custom_spark_favorites(user_id,table_id) VALUES (?,?)', (user_id, table_id))
+        else:
+            conn.execute('DELETE FROM custom_spark_favorites WHERE user_id=? AND table_id=?', (user_id, table_id))
+    return done('custom.sparks', {'favorite': favorite == '1', 'table_id': table_id})
 
 
 @bp.post('/sparks/log/reset')

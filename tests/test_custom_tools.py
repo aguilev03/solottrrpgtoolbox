@@ -295,7 +295,7 @@ def test_shared_spark_log_keeps_all_rolls_until_reset(custom):
     assert len(rows(reopened, 'SELECT * FROM custom_spark_log')) == 41
     page = client.get('/sparks').data.decode()
     assert 'data-spark-roll' in page and 'Manage tables' in page
-    assert page.index('<strong>Omens</strong>') < page.index('<strong>Places</strong>')
+    assert page.index('<strong>Places</strong>') < page.index('<strong>Omens</strong>')
     assert client.post('/sparks/log/reset').status_code == 400
     assert client.get('/sparks/log/reset').status_code == 405
     assert len(rows(db, 'SELECT * FROM custom_spark_log')) == 41
@@ -321,4 +321,166 @@ def test_spark_log_failed_roll_and_html_safety(custom):
     assert len(rows(db, 'SELECT * FROM custom_spark_log')) == 2
     response = client.post('/sparks/log/reset', data={'csrf_token': token})
     assert response.status_code == 302
+    assert rows(db, 'SELECT * FROM custom_spark_log') == []
+
+
+def test_spark_favorites_are_private_persistent_and_do_not_roll(custom):
+    from werkzeug.security import generate_password_hash
+    client, db, token = custom
+    user_a = db.create_user('Alice', generate_password_hash('test-password'))
+    user_b = db.create_user('Bob', generate_password_hash('test-password'))
+    table = post(client, token, '/sparks', {'name': 'Omens', 'entries': 'Bell\nBird'}).json['id']
+    original = dict(rows(db, 'SELECT * FROM custom_spark_tables')[0])
+    app.config['LOGIN_DISABLED'] = False
+    client.post('/login', data={'username': 'Alice', 'password': 'test-password'})
+    path = f'/sparks/{table}/favorite'
+    assert client.post(path, data={'favorite': '1'}).status_code == 400
+    for _ in range(2):  # Setting a favorite is idempotent, including request retries.
+        assert post(client, token, path, {'favorite': '1', 'user_id': user_b}).json['favorite'] is True
+    assert [(row['user_id'], row['table_id']) for row in rows(db, 'SELECT * FROM custom_spark_favorites')] == [(user_a, table)]
+    assert dict(rows(db, 'SELECT * FROM custom_spark_tables')[0]) == original
+    assert rows(db, 'SELECT * FROM custom_spark_log') == []
+    assert rows(db, 'SELECT * FROM custom_spark_results') == []
+    assert post(client, token, path, {'favorite': 'invalid'}).status_code == 400
+    assert post(client, token, '/sparks/999/favorite', {'favorite': '1'}).status_code == 404
+    page = client.get('/sparks').data.decode()
+    assert page.count(f'data-table-id="{table}"') == 1
+    assert page.index(f'data-table-id="{table}"') < page.index('id="spark-regular-tables"')
+    client.get('/logout')
+    assert post(client, token, path, {'favorite': '0'}).status_code == 302
+    assert len(rows(db, 'SELECT * FROM custom_spark_favorites')) == 1
+    client.post('/login', data={'username': 'Bob', 'password': 'test-password'})
+    client.get('/sparks')
+    with client.session_transaction() as session:
+        bob_token = session['custom_csrf']
+    page = client.get('/sparks').data.decode()
+    assert 'data-favorite="true"' not in page
+    post(client, bob_token, path, {'favorite': '1'})
+    post(client, bob_token, path, {'favorite': '0', 'user_id': user_a})
+    assert rows(db, 'SELECT user_id FROM custom_spark_favorites')[0][0] == user_a
+    client.get('/logout')
+    client.post('/login', data={'username': 'Alice', 'password': 'test-password'})
+    page = client.get('/sparks').data.decode()
+    assert 'data-favorite="true"' in page
+    assert len(rows(Database(db.db_path), 'SELECT * FROM custom_spark_favorites')) == 1
+    client.get('/sparks')
+    with client.session_transaction() as session:
+        alice_token = session['custom_csrf']
+    post(client, alice_token, path, {'favorite': '0'})
+    assert rows(db, 'SELECT * FROM custom_spark_favorites') == []
+
+
+def test_spark_favorites_require_account_and_cascade_safely(custom):
+    client, db, token = custom
+    table = post(client, token, '/sparks', {'name': 'Omens', 'entries': 'Bell'}).json['id']
+    path = f'/sparks/{table}/favorite'
+    assert post(client, token, path, {'favorite': '1'}).status_code == 401
+    user = db.create_user('Favorite owner', 'unused')
+    with client.session_transaction() as session:
+        session['user_id'] = user
+    post(client, token, path, {'favorite': '1'})
+    post(client, token, f'/sparks/{table}/generate')
+    # Additive migration preserves existing table contents, favorites and log.
+    reopened = Database(db.db_path)
+    assert rows(reopened, 'SELECT entries_json FROM custom_spark_tables')[0][0] == '["Bell"]'
+    assert len(rows(reopened, 'SELECT * FROM custom_spark_favorites')) == 1
+    db.delete_user(user)
+    assert rows(db, 'SELECT * FROM custom_spark_favorites') == []
+    assert len(rows(db, 'SELECT * FROM custom_spark_log')) == 1
+    assert post(client, token, path, {'favorite': '1'}).status_code == 401
+    other = db.create_user('Another owner', 'unused')
+    with client.session_transaction() as session:
+        session['user_id'] = other
+    post(client, token, path, {'favorite': '1'})
+    post(client, token, f'/sparks/{table}/delete')
+    assert rows(db, 'SELECT * FROM custom_spark_favorites') == []
+    assert len(rows(db, 'SELECT * FROM custom_spark_log')) == 1
+
+
+def test_spark_search_favorites_and_roll_mechanics(custom):
+    client, db, token = custom
+    user = db.create_user('Searcher', 'unused')
+    with client.session_transaction() as session:
+        session['user_id'] = user
+    favorite = post(client, token, '/sparks', {'name': 'Favorites', 'entries': 'Kept'}).json['id']
+    omen = post(client, token, '/sparks', {'name': 'Omens', 'entries': 'Bell\nBird'}).json['id']
+    post(client, token, '/sparks', {'name': 'Places', 'entries': 'Tower'})
+    post(client, token, f'/sparks/{favorite}/favorite', {'favorite': '1'})
+    page = client.get('/sparks?q=OMEN').data.decode()
+    assert f'data-table-id="{favorite}" data-table-name="Favorites" data-favorite="true" >' in page
+    assert f'data-table-id="{omen}" data-table-name="Omens" data-favorite="false" >' in page
+    assert 'data-table-name="Places" data-favorite="false" hidden' in page
+    assert b'id="spark-search-empty" class="text-muted" role="status" >' in client.get('/sparks?q=missing').data
+    # Favoriting and searching do not change uniform index selection or the pool.
+    with patch('custom_tools.rng.randrange', side_effect=[0, 1]) as roll:
+        response = post(client, token, f'/sparks/{omen}/generate', {'count': 2})
+        assert response.json['results'] == ['Bell', 'Bird']
+        assert roll.call_args_list == [((2,),), ((2,),)]
+    page = client.get('/sparks').data.decode()
+    assert page.index('<p>Bird</p>') < page.index('<p>Bell</p>')
+    assert post(client, token, f'/sparks/{omen}/generate', {'count': 2, 'replacement': '0'}).status_code == 200
+    assert post(client, token, f'/sparks/{omen}/generate', {'replacement': '0'}).status_code == 409
+
+
+@pytest.mark.parametrize('odds,ranges', [
+    ('Certain', [(1,18), (19,90), (91,98), (99,100)]),
+    ('Nearly Certain', [(1,17), (18,85), (86,97), (98,100)]),
+    ('Very Likely', [(1,15), (16,75), (76,95), (96,100)]),
+    ('Likely', [(1,13), (14,65), (66,93), (94,100)]),
+    ('50/50 or Unknown', [(1,10), (11,50), (51,90), (91,100)]),
+    ('Unlikely', [(1,7), (8,35), (36,87), (88,100)]),
+    ('Very Unlikely', [(1,5), (6,25), (26,85), (86,100)]),
+    ('Nearly Impossible', [(1,3), (4,15), (16,83), (84,100)]),
+    ('Impossible', [(1,2), (3,10), (11,82), (83,100)]),
+])
+def test_fate_oracle_endpoint_all_outcome_boundaries(custom, odds, ranges):
+    client, db, token = custom
+    expected = []
+    for outcome, bounds in zip(('Exceptional Yes', 'Yes', 'No', 'Exceptional No'), ranges):
+        for roll in bounds:
+            with patch('custom_tools.rng.randint', return_value=roll) as rng:
+                response = post(client, token, '/sparks/oracle/roll', {'odds': odds})
+            rng.assert_called_once_with(1, 100)
+            assert response.status_code == 200
+            assert response.json['outcome'] == outcome
+            assert response.json['odds'] == odds and response.json['roll'] == roll
+            entry = response.json['log_entries'][0]
+            assert entry['table_name'] == 'Fate Oracle'
+            assert entry['result'] == f'{outcome} · Odds: {odds} · d100: {roll}'
+            expected.append(entry['result'])
+    assert [row['result'] for row in rows(db, 'SELECT result FROM custom_spark_log ORDER BY id')] == expected
+    assert rows(db, 'SELECT * FROM custom_spark_results') == []
+    assert len(rows(Database(db.db_path), 'SELECT * FROM custom_spark_log')) == 8
+
+
+def test_fate_oracle_auth_csrf_reset_and_native_forms(custom):
+    client, db, token = custom
+    path = '/sparks/oracle/roll'
+    assert client.get(path).status_code == 405
+    assert client.post(path, data={'odds': 'Certain'}).status_code == 400
+    for invalid in (None, '', 'not odds', [], {}, 50):
+        with patch('custom_tools.rng.randint') as rng:
+            assert post(client, token, path, json={'odds': invalid}).status_code == 400
+        rng.assert_not_called()
+    assert rows(db, 'SELECT * FROM custom_spark_log') == []
+    table = post(client, token, '/sparks', {'name': 'Keep', 'entries': 'Bell\nBird'}).json['id']
+    before = dict(rows(db, 'SELECT * FROM custom_spark_tables')[0])
+    post(client, token, f'/sparks/{table}/generate')
+    after_roll = dict(rows(db, 'SELECT * FROM custom_spark_tables')[0])
+    with patch('custom_tools.rng.randint', return_value=100):
+        response = client.post(path, data={'csrf_token': token, 'odds': 'Impossible', 'roll': 1})
+    assert response.status_code == 302
+    assert dict(rows(db, 'SELECT * FROM custom_spark_tables')[0]) == after_roll
+    assert before['entries_json'] == after_roll['entries_json']
+    page = client.get('/sparks').data.decode()
+    assert 'value="Impossible" selected' in page
+    assert 'Exceptional No · Odds: Impossible · d100: 100' in page
+    assert page.index('<strong>Fate Oracle</strong>') < page.index('<strong>Keep</strong>')
+    assert len(rows(db, 'SELECT * FROM custom_spark_results')) == 1
+    post(client, token, '/sparks/log/reset')
+    assert rows(db, 'SELECT * FROM custom_spark_log') == []
+    assert dict(rows(db, 'SELECT * FROM custom_spark_tables')[0]) == after_roll
+    app.config['LOGIN_DISABLED'] = False
+    db.create_user('Oracle user', 'unused')
+    assert post(client, token, path, {'odds': 'Certain'}).status_code == 302
     assert rows(db, 'SELECT * FROM custom_spark_log') == []

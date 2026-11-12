@@ -192,6 +192,55 @@ body {
     color: var(--gold-primary);
 }
 
+
+/* Square launcher cards on the home page. */
+.main-content.main-menu-content {
+    max-width: 1140px;
+}
+
+.menu-container .tools-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.menu-container .tool-card {
+    position: relative;
+    aspect-ratio: 1;
+    min-width: 0;
+    flex-direction: column;
+    justify-content: center;
+    gap: .85rem;
+    padding: 1.5rem;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+
+.menu-container .tool-card-content {
+    flex: 0 1 auto;
+}
+
+.menu-container .tool-card-arrow {
+    position: absolute;
+    right: 1rem;
+    bottom: .65rem;
+}
+
+.menu-container .tool-card:focus-visible {
+    outline: 2px solid var(--gold-primary);
+    outline-offset: 4px;
+}
+
+@media (max-width: 1000px) {
+    .menu-container .tools-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .menu-container .tools-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
 .badge-coming-soon {
     font-size: 0.75rem;
     background: #2b2823;
