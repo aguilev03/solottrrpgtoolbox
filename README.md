@@ -198,7 +198,7 @@ solo-ttrpg-tools/
 ├── emulator_engine.py          # Character Emulator engine: Triple-O, weighted traits, sparks
 ├── table_loader.py             # TableManager: startup validation & recursive subtable engine
 ├── solo-ttrpg-tools.service    # Production systemd service unit file
-├── requirements.txt            # Python dependencies (Flask, Gunicorn, Pytest)
+├── requirements.txt            # Python dependencies (Flask, Gunicorn, Pytest, Pillow)
 ├── README.md                   # This documentation guide
 ├── .gitignore                  # Excludes .venv, pycache, and database files
 ├── data/                       # Modular JSON roll tables
@@ -275,7 +275,7 @@ python3 -m venv .venv
 ```
 
 ### Step 4: Run the Automated Test Suite
-Verify all 61 unit and integration tests pass:
+Verify the full unit and integration test suite passes:
 ```bash
 PYTHONPATH=. .venv/bin/pytest -v
 ```
@@ -439,3 +439,24 @@ During exploration, all events (room entries, discoveries, searches, and tension
 - Click **Export Plain Text** to download a clean `.txt` log.
 - Click **Export Markdown** to download a formatted `.md` log ready to drag and drop directly into **Obsidian** or your solo campaign notebook.
 
+
+## Custom Card Decks & Custom Spark Tables
+
+Two independent, system-neutral tools are available from the home menu:
+
+- **Custom Card Decks**: saved image decks, optional backs and names, configurable
+  reversals, transactional draws without replacement, persistent draggable
+  tabletops, card enlargement and full reshuffling.
+- **Custom Spark Tables**: reusable text/JSON imports, editing, uniform random
+  generation, optional sampling without replacement and saved recent results.
+
+Install the updated dependencies with `.venv/bin/pip install -r requirements.txt`.
+The additive SQLite migration runs automatically on startup and preserves existing
+records. Card images are stored in `instance/card_uploads/` outside `static/`;
+back up that directory **together with the database**. These libraries follow the
+existing shared-library login conventions and leave the Character Emulator's
+built-in Triple-O sparks intact.
+
+See [CUSTOM_TOOLS.md](CUSTOM_TOOLS.md) for usage, import formats, database tables,
+routes, upload limits, storage configuration, backup guidance and limitations.
+Run the full test suite with `.venv/bin/python -m pytest -q`.

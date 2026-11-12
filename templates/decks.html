@@ -1,0 +1,8 @@
+{% extends 'custom_layout.html' %}
+{% from 'custom_forms.html' import token, delete with context %}
+{% block title %}Custom Card Decks{% endblock %}
+{% block tool_content %}
+<h2>Custom Card Decks</h2><p class="text-muted">Your reusable decks and saved tabletops. Draw without replacement, in any system.</p>
+<section class="custom-panel"><h3>Create a deck</h3><form method="post" action="{{ url_for('custom.create_deck') }}">{{ token() }}<label>Deck name <input name="name" required maxlength="200"></label><button class="btn btn-primary">Create deck</button></form></section>
+<div class="tools-grid">{% for deck in decks %}<section class="custom-panel"><h3><a href="{{ url_for('custom.deck', deck_id=deck.id) }}">{{ deck.name }}</a></h3><p>{{ deck.total }} cards</p><a class="btn btn-primary" href="{{ url_for('custom.deck', deck_id=deck.id) }}">Open tabletop</a>{{ delete(url_for('custom.delete_deck',deck_id=deck.id), 'Delete deck') }}</section>{% else %}<p>No saved decks yet. Create one and upload your cards.</p>{% endfor %}</div>
+{% endblock %}

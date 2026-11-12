@@ -25,6 +25,9 @@ engine = DungeonEngine(table_manager)
 emulator = get_emulator_engine(app.config["DATA_DIR"])
 hex_engine = HexEngine(table_manager)
 
+from custom_tools import bp as custom_blueprint
+app.register_blueprint(custom_blueprint)
+
 PUBLIC_ENDPOINTS = {"login", "setup", "static", "auth_check"}
 
 

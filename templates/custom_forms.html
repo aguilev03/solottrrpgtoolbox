@@ -1,0 +1,2 @@
+{% macro token() %}<input type="hidden" name="csrf_token" value="{{ custom_csrf }}">{% endmacro %}
+{% macro delete(action, label) %}<form method="post" action="{{ action }}" data-confirm="{{ label }}? This cannot be undone.">{{ token() }}<button class="btn btn-danger" type="submit">{{ label }}</button></form>{% endmacro %}

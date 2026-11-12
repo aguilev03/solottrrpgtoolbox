@@ -1,0 +1,26 @@
+.custom-tools { max-width: 1000px; margin: auto; }
+.custom-tools h2, .custom-tools h3 { color: var(--gold-primary); margin-bottom: .7rem; }
+.custom-tools p { margin: .7rem 0; }
+.custom-panel { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 1.2rem; margin: 1rem 0; min-width: 0; }
+.custom-tools form { margin: .7rem 0; }
+.custom-tools label { display: block; margin: .7rem 0; }
+.custom-tools input, .custom-tools textarea, .custom-tools select { display: block; width: 100%; max-width: 100%; padding: .65rem; background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border-accent); border-radius: 4px; font: inherit; }
+.custom-tools input[type=hidden] { display: none; }
+.custom-tools button:disabled { opacity: .45; cursor: not-allowed; }
+.custom-tools summary { cursor: pointer; color: var(--gold-primary); font-weight: bold; }
+.custom-tools li { margin-left: 1.4rem; overflow-wrap: anywhere; }
+.custom-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+.deck-back { width: 45px; height: auto; }
+.tabletop { display: grid; grid-template-columns: repeat(auto-fill,minmax(130px,1fr)); align-items: start; gap: 1.2rem; padding: 1.4rem 1.4rem 220px; background: #23362d; border: 5px solid var(--border-accent); border-radius: 12px; min-height: 350px; overflow: hidden; }
+.table-card { position: relative; margin: 0; min-width: 0; touch-action: pan-y; }
+.table-card button { width: 100%; padding: 0; border: 0; background: transparent; cursor: grab; touch-action: none; }
+.table-card img { display: block; width: 100%; height: auto; border-radius: 5px; box-shadow: 0 4px 12px #0008; }
+.table-card figcaption { font-size: .8rem; overflow-wrap: anywhere; text-align: center; }
+.reversed { transform: rotate(180deg); }
+.card-library { display: grid; grid-template-columns: repeat(auto-fill,minmax(180px,1fr)); gap: 1rem; }
+.card-library img { width: 100%; height: auto; max-height: 240px; object-fit: contain; }
+.spark-result { font-family: var(--font-serif); font-size: 1.7rem; color: var(--gold-bright); padding: 1.5rem; border-left: 3px solid var(--gold-primary); white-space: pre-wrap; overflow-wrap: anywhere; }
+#card-viewer { margin: auto; padding: 1.3rem; border: 1px solid var(--gold-primary); border-radius: 8px; max-width: 95vw; max-height: 95vh; background: var(--bg-card); color: var(--text-main); }
+#card-viewer::backdrop { background: #000b; }
+#card-viewer img { display: block; max-height: 70vh; max-width: 80vw; width: auto; height: auto; margin: 1rem auto; }
+@media(max-width: 480px) { .tabletop { grid-template-columns: repeat(2,minmax(0,1fr)); padding-left: .6rem; padding-right: .6rem; gap: .7rem; } .custom-panel { padding: .8rem; } }

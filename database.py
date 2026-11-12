@@ -13,6 +13,9 @@ class Database:
         self.db_path = os.path.abspath(db_path)
         os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
         self.init_db()
+        from custom_tools import migrate
+        with self.get_connection() as conn:
+            migrate(conn)
 
     def get_connection(self) -> sqlite3.Connection:
         conn = sqlite3.connect(self.db_path)
