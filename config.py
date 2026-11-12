@@ -41,3 +41,7 @@ class Config:
     CARD_MAX_DECK_CARDS = int(os.environ.get("CARD_MAX_DECK_CARDS", 2000))
     SPARK_MAX_IMPORT_BYTES = int(os.environ.get("SPARK_MAX_IMPORT_BYTES", 1024 * 1024))
     SPARK_MAX_ENTRIES = int(os.environ.get("SPARK_MAX_ENTRIES", 10_000))
+    EDITOR_BUILD_DIR = os.environ.get("EDITOR_BUILD_DIR", os.path.join(BASE_DIR, "build", "editors"))
+    MAP_MAX_PROJECT_BYTES = int(os.environ.get("MAP_MAX_PROJECT_BYTES", 16 * 1024 * 1024))
+    MAP_LIBRARY_MAX_BYTES = int(os.environ.get("MAP_LIBRARY_MAX_BYTES", 512 * 1024 * 1024))
+    MAP_RETAIN_REVISIONS = int(os.environ.get("MAP_RETAIN_REVISIONS", 5))

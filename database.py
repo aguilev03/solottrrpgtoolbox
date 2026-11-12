@@ -16,6 +16,9 @@ class Database:
         from custom_tools import migrate
         with self.get_connection() as conn:
             migrate(conn)
+        from map_library import migrate as migrate_maps
+        with self.get_connection() as conn:
+            migrate_maps(conn)
 
     def get_connection(self) -> sqlite3.Connection:
         conn = sqlite3.connect(self.db_path)

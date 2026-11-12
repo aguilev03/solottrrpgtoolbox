@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}{{ editors[editor].label }} — HexWorld{% endblock %}
+{% block main_class %}main-content-wide{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/maps.css') }}">
+<section id="map-editor" data-editor="{{ editor }}" data-token="{{ maps_csrf }}">
+  <div class="map-toolbar">
+    <a href="{{ url_for('maps.library') }}">Map library</a>
+    <h2 id="map-title">{{ editors[editor].label }}</h2>
+    <button id="map-save" class="btn btn-primary" disabled>Save to HexWorld</button>
+    <button id="map-copy" class="btn btn-secondary" disabled>Save as copy</button>
+    <button id="map-download" class="btn btn-secondary" disabled>Download editable project</button>
+    <button id="map-png" class="btn btn-secondary" disabled>Export PNG (current level)</button>
+    <label>Import project <input id="map-import" type="file" accept="{{ '.txt' if editor == 'gridmapper' else '.json' }}" disabled></label>
+    <label>Saved revision <select id="map-revision" disabled></select></label>
+    <button id="map-restore" class="btn btn-secondary" disabled>Load saved revision</button>
+  </div>
+  <p id="map-status" role="status" aria-live="polite">Choose or create a map in the map library.</p>
+  <p class="map-hint">Save to HexWorld before leaving to continue on another device. The editor’s device save is separate. PNG exports include your current level’s private notes where supported.</p>
+  <div class="map-frame-host"><iframe id="editor-frame" title="{{ editors[editor].label }} drawing workspace" hidden></iframe><div id="editor-lock" hidden>Loading saved project…</div></div>
+  <details><summary>Editor credits and source</summary><p>{{ editors[editor].label }} — {{ 'Alex Schroeder, CC0' if editor == 'gridmapper' else 'Alex Perrault, AGPL-3.0-or-later' }}. <a href="{{ url_for('maps.upstream', editor=editor) }}">Pinned upstream source</a>. HexWorld adapter and build instructions are in the application repository’s integrations directory.</p></details>
+</section>
+<script src="{{ url_for('static', filename='js/map_editor.js') }}" defer></script>
+{% endblock %}

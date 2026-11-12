@@ -27,6 +27,8 @@ hex_engine = HexEngine(table_manager)
 
 from custom_tools import bp as custom_blueprint
 app.register_blueprint(custom_blueprint)
+from map_library import bp as maps_blueprint
+app.register_blueprint(maps_blueprint)
 
 PUBLIC_ENDPOINTS = {"login", "setup", "static", "auth_check"}
 
