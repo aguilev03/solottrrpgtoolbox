@@ -1,0 +1,27 @@
+{% extends 'custom_layout.html' %}
+{% from 'custom_forms.html' import token, delete with context %}
+{% block title %}{{ deck.name }} — Tabletop{% endblock %}
+{% block tool_content %}
+<h2>{{ deck.name }}</h2>
+<div class="custom-toolbar"><strong aria-live="polite">{{ remaining }} / {{ cards|length }} cards remaining</strong>
+<form method="post" action="{{ url_for('custom.draw',deck_id=deck.id) }}">{{ token() }}<button class="btn btn-primary" {% if not remaining %}disabled{% endif %}>Draw one card</button></form>
+<form method="post" action="{{ url_for('custom.reshuffle',deck_id=deck.id) }}" data-confirm="Clear the tabletop and reshuffle every card?">{{ token() }}<button class="btn btn-secondary">Reshuffle</button></form>
+{% if deck.back_file %}<img class="deck-back" src="{{ url_for('custom.card_image',deck_id=deck.id,filename=deck.back_file) }}" alt="Custom card back">{% endif %}
+</div>
+{% if not remaining and cards %}<p>Deck exhausted. Reshuffle to draw again.</p>{% endif %}
+<p class="text-muted">Cards appear in draw order. Drag to arrange; click or press Enter to enlarge. Positions save automatically.</p>
+<p id="tabletop-status" role="status"></p>
+<div class="tabletop" aria-label="Drawn cards">
+{% for card in drawn %}<figure class="table-card" data-position-url="{{ url_for('custom.position',deck_id=deck.id,card_id=card.id) }}" data-x="{{ card.x }}" data-y="{{ card.y }}" style="transform:translate({{ card.x }}%,{{ card.y }}px)">
+<button type="button" class="enlarge-card" aria-label="Enlarge {{ card.name or 'card ' ~ card.drawn_order }}"><img {% if card.reversed %}class="reversed"{% endif %} src="{{ url_for('custom.card_image',deck_id=deck.id,filename=card.image_file) }}" alt="{{ card.name or 'Card ' ~ card.drawn_order }}" draggable="false"></button>
+<figcaption>{{ card.drawn_order }}. {{ card.name or 'Unnamed card' }} · {{ 'Reversed' if card.reversed else 'Upright' }}</figcaption></figure>
+{% else %}<p>Your tabletop is clear. Upload cards below, then draw a card.</p>{% endfor %}
+</div>
+<dialog id="card-viewer"><button type="button" class="btn btn-secondary" id="close-card-viewer">Close</button><img alt="Enlarged card"><p></p></dialog>
+<details class="custom-panel"><summary>Deck settings &amp; card library</summary>
+<form method="post" action="{{ url_for('custom.edit_deck',deck_id=deck.id) }}">{{ token() }}<label>Deck name <input name="name" value="{{ deck.name }}" maxlength="200" required></label><label>Reversal probability (%) <input type="number" name="reversal_probability" min="0" max="100" step="any" value="{{ deck.reversal_probability }}" required></label><p class="text-muted">Set to 0 to disable reversals; 50 gives an equal chance. Applies to future draws.</p><button class="btn btn-primary">Save settings</button></form>
+<h3>Upload images</h3><form method="post" enctype="multipart/form-data" action="{{ url_for('custom.upload_cards',deck_id=deck.id) }}">{{ token() }}<label>Card faces (multiple allowed) <input type="file" name="cards" accept=".png,.jpg,.jpeg,.webp" multiple></label><label>Optional card back <input type="file" name="back" accept=".png,.jpg,.jpeg,.webp"></label><p class="text-muted">PNG, JPG, JPEG or WebP; up to {{ config.CARD_MAX_UPLOAD_FILES }} card faces per upload, {{ (config.CARD_MAX_IMAGE_BYTES / 1048576)|round(1) }} MiB per image. New cards join the available pool; existing draws stay in place.</p><button class="btn btn-primary">Upload images</button></form>
+<div class="card-library">{% for card in cards %}<section class="custom-panel"><img loading="lazy" src="{{ url_for('custom.card_image',deck_id=deck.id,filename=card.image_file) }}" alt="{{ card.name or 'Unnamed card' }}"><form method="post" action="{{ url_for('custom.edit_card',deck_id=deck.id,card_id=card.id) }}">{{ token() }}<label>Optional name <input name="name" maxlength="200" value="{{ card.name }}"></label><button class="btn btn-secondary">Save name</button></form>{{ delete(url_for('custom.delete_card',deck_id=deck.id,card_id=card.id),'Delete card') }}</section>{% endfor %}</div>
+{{ delete(url_for('custom.delete_deck',deck_id=deck.id),'Delete deck') }}
+</details>
+{% endblock %}

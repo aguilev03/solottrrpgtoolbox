@@ -31,3 +31,17 @@ class Config:
         "HEXROLL_URL",
         "/xpra/",
     )
+
+    # Permanent custom library storage, separate from publicly served static assets.
+    CARD_UPLOAD_DIR = os.environ.get("CARD_UPLOAD_DIR", os.path.join(INSTANCE_DIR, "card_uploads"))
+    MAX_CONTENT_LENGTH = int(os.environ.get("MAX_CONTENT_LENGTH", 32 * 1024 * 1024))
+    CARD_MAX_IMAGE_BYTES = int(os.environ.get("CARD_MAX_IMAGE_BYTES", 8 * 1024 * 1024))
+    CARD_MAX_PIXELS = int(os.environ.get("CARD_MAX_PIXELS", 20_000_000))
+    CARD_MAX_UPLOAD_FILES = int(os.environ.get("CARD_MAX_UPLOAD_FILES", 100))
+    CARD_MAX_DECK_CARDS = int(os.environ.get("CARD_MAX_DECK_CARDS", 2000))
+    SPARK_MAX_IMPORT_BYTES = int(os.environ.get("SPARK_MAX_IMPORT_BYTES", 1024 * 1024))
+    SPARK_MAX_ENTRIES = int(os.environ.get("SPARK_MAX_ENTRIES", 10_000))
+    EDITOR_BUILD_DIR = os.environ.get("EDITOR_BUILD_DIR", os.path.join(BASE_DIR, "build", "editors"))
+    MAP_MAX_PROJECT_BYTES = int(os.environ.get("MAP_MAX_PROJECT_BYTES", 16 * 1024 * 1024))
+    MAP_LIBRARY_MAX_BYTES = int(os.environ.get("MAP_LIBRARY_MAX_BYTES", 512 * 1024 * 1024))
+    MAP_RETAIN_REVISIONS = int(os.environ.get("MAP_RETAIN_REVISIONS", 5))

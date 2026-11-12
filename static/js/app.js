@@ -100,3 +100,47 @@ document.addEventListener("keydown", function(event) {
         closeDeleteModal();
     }
 });
+
+// ==========================================
+// Theme switcher (Fantasy / Sci-Fi)
+// ==========================================
+const UI_THEMES = {
+    fantasy: { color: "#12100d" },
+    scifi: { color: "#05080f" },
+};
+
+function applyTheme(theme, { animate = true } = {}) {
+    if (!UI_THEMES[theme]) return;
+    const root = document.documentElement;
+
+    if (animate) {
+        root.classList.add("theme-transition");
+        window.setTimeout(() => root.classList.remove("theme-transition"), 400);
+    }
+
+    root.setAttribute("data-theme", theme);
+
+    // Persist: cookie lets the server render the right theme on first paint,
+    // localStorage is a fallback for cached pages.
+    document.cookie = `ui_theme=${theme}; path=/; max-age=31536000; SameSite=Lax`;
+    try { localStorage.setItem("ui-theme", theme); } catch (e) { /* storage blocked */ }
+
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", UI_THEMES[theme].color);
+
+    document.querySelectorAll("[data-theme-choice]").forEach(btn => {
+        btn.setAttribute("aria-pressed", String(btn.dataset.themeChoice === theme));
+    });
+
+    document.dispatchEvent(new CustomEvent("themechange", { detail: { theme } }));
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    // Sync buttons with whatever theme the early inline script applied.
+    const current = document.documentElement.getAttribute("data-theme") || "fantasy";
+    applyTheme(current, { animate: false });
+
+    document.querySelectorAll("[data-theme-choice]").forEach(btn => {
+        btn.addEventListener("click", () => applyTheme(btn.dataset.themeChoice));
+    });
+});

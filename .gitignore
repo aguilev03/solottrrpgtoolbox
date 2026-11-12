@@ -6,7 +6,8 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-build/
+/build/*
+!/build/editors/
 develop-eggs/
 dist/
 downloads/
@@ -73,3 +74,5 @@ Thumbs.db
 *.swp
 *.swo
 *~
+
+instance/card_uploads/

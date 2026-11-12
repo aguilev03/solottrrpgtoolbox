@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Map Library — HexWorld{% endblock %}
+{% block header_nav %}<nav class="breadcrumb"><a href="{{ url_for('index') }}">&larr; Main Menu</a></nav>{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/maps.css') }}">
+<div id="map-library" data-token="{{ maps_csrf }}">
+  <h2>Map Library</h2>
+  <p>Editable projects saved on HexWorld, grouped by campaign. Each map keeps its original editor and supports that editor’s levels.</p>
+  <p id="library-status" role="status" aria-live="polite"></p>
+  <form id="new-campaign" class="map-toolbar"><label>New campaign <input name="name" required maxlength="200"></label><button class="btn btn-primary">Create campaign</button></form>
+  <form id="new-map" class="map-toolbar">
+    <label>Campaign <select name="campaign_id" id="campaign-choice" required></select></label>
+    <label>Map name <input name="name" required maxlength="200"></label>
+    <label>Editor <select name="editor">{% for key, value in editors.items() %}<option value="{{ key }}">{{ value.label }}</option>{% endfor %}</select></label>
+    <label>Optional native project <input name="file" type="file" accept=".txt,.json"></label>
+    <button class="btn btn-primary">Create map</button>
+  </form>
+  <div id="campaign-list"></div>
+  <p>PNG exports are available inside each editor. Download editable TXT (Gridmapper) or JSON (Dungeon Mapper) for backup; images cannot restore editing.</p>
+</div>
+<script src="{{ url_for('static', filename='js/map_library.js') }}" defer></script>
+{% endblock %}

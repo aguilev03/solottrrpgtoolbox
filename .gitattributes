@@ -1,0 +1,2 @@
+# Keep generated upstream bundles out of source-review whitespace checks.
+build/editors/** linguist-generated=true -whitespace

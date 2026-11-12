@@ -32,7 +32,7 @@ This document serves as the comprehensive architectural reference, implementatio
 ```text
 ┌─────────────────────────────────────────────────────────────┐
 │                    Web Browser (Client)                     │
-│  Dark Fantasy / Parchment Theme (CSS Grid, Variables)       │
+│  Fantasy / Sci-Fi Themes (CSS Grid, Design Tokens)          │
 │  Vanilla JavaScript (Fast AJAX, Modals, Dynamic Injection)  │
 └──────────────────────────────┬──────────────────────────────┘
                                │ HTTP / JSON API
@@ -64,9 +64,9 @@ This document serves as the comprehensive architectural reference, implementatio
 - **Unified Main Menu (`templates/index.html`):**
   Extensible tools grid with dedicated launcher cards for active and upcoming modules.
 - **Centralized Layout & Base Template (`templates/base.html`):**
-  Global navigation, modal shells, dark fantasy styling, and breadcrumb trails.
+  Global navigation, theme switcher, modal shells, and breadcrumb trails.
 - **Styling Architecture (`static/css/style.css`):**
-  Dark fantasy parchment aesthetic using custom CSS properties (`--bg-dark`, `--gold-primary`, `--border-accent`, etc.), responsive touch targets, and flexible grid layouts.
+  Token-driven theme system. All colours, fonts, radii, shadows and decorations are CSS custom properties defined once per theme at the top of the file (`:root[data-theme="fantasy"]` and `:root[data-theme="scifi"]`). The active theme is the `data-theme` attribute on `<html>`, rendered server-side from the `ui_theme` cookie (see `THEMES` in `app.py`) and switched client-side by the header switcher in `static/js/app.js`. Legacy token names are kept for compatibility: `--gold-*` means "primary accent" (gold in Fantasy, cyan in Sci-Fi). A "Theme layer" section at the end of the file holds shared polish and per-theme flourishes.
 - **Service Configuration (`solo-ttrpg-tools.service`):**
   Production-ready systemd unit file for headless background service operation.
 
@@ -302,7 +302,7 @@ solo-ttrpg-tools/
 ├── instance/
 │   └── solo_tools.db              # SQLite runtime database
 ├── static/
-│   ├── css/style.css              # Dark fantasy / parchment stylesheet
+│   ├── css/style.css              # Themeable stylesheet (Fantasy / Sci-Fi tokens)
 │   └── js/
 │       ├── app.js                 # Global utilities & delve handlers
 │       └── emulator.js            # Character Emulator interactive logic
@@ -357,7 +357,10 @@ When tasked with adding a new tool (e.g. *Oracle & Sparks*, *Wilderness Delver*,
 - Build modular sub-components (using `{% include "..." %}`) for repeatable cards or complex rows.
 
 ### Step 7: Style with CSS in `static/css/style.css`
-- Reuse existing CSS variables (`--bg-card`, `--gold-primary`, `--border-accent`, etc.).
+- Never hard-code colours: use the theme tokens (`--bg-card`, `--bg-inset`, `--gold-primary`, `--text-soft`, `--danger-text`, `--success`, `--info`, `--radius`, `--shadow-card`, etc.) so the UI works in both themes. For translucent tints use `color-mix(in srgb, var(--token) 20%, transparent)`.
+- Prefer CSS classes over inline `style="..."`; give main panels `background-image: var(--card-deco)` (or use the `.card` class) to pick up each theme's card decoration.
+- Check new UI in both themes (switch from the header).
+- Adding a theme: copy the `:root[data-theme="scifi"]` block, change the values, and register the key in `THEMES` in `app.py` and `UI_THEMES` in `static/js/app.js`.
 - Ensure tablet and mobile responsiveness:
   - Use `grid-template-columns: repeat(auto-fit, minmax(..., 1fr))`.
   - Ensure touch targets are at least 44px.

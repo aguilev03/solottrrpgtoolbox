@@ -8,6 +8,8 @@ The application includes four specialized solo modules:
 3. **Character Emulator:** Based on Cezar Capacle's *Triple-O: The Player Character Emulator*. Answers "What does this character do?" for party members, companions, hirelings, allies, and recurring NPCs without system-bound math.
 4. **Hexroll 3 Sandbox:** Embedded procedural hex map sandbox, settlement generator, and 3D virtual tabletop streamed via Xpra and HTML5.
 
+**Themes:** the whole interface can be switched between a **Fantasy** look (candle-lit parchment, gold leaf, serif display type) and a **Sci-Fi** look (starship console, cyan glow, grid lines, mono labels) from the switcher in the top bar. The choice is remembered per browser.
+
 ---
 
 ## 1. Core Philosophy & Design Rules
@@ -198,7 +200,7 @@ solo-ttrpg-tools/
 ├── emulator_engine.py          # Character Emulator engine: Triple-O, weighted traits, sparks
 ├── table_loader.py             # TableManager: startup validation & recursive subtable engine
 ├── solo-ttrpg-tools.service    # Production systemd service unit file
-├── requirements.txt            # Python dependencies (Flask, Gunicorn, Pytest)
+├── requirements.txt            # Python dependencies (Flask, Gunicorn, Pytest, Pillow)
 ├── README.md                   # This documentation guide
 ├── .gitignore                  # Excludes .venv, pycache, and database files
 ├── data/                       # Modular JSON roll tables
@@ -230,7 +232,7 @@ solo-ttrpg-tools/
 │   └── solo_tools.db           # SQLite database (auto-created on first run)
 ├── static/
 │   ├── css/
-│   │   └── style.css           # Dark fantasy / parchment responsive stylesheet
+│   │   └── style.css           # Themeable (Fantasy / Sci-Fi) responsive stylesheet
 │   └── js/
 │       ├── app.js              # Name generator, modal controllers, log export handlers
 │       └── emulator.js         # Character Emulator card toggles, action rolls, sparks
@@ -275,7 +277,7 @@ python3 -m venv .venv
 ```
 
 ### Step 4: Run the Automated Test Suite
-Verify all 61 unit and integration tests pass:
+Verify the full unit and integration test suite passes:
 ```bash
 PYTHONPATH=. .venv/bin/pytest -v
 ```
@@ -388,6 +390,14 @@ Routes are assembled from three distinct data-driven components:
 
 ---
 
+## Map editors and campaign map library
+
+Gridmapper and Dungeon Mapper are integrated on the map-editor branch with a
+shared persistent map library. Prebuilt pinned static assets are included for
+`/gridmapper/` and `/dungeon-mapper/`. See [setup, saves, backups and deployment](docs/HEXWORLD_MAP_EDITORS.md)
+and [validation results](docs/HEXWORLD_MAP_EDITORS_TESTS.md). Production rollout
+requires separate approval; no extra server process or LXC resize is needed.
+
 ## 9. Database Backup & Restore
 
 All saved dungeons, room history, and exploration logs are preserved in `instance/solo_tools.db`.
@@ -439,3 +449,24 @@ During exploration, all events (room entries, discoveries, searches, and tension
 - Click **Export Plain Text** to download a clean `.txt` log.
 - Click **Export Markdown** to download a formatted `.md` log ready to drag and drop directly into **Obsidian** or your solo campaign notebook.
 
+
+## Custom Card Decks & Custom Spark Tables
+
+Two independent, system-neutral tools are available from the home menu:
+
+- **Custom Card Decks**: saved image decks, optional backs and names, configurable
+  reversals, transactional draws without replacement, persistent draggable
+  tabletops, card enlargement and full reshuffling.
+- **Custom Spark Tables**: reusable text/JSON imports, editing, uniform random
+  generation, optional sampling without replacement and saved recent results.
+
+Install the updated dependencies with `.venv/bin/pip install -r requirements.txt`.
+The additive SQLite migration runs automatically on startup and preserves existing
+records. Card images are stored in `instance/card_uploads/` outside `static/`;
+back up that directory **together with the database**. These libraries follow the
+existing shared-library login conventions and leave the Character Emulator's
+built-in Triple-O sparks intact.
+
+See [CUSTOM_TOOLS.md](CUSTOM_TOOLS.md) for usage, import formats, database tables,
+routes, upload limits, storage configuration, backup guidance and limitations.
+Run the full test suite with `.venv/bin/python -m pytest -q`.

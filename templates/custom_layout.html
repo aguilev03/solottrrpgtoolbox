@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block header_nav %}<nav class="breadcrumb"><a href="{{ url_for('index') }}">All tools</a> · <a href="{{ url_for('custom.decks') }}">Decks</a> · <a href="{{ url_for('custom.sparks') }}">Custom sparks</a></nav>{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/custom_tools.css') }}">
+<meta name="custom-csrf" content="{{ custom_csrf }}">
+<div class="custom-tools">{% block tool_content %}{% endblock %}</div>
+<script src="{{ url_for('static', filename='js/custom_tools.js') }}" defer></script>
+{% endblock %}

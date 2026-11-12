@@ -18,8 +18,8 @@
     </div>
 
     <!-- Generator Controls Form -->
-    <form method="POST" action="{{ url_for('hex_quick') }}" class="card" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 1.25rem; margin-bottom: 2rem;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 1rem; align-items: end;">
+    <form method="POST" action="{{ url_for('hex_quick') }}" class="card" style="padding: 1.25rem; margin-bottom: 2rem;">
+        <div class="quick-roll-grid">
             <div class="form-group" style="margin-bottom: 0;">
                 <label for="biome" class="form-label">Biome</label>
                 <select id="biome" name="biome" class="form-select">
@@ -50,7 +50,7 @@
 
     <!-- Generated Hex Card -->
     {% if cell %}
-    <div class="card" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 2rem; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+    <div class="card" style="padding: 2rem;">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
             <div>
                 <span class="hex-badge-biome" style="background: {{ cell.biome_color }}; color: #fff;">{{ cell.biome_icon }} {{ cell.biome }}</span>
@@ -59,8 +59,8 @@
             <span style="font-family: var(--font-serif); font-size: 1.1rem; color: var(--gold-primary);">STANDALONE HEX</span>
         </div>
 
-        <h3 style="font-family: var(--font-serif); font-size: 1.4rem; color: #f5f0e6; margin: 0 0 0.5rem 0;">{{ cell.title }}</h3>
-        <p style="font-size: 0.95rem; color: #dfd8c8; font-style: italic; line-height: 1.45; margin-bottom: 1.5rem;">{{ cell.summary }}</p>
+        <h3 style="font-family: var(--font-serif); font-size: 1.4rem; color: var(--text-bright); margin: 0 0 0.5rem 0;">{{ cell.title }}</h3>
+        <p style="font-size: 0.95rem; color: var(--text-soft); font-style: italic; line-height: 1.45; margin-bottom: 1.5rem;">{{ cell.summary }}</p>
 
         <!-- Weather -->
         {% if cell.details.weather %}
@@ -69,7 +69,7 @@
             <div class="weather-info">
                 <strong>Current Weather:</strong> {{ cell.details.weather.temperature }} &bull; {{ cell.details.weather.condition }} &bull; {{ cell.details.weather.wind }}
                 <br>
-                <span style="font-size: 0.8rem; color: #b0c0d0;">Travel Impact: {{ cell.details.weather.travel_impact }} &mdash; <em>{{ cell.details.weather.condition_desc }}</em></span>
+                <span style="font-size: 0.8rem; color: var(--info-text);">Travel Impact: {{ cell.details.weather.travel_impact }} &mdash; <em>{{ cell.details.weather.condition_desc }}</em></span>
             </div>
         </div>
         {% endif %}
@@ -88,7 +88,7 @@
                     {% if s.tavern %}<div class="hex-meta-item"><strong>Wayside Tavern:</strong> {{ s.tavern }}</div>{% endif %}
                     {% if s.trouble %}<div class="hex-meta-item"><strong>Local Trouble:</strong> {{ s.trouble }}</div>{% endif %}
                     {% if s.secret and s.secret != 'None of note' %}
-                    <div class="hex-meta-item" style="color: #f2a0a0;"><strong>Dark Secret:</strong> {{ s.secret }}</div>
+                    <div class="hex-meta-item" style="color: var(--danger-text);"><strong>Dark Secret:</strong> {{ s.secret }}</div>
                     {% endif %}
                 </div>
             </div>
@@ -108,7 +108,7 @@
             <div class="hex-section-block">
                 <div class="hex-section-title">Monster Lair: {{ lair.monster }}</div>
                 <div class="hex-meta-grid">
-                    <div class="hex-meta-item"><strong>Danger Level:</strong> <span style="color: #e06666;">{{ lair.danger }}</span></div>
+                    <div class="hex-meta-item"><strong>Danger Level:</strong> <span style="color: var(--danger-strong);">{{ lair.danger }}</span></div>
                     <div class="hex-meta-item"><strong>Lair Layout:</strong> {{ lair.lair_form }}</div>
                     <div class="hex-meta-item"><strong>Defensive Perimeter:</strong> {{ lair.defenses }}</div>
                     <div class="hex-meta-item"><strong>Current Status:</strong> {{ lair.status }}</div>

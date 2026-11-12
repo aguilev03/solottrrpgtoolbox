@@ -10,6 +10,8 @@
 </nav>
 {% endblock %}
 
+{% block main_class %}main-content-wide{% endblock %}
+
 {% block content %}
 <div class="hex-container">
     <!-- Region Top Bar -->
@@ -38,7 +40,7 @@
         <div class="weather-info">
             <strong>Regional Weather:</strong> {{ region.weather.temperature }} &bull; {{ region.weather.condition }} &bull; {{ region.weather.wind }}
             <br>
-            <span style="font-size: 0.8rem; color: #b0c0d0;">Travel Impact: {{ region.weather.travel_impact }} &mdash; <em>{{ region.weather.condition_desc }}</em></span>
+            <span style="font-size: 0.8rem; color: var(--info-text);">Travel Impact: {{ region.weather.travel_impact }} &mdash; <em>{{ region.weather.condition_desc }}</em></span>
         </div>
     </div>
     {% endif %}
@@ -121,7 +123,7 @@ function selectHex(hexIndex) {
                     ${s.main_building ? `<div class="hex-meta-item"><strong>Main Landmark:</strong> ${s.main_building}</div>` : ''}
                     ${s.tavern ? `<div class="hex-meta-item"><strong>Wayside Tavern:</strong> ${s.tavern}</div>` : ''}
                     ${s.trouble ? `<div class="hex-meta-item"><strong>Local Trouble:</strong> ${s.trouble}</div>` : ''}
-                    ${s.secret && s.secret !== 'None of note' ? `<div class="hex-meta-item" style="color:#f2a0a0;"><strong>Hidden Secret:</strong> ${s.secret}</div>` : ''}
+                    ${s.secret && s.secret !== 'None of note' ? `<div class="hex-meta-item" style="color:var(--danger-text);"><strong>Hidden Secret:</strong> ${s.secret}</div>` : ''}
                 </div>
             </div>
         `;
@@ -142,7 +144,7 @@ function selectHex(hexIndex) {
             <div class="hex-section-block">
                 <div class="hex-section-title">Monster Lair: ${lair.monster}</div>
                 <div class="hex-meta-grid">
-                    <div class="hex-meta-item"><strong>Danger Level:</strong> <span style="color:#e06666;">${lair.danger}</span></div>
+                    <div class="hex-meta-item"><strong>Danger Level:</strong> <span style="color:var(--danger-strong);">${lair.danger}</span></div>
                     <div class="hex-meta-item"><strong>Lair Form:</strong> ${lair.lair_form}</div>
                     <div class="hex-meta-item"><strong>Defenses:</strong> ${lair.defenses}</div>
                     <div class="hex-meta-item"><strong>Status:</strong> ${lair.status}</div>
@@ -209,8 +211,8 @@ function selectHex(hexIndex) {
             </div>
             <span style="font-family:var(--font-serif); font-size:1.1rem; color:var(--gold-primary);">HEX #${cell.hex_index}</span>
         </div>
-        <h3 style="font-family:var(--font-serif); color:#f5f0e6; margin:0 0 0.4rem 0;">${cell.title}</h3>
-        <p style="font-size:0.88rem; color:#dfd8c8; font-style:italic; line-height:1.4; margin-bottom:1rem;">${cell.summary}</p>
+        <h3 style="font-family:var(--font-serif); color:var(--text-bright); margin:0 0 0.4rem 0;">${cell.title}</h3>
+        <p style="font-size:0.88rem; color:var(--text-soft); font-style:italic; line-height:1.4; margin-bottom:1rem;">${cell.summary}</p>
         ${featureHtml}
         ${encHtml}
     `;

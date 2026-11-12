@@ -1,0 +1,3 @@
+{% extends 'custom_layout.html' %}
+{% block title %}Check your input{% endblock %}
+{% block tool_content %}<h2>Check your input</h2><p role="alert">{{ message }}</p><p>Use your browser’s Back button to correct the form, or return to <a href="{{ url_for('custom.decks') }}">Decks</a> or <a href="{{ url_for('custom.sparks') }}">Custom sparks</a>.</p>{% endblock %}
