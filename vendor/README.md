@@ -17,4 +17,5 @@ Run `python scripts/build_map_editors.py` with Python 3.12+ and Node 22.12+ to
 verify archive hashes, extract immutable sources and build adapted copies. Build
 patches live in that script and `integrations/dungeon-bridge.ts`; they never edit
 these archives. The production server only needs the Python app, source archives
-and built static editor files. Keep build artifacts outside version control.
+and built static editor files. The production `build/editors/` assets are tracked
+for LXC deployment; intermediate sources and Node dependencies remain ignored.

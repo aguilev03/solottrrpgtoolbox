@@ -62,7 +62,10 @@ player-view options. PNG is an image, not an editable backup.
 
 ## Build and isolated preview
 
-Production Python requirements are unchanged. The build workstation needs
+Prebuilt assets in `build/editors/` are included in Git for LXC updates. Normal
+installation does not require Node or a build step on the server.
+
+Production Python requirements are unchanged. To rebuild, the workstation needs
 Python 3.12+ and a supported Node release (recommend Node 22.12+), npm and network
 access to the public npm registry. Source archives and upstream revisions are
 listed in [vendor/README.md](../vendor/README.md). Pinned npm versions and integrity

@@ -391,7 +391,7 @@ Routes are assembled from three distinct data-driven components:
 ## Map editors and campaign map library
 
 Gridmapper and Dungeon Mapper are integrated on the map-editor branch with a
-shared persistent map library. Build their pinned static assets before using
+shared persistent map library. Prebuilt pinned static assets are included for
 `/gridmapper/` and `/dungeon-mapper/`. See [setup, saves, backups and deployment](docs/HEXWORLD_MAP_EDITORS.md)
 and [validation results](docs/HEXWORLD_MAP_EDITORS_TESTS.md). Production rollout
 requires separate approval; no extra server process or LXC resize is needed.
