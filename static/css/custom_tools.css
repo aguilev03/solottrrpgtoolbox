@@ -24,3 +24,13 @@
 #card-viewer::backdrop { background: #000b; }
 #card-viewer img { display: block; max-height: 70vh; max-width: 80vw; width: auto; height: auto; margin: 1rem auto; }
 @media(max-width: 480px) { .tabletop { grid-template-columns: repeat(2,minmax(0,1fr)); padding-left: .6rem; padding-right: .6rem; gap: .7rem; } .custom-panel { padding: .8rem; } }
+
+.spark-workspace { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.2rem; align-items: start; }
+.spark-buttons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .7rem; }
+.spark-buttons form { margin: 0; min-width: 0; }
+.spark-buttons button { width: 100%; min-height: 60px; white-space: normal; overflow-wrap: anywhere; }
+.spark-log-panel .custom-toolbar { justify-content: space-between; }
+#spark-log { max-height: 65vh; overflow-y: auto; }
+#spark-log-entries li { padding: .7rem .2rem; border-bottom: 1px solid var(--border-subtle); }
+#spark-log-entries p { white-space: pre-wrap; overflow-wrap: anywhere; }
+@media(max-width: 700px) { .spark-workspace { grid-template-columns: minmax(0, 1fr); gap: 0; } }

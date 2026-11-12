@@ -41,6 +41,9 @@ def migrate(conn):
             id INTEGER PRIMARY KEY, table_id INTEGER NOT NULL REFERENCES custom_spark_tables(id) ON DELETE CASCADE,
             result TEXT NOT NULL
         );
+        CREATE TABLE IF NOT EXISTS custom_spark_log (
+            id INTEGER PRIMARY KEY, table_name TEXT NOT NULL, result TEXT NOT NULL
+        );
         CREATE INDEX IF NOT EXISTS custom_cards_deck ON custom_cards(deck_id);
         CREATE INDEX IF NOT EXISTS custom_results_table ON custom_spark_results(table_id, id);
     ''')
@@ -387,8 +390,16 @@ def sparks():
     with connection() as conn:
         tables = conn.execute('SELECT id,name FROM custom_spark_tables ORDER BY name,id').fetchall()
         table = required(conn, 'custom_spark_tables', selected) if selected else None
+        spark_log = conn.execute('SELECT id,table_name,result FROM custom_spark_log ORDER BY id').fetchall()
         results = conn.execute('SELECT result FROM custom_spark_results WHERE table_id=? ORDER BY id DESC LIMIT 30', (selected,)).fetchall() if selected else []
-    return render_template('sparks.html', tables=tables, table=table, entries=json.loads(table['entries_json']) if table else [], entries_text=json.dumps(json.loads(table['entries_json']), ensure_ascii=False, indent=2) if table else '', remaining=len(json.loads(table['pool_json'])) if table else 0, results=results)
+    return render_template('sparks.html', tables=tables, table=table, entries=json.loads(table['entries_json']) if table else [], entries_text=json.dumps(json.loads(table['entries_json']), ensure_ascii=False, indent=2) if table else '', remaining=len(json.loads(table['pool_json'])) if table else 0, results=results, spark_log=spark_log)
+
+
+@bp.post('/sparks/log/reset')
+def reset_spark_log():
+    with connection() as conn:
+        conn.execute('DELETE FROM custom_spark_log')
+    return done('custom.sparks')
 
 
 @bp.post('/sparks')
@@ -430,8 +441,12 @@ def generate(table_id):
             pool = [i for i in pool if i not in indexes]
         conn.execute('UPDATE custom_spark_tables SET pool_json=?,replacement=?,last_count=? WHERE id=?', (json.dumps(pool),int(replacement),int(count),table_id))
         conn.executemany('INSERT INTO custom_spark_results(table_id,result) VALUES (?,?)', [(table_id,r) for r in results])
+        log_entries = []
+        for result in results:
+            log_id = conn.execute('INSERT INTO custom_spark_log(table_name,result) VALUES (?,?)', (table['name'], result)).lastrowid
+            log_entries.append({'id': log_id, 'table_name': table['name'], 'result': result})
         conn.execute('DELETE FROM custom_spark_results WHERE table_id=? AND id NOT IN (SELECT id FROM custom_spark_results WHERE table_id=? ORDER BY id DESC LIMIT 30)', (table_id,table_id))
-    return done('custom.sparks', {'results':results}, table=table_id)
+    return done('custom.sparks', {'results':results, 'log_entries':log_entries}, table=table_id)
 
 
 @bp.post('/sparks/<int:table_id>/reset')

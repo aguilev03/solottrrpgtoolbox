@@ -3,6 +3,32 @@
 {% block title %}Custom Spark Tables{% endblock %}
 {% block tool_content %}
 <h2>Custom Spark Tables</h2><p class="text-muted">Reusable inspiration for any system. Each entry has an equal chance.</p>
+<div class="spark-workspace">
+<section class="custom-panel" aria-labelledby="spark-tables-title">
+<h3 id="spark-tables-title">Roll a table</h3>
+<p class="text-muted">Press a table to add one random spark to the log.</p>
+<div class="spark-buttons">
+{% for saved in tables %}
+<form method="post" action="{{ url_for('custom.generate', table_id=saved.id) }}" data-spark-roll>
+{{ token() }}<input type="hidden" name="count" value="1"><input type="hidden" name="replacement" value="1">
+<button class="btn btn-primary" type="submit">{{ saved.name }}</button>
+</form>
+{% else %}<p>Create or import a table below to start rolling.</p>{% endfor %}
+</div>
+</section>
+<section class="custom-panel spark-log-panel" aria-labelledby="spark-log-title">
+<div class="custom-toolbar"><h3 id="spark-log-title">Spark log</h3>
+<form method="post" action="{{ url_for('custom.reset_spark_log') }}" data-spark-reset>{{ token() }}<button class="btn btn-secondary" type="submit">Reset log</button></form></div>
+<p class="text-muted">All table rolls stay here until you reset the log. Oldest first.</p>
+<p id="spark-status" role="status"></p>
+<div id="spark-log" role="log" aria-label="Spark results" aria-live="polite" aria-relevant="additions">
+<p id="spark-log-empty" {% if spark_log %}hidden{% endif %}>Press a table button to generate your first spark.</p>
+<ol id="spark-log-entries">{% for entry in spark_log %}<li><strong>{{ entry.table_name }}</strong><p>{{ entry.result }}</p></li>{% endfor %}</ol>
+</div>
+</section>
+</div>
+<details class="custom-panel" {% if table %}open{% endif %}>
+<summary>Manage tables</summary>
 <form method="get" action="{{ url_for('custom.sparks') }}"><label>Saved table <select name="table" required><option value="">Choose a table</option>{% for saved in tables %}<option value="{{ saved.id }}" {% if table and table.id==saved.id %}selected{% endif %}>{{ saved.name }}</option>{% endfor %}</select></label><button class="btn btn-secondary">Open table</button></form>
 {% if table %}
 <section class="custom-panel"><h3>{{ table.name }}</h3><p>{{ entries|length }} entries · {{ remaining }} remaining without replacement</p>
@@ -12,5 +38,7 @@
 <details><summary>Recent results (up to 30, newest first)</summary><ol>{% for result in results %}<li>{{ result.result }}</li>{% endfor %}</ol></details></section>
 <details class="custom-panel"><summary>Edit table</summary><p>Saving replaces the entries and resets this table’s pool and recent results.</p><form method="post" action="{{ url_for('custom.edit_spark',table_id=table.id) }}">{{ token() }}<label>Table name <input name="name" value="{{ table.name }}" maxlength="200" required></label><input type="hidden" name="format" value="json"><label>Entries (JSON array of strings) <textarea name="entries" rows="12" required>{{ entries_text }}</textarea></label><button class="btn btn-primary">Save table</button></form>{{ delete(url_for('custom.delete_spark',table_id=table.id),'Delete table') }}</details>
 {% endif %}
-<details class="custom-panel" {% if not table %}open{% endif %}><summary>Create or import a table</summary><form method="post" enctype="multipart/form-data" action="{{ url_for('custom.create_spark') }}">{{ token() }}<label>Table name (optional for named JSON) <input name="name" maxlength="200"></label><label>Import .txt or .json <input type="file" name="file" accept=".txt,.json"></label><p class="text-muted">Choose a file or paste below. A selected file takes precedence. Blank text lines are ignored.</p><label>Paste entries <textarea name="entries" rows="8" placeholder="A distant bell&#10;An unexpected visitor"></textarea></label><label>Pasted format <select name="format"><option value="text">Plain text (one entry per line)</option><option value="json">JSON</option></select></label><p class="text-muted">JSON: ["one", "two"], {"name":"Omens","entries":["one","two"]}, or {"Omens":["one","two"]}. UTF-8 files, up to {{ (config.SPARK_MAX_IMPORT_BYTES/1048576)|round(1) }} MiB.</p><button class="btn btn-primary">Save new table</button></form></details>
+<details class="custom-panel" {% if not tables %}open{% endif %}><summary>Create or import a table</summary><form method="post" enctype="multipart/form-data" action="{{ url_for('custom.create_spark') }}">{{ token() }}<label>Table name (optional for named JSON) <input name="name" maxlength="200"></label><label>Import .txt or .json <input type="file" name="file" accept=".txt,.json"></label><p class="text-muted">Choose a file or paste below. A selected file takes precedence. Blank text lines are ignored.</p><label>Paste entries <textarea name="entries" rows="8" placeholder="A distant bell&#10;An unexpected visitor"></textarea></label><label>Pasted format <select name="format"><option value="text">Plain text (one entry per line)</option><option value="json">JSON</option></select></label><p class="text-muted">JSON: ["one", "two"], {"name":"Omens","entries":["one","two"]}, or {"Omens":["one","two"]}. UTF-8 files, up to {{ (config.SPARK_MAX_IMPORT_BYTES/1048576)|round(1) }} MiB.</p><button class="btn btn-primary">Save new table</button></form></details>
+</details>
+<script src="{{ url_for('static', filename='js/custom_sparks.js') }}" defer></script>
 {% endblock %}

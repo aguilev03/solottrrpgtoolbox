@@ -274,3 +274,51 @@ def test_spark_limits_unicode_multiline_and_recent_history(custom):
     assert post(client,token,'/sparks',{'name':'Large','file':(io.BytesIO(b'long text'),'a.txt')}).status_code==400
     assert post(client,token,'/sparks',{'name':'Bad','file':(io.BytesIO(b'\xff'),'a.txt')}).status_code==400
     assert post(client,token,'/sparks',{'name':'Bad','file':(io.BytesIO(b'x'),'a.csv')}).status_code==400
+
+
+def test_shared_spark_log_keeps_all_rolls_until_reset(custom):
+    client, db, token = custom
+    first = post(client, token, '/sparks', {'name': 'Omens', 'entries': 'A bell'}).json['id']
+    second = post(client, token, '/sparks', {'name': 'Places', 'entries': 'A tower'}).json['id']
+    for _ in range(2):
+        response = post(client, token, f'/sparks/{first}/generate', {'count': 20})
+        assert len(response.json['log_entries']) == 20
+    response = post(client, token, f'/sparks/{second}/generate')
+    assert response.json['log_entries'][0]['table_name'] == 'Places'
+    log = rows(db, 'SELECT * FROM custom_spark_log ORDER BY id')
+    assert len(log) == 41
+    assert log[0]['result'] == 'A bell' and log[-1]['result'] == 'A tower'
+    # The shared log survives editing/deletion and fresh database connections.
+    post(client, token, f'/sparks/{first}/edit', {'name': 'New omens', 'entries': 'A bird'})
+    post(client, token, f'/sparks/{second}/delete')
+    reopened = Database(db.db_path)
+    assert len(rows(reopened, 'SELECT * FROM custom_spark_log')) == 41
+    page = client.get('/sparks').data.decode()
+    assert 'data-spark-roll' in page and 'Manage tables' in page
+    assert page.index('<strong>Omens</strong>') < page.index('<strong>Places</strong>')
+    assert client.post('/sparks/log/reset').status_code == 400
+    assert client.get('/sparks/log/reset').status_code == 405
+    assert len(rows(db, 'SELECT * FROM custom_spark_log')) == 41
+    pool = rows(db, 'SELECT pool_json FROM custom_spark_tables')[0][0]
+    assert post(client, token, '/sparks/log/reset').status_code == 200
+    assert rows(db, 'SELECT * FROM custom_spark_log') == []
+    assert rows(db, 'SELECT pool_json FROM custom_spark_tables')[0][0] == pool
+    assert b'id="spark-log-empty" hidden' not in client.get('/sparks').data
+
+
+def test_spark_log_failed_roll_and_html_safety(custom):
+    client, db, token = custom
+    table = post(client, token, '/sparks', {'name': '<b>Omens</b>', 'entries': '<script>bad</script>'}).json['id']
+    post(client, token, f'/sparks/{table}/generate', {'replacement': '0'})
+    assert post(client, token, f'/sparks/{table}/generate', {'replacement': '0'}).status_code == 409
+    assert len(rows(db, 'SELECT * FROM custom_spark_log')) == 1
+    page = client.get('/sparks').data
+    assert b'<script>bad</script>' not in page
+    assert b'&lt;script&gt;bad&lt;/script&gt;' in page
+    # Native form posts remain usable without JavaScript.
+    response = client.post(f'/sparks/{table}/generate', data={'csrf_token': token})
+    assert response.status_code == 302
+    assert len(rows(db, 'SELECT * FROM custom_spark_log')) == 2
+    response = client.post('/sparks/log/reset', data={'csrf_token': token})
+    assert response.status_code == 302
+    assert rows(db, 'SELECT * FROM custom_spark_log') == []

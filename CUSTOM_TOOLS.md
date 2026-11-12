@@ -30,6 +30,18 @@ draws. Deleting a card removes it from both the library and tabletop.
 
 ## Using custom sparks
 
+The main view shows every saved table as a button in a two-column grid. Press a
+button to roll one entry with replacement and append it to the shared Spark log
+on the right (below the buttons on narrow screens). Rolls appear oldest first,
+with the table name beside each result. The log is saved in SQLite across page
+reloads and devices, and has no automatic 30-result cutoff. **Reset log** clears
+this shared log without changing tables, sampling pools, or per-table recent
+results. Editing or deleting a table also leaves the shared log intact.
+
+Expand **Manage tables** for the existing create, import, edit, delete, batch
+and sampling controls. Batch rolls also append to the shared log. The separate
+**Reset available entries** control restores only the selected sampling pool.
+
 Create from pasted text or an uploaded UTF-8 `.txt`/`.json` file. A selected file
 wins over pasted text. Each nonempty text line becomes an entry. JSON supports:
 
@@ -70,6 +82,7 @@ runs the additive, idempotent `custom_tools.migrate()` migration. New tables:
 | `custom_cards` | Deck FK, optional name, face file, unique shuffled rank, unique nullable draw order, reversal, x/y offset |
 | `custom_spark_tables` | Name, JSON entry array, remaining entry indices, last sampling mode and batch size |
 | `custom_spark_results` | Table FK and result text; increasing ID supplies chronology |
+| `custom_spark_log` | Shared roll log with table-name snapshots and result text, retained until reset |
 
 Foreign keys cascade deck/card and table/result deletes. Existing tables and
 `data/character_sparks.json` are unchanged. Draws, reshuffles, pool changes and
@@ -136,10 +149,11 @@ uploads use multipart form data. GET requests never mutate library state.
 | POST | `/decks/<deck_id>/cards/<card_id>/edit` | Optional `name` |
 | POST | `/decks/<deck_id>/cards/<card_id>/position` | `x` (−80–80), `y` (−200–200); JSON response |
 | POST | `/decks/<deck_id>/cards/<card_id>/delete` | Delete card and face |
-| GET | `/sparks?table=<table_id>` | Library, selected table and recent results |
+| GET | `/sparks?table=<table_id>` | Table buttons, shared log, library and selected table |
+| POST | `/sparks/log/reset` | Clear shared log; keep tables and sampling pools |
 | POST | `/sparks` | Create: `name`, `entries`, `format` (`text` or `json`), optional `file` |
 | POST | `/sparks/<table_id>/edit` | Replace name and entries; same import fields |
-| POST | `/sparks/<table_id>/generate` | `count` (1–20), `replacement` (`1` default, `0` without); JSON includes `results` |
+| POST | `/sparks/<table_id>/generate` | `count` (1–20), `replacement` (`1` default, `0` without); JSON includes `results` and `log_entries` |
 | POST | `/sparks/<table_id>/reset` | Restore optional pool; keep recent results |
 | POST | `/sparks/<table_id>/delete` | Delete table and results |
 
