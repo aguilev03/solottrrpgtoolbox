@@ -75,6 +75,21 @@ def admin_required(f):
     return decorated_function
 
 
+# Visual themes selectable from the header switcher. The choice is stored in a
+# cookie (set client-side by static/js/app.js) so pages render in the right
+# theme on first paint.
+THEMES = {
+    "fantasy": {"label": "Fantasy", "icon": "\u2694", "color": "#12100d"},
+    "scifi": {"label": "Sci-Fi", "icon": "\U0001F680", "color": "#05080f"},
+}
+DEFAULT_THEME = "fantasy"
+
+
+def get_ui_theme():
+    theme = request.cookies.get("ui_theme", DEFAULT_THEME)
+    return theme if theme in THEMES else DEFAULT_THEME
+
+
 @app.context_processor
 def inject_globals():
     user_id = session.get("user_id")
@@ -83,6 +98,8 @@ def inject_globals():
         "debug_rolls": app.config.get("DEBUG_DUNGEON_ROLLS", False),
         "format_time": format_dungeon_time,
         "current_user": current_user,
+        "themes": THEMES,
+        "ui_theme": get_ui_theme(),
     }
 
 

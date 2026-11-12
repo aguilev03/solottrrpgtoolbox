@@ -1,8 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="{{ ui_theme }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
+    <meta name="theme-color" content="{{ themes[ui_theme].color }}">
+    <script>
+        /* Apply a locally saved theme before first paint (covers pages served
+           from cache or before the cookie round-trips). */
+        (function () {
+            try {
+                var t = localStorage.getItem("ui-theme");
+                if (t === "fantasy" || t === "scifi") document.documentElement.setAttribute("data-theme", t);
+            } catch (e) {}
+        })();
+    </script>
     <title>{% block title %}Solo TTRPG Tools{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
@@ -12,6 +24,16 @@
             <h1 class="site-title"><a href="{{ url_for('index') }}">SOLO TTRPG TOOLS</a></h1>
             <div class="header-actions">
                 {% block header_nav %}{% endblock %}
+                <div class="theme-switcher" role="group" aria-label="Choose a visual theme">
+                    {% for key, t in themes.items() %}
+                    <button type="button" class="theme-option" data-theme-choice="{{ key }}"
+                            aria-pressed="{{ 'true' if key == ui_theme else 'false' }}"
+                            title="Switch to the {{ t.label }} theme">
+                        <span class="theme-option-icon" aria-hidden="true">{{ t.icon }}</span>
+                        <span class="theme-option-label">{{ t.label }}</span>
+                    </button>
+                    {% endfor %}
+                </div>
                 {% if current_user %}
                 <div class="user-nav">
                     {% if current_user.is_admin %}

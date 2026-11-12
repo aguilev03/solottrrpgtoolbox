@@ -8,6 +8,8 @@ The application includes four specialized solo modules:
 3. **Character Emulator:** Based on Cezar Capacle's *Triple-O: The Player Character Emulator*. Answers "What does this character do?" for party members, companions, hirelings, allies, and recurring NPCs without system-bound math.
 4. **Hexroll 3 Sandbox:** Embedded procedural hex map sandbox, settlement generator, and 3D virtual tabletop streamed via Xpra and HTML5.
 
+**Themes:** the whole interface can be switched between a **Fantasy** look (candle-lit parchment, gold leaf, serif display type) and a **Sci-Fi** look (starship console, cyan glow, grid lines, mono labels) from the switcher in the top bar. The choice is remembered per browser.
+
 ---
 
 ## 1. Core Philosophy & Design Rules
@@ -230,7 +232,7 @@ solo-ttrpg-tools/
 │   └── solo_tools.db           # SQLite database (auto-created on first run)
 ├── static/
 │   ├── css/
-│   │   └── style.css           # Dark fantasy / parchment responsive stylesheet
+│   │   └── style.css           # Themeable (Fantasy / Sci-Fi) responsive stylesheet
 │   └── js/
 │       ├── app.js              # Name generator, modal controllers, log export handlers
 │       └── emulator.js         # Character Emulator card toggles, action rolls, sparks
