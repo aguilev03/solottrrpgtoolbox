@@ -1,0 +1,115 @@
+{% extends 'custom_layout.html' %}
+{% from 'custom_forms.html' import token, delete with context %}
+{% block title %}{{ table.name }} — Dealer's Table{% endblock %}
+{% block main_class %}main-content-wide dealer-page{% endblock %}
+{% block tool_content %}
+<div class="dealer-head">
+  <h2 id="table-name">{{ table.name }}</h2>
+  <p id="dealer-status" class="dealer-status" role="status" aria-live="polite"></p>
+</div>
+
+<section class="deck-shelf" aria-label="Decks to draw from">
+  <div class="deck-shelf-options">
+    <label class="dealer-check"><input type="checkbox" id="deal-face-down"> Deal face down</label>
+  </div>
+  <div class="deck-shelf-list">
+  {% for d in shelf %}
+    <button type="button" class="deck-stack" data-deck-id="{{ d.id }}" data-remaining="{{ d.remaining or 0 }}" {% if not d.remaining %}disabled{% endif %}
+            title="Draw a card from {{ d.name }}">
+      <span class="deck-stack-art">{% if d.back %}<img src="{{ d.back }}" alt="" draggable="false">{% endif %}</span>
+      <span class="deck-stack-text"><strong>{{ d.name }}</strong><span class="deck-stack-count"><span data-count>{{ d.remaining or 0 }}</span> / {{ d.total }} left</span></span>
+    </button>
+  {% else %}
+    <p>No decks yet. <a href="{{ url_for('custom.decks') }}">Create a deck</a> and upload cards first.</p>
+  {% endfor %}
+  </div>
+</section>
+
+<section class="table-saves custom-panel" aria-labelledby="saves-title">
+  <div class="table-saves-head">
+    <h3 id="saves-title">Saved layouts</h3>
+    <p class="text-muted">Suspend this table (for example, the room you are leaving) and resume it later exactly as it was. Saved cards stay out of their decks until you resume or discard them.</p>
+  </div>
+  <form class="save-form" method="post" action="{{ url_for('custom.save_table', table_id=table.id) }}" data-capture-view>
+    {{ token() }}
+    <input type="hidden" name="zoom" value="1"><input type="hidden" name="view_x" value="0"><input type="hidden" name="view_y" value="0">
+    <label class="save-name">Name <input name="name" maxlength="200" placeholder="e.g. Room 3 &ndash; Flooded crypt"></label>
+    <button class="btn btn-primary" {% if not cards %}disabled title="Deal some cards first"{% endif %} data-needs-cards>&#128190; Save &amp; clear table</button>
+  </form>
+  {% if saves %}
+  <ul class="save-list">
+    {% for sv in saves %}
+    <li class="save-item">
+      <div class="save-info">
+        <strong>{{ sv.name }}</strong>
+        <span class="text-muted">{{ sv.cards }} card{{ '' if sv.cards == 1 else 's' }} &middot; {{ sv.width }} &times; {{ sv.height }} &middot; saved {{ sv.created_at }} UTC</span>
+      </div>
+      <div class="save-actions">
+        <form method="post" action="{{ url_for('custom.resume_table', table_id=table.id, save_id=sv.id) }}" data-capture-view data-confirm-when-occupied="The cards on the table now will be saved automatically before {{ sv.name }} is restored. Continue?">
+          {{ token() }}
+          <input type="hidden" name="zoom" value="1"><input type="hidden" name="view_x" value="0"><input type="hidden" name="view_y" value="0">
+          <button class="btn btn-primary btn-sm">&#9654; Resume</button>
+        </form>
+        <details class="save-rename"><summary class="btn btn-secondary btn-sm">Rename</summary>
+          <form method="post" action="{{ url_for('custom.rename_save', table_id=table.id, save_id=sv.id) }}">{{ token() }}<input name="name" value="{{ sv.name }}" maxlength="200" required aria-label="New name"><button class="btn btn-secondary btn-sm">Save name</button></form>
+        </details>
+        <form method="post" action="{{ url_for('custom.discard_save', table_id=table.id, save_id=sv.id) }}" data-confirm="Discard {{ sv.name }} and shuffle its cards back into their decks?">{{ token() }}<button class="btn btn-secondary btn-sm">Discard</button></form>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="text-muted save-empty">No saved layouts yet.</p>
+  {% endif %}
+</section>
+
+<div class="dealer-toolbar" role="toolbar" aria-label="Table view">
+  <div class="dealer-toolgroup" aria-label="Zoom">
+    <button type="button" class="btn btn-secondary btn-sm" data-zoom="-1" aria-label="Zoom out">&minus;</button>
+    <button type="button" class="btn btn-secondary btn-sm" data-zoom="0" id="zoom-label" title="Reset zoom">100%</button>
+    <button type="button" class="btn btn-secondary btn-sm" data-zoom="1" aria-label="Zoom in">+</button>
+  </div>
+  <div class="dealer-toolgroup" aria-label="Table size">
+    <button type="button" class="btn btn-secondary btn-sm" data-grow="x">Wider &rarr;</button>
+    <button type="button" class="btn btn-secondary btn-sm" data-grow="y">Taller &darr;</button>
+    <button type="button" class="btn btn-secondary btn-sm" data-grow="fit" title="Shrink the table around the cards">Fit to cards</button>
+    <span class="text-muted dealer-size" id="table-size">{{ table.width }} × {{ table.height }}</span>
+  </div>
+  <div class="dealer-toolgroup">
+    <form method="post" action="{{ url_for('custom.clear_table', table_id=table.id) }}" data-confirm="Shuffle every card on this table back into its deck?">{{ token() }}<button class="btn btn-secondary btn-sm">Gather all cards</button></form>
+  </div>
+</div>
+
+<p class="text-muted dealer-help">Drag cards to move them, and drag empty felt (or scroll) to pan. Tap a card for actions. Keyboard: <kbd>R</kbd> rotate, <kbd>F</kbd> flip, <kbd>Enter</kbd> enlarge, arrow keys nudge.</p>
+
+<div class="dealer-viewport" id="dealer-viewport" tabindex="-1">
+  <div class="dealer-sizer" id="dealer-sizer">
+    <div class="dealer-felt" id="dealer-felt"
+         data-table-url="{{ url_for('custom.edit_table', table_id=table.id) }}"
+         data-draw-url="{{ url_for('custom.table_draw', table_id=table.id) }}"
+         data-card-url="{{ url_for('custom.update_table_card', table_id=table.id, card_id=0) }}"
+         data-return-url="{{ url_for('custom.return_table_card', table_id=table.id, card_id=0) }}"
+         data-width="{{ table.width }}" data-height="{{ table.height }}"
+         aria-label="Table surface"></div>
+  </div>
+</div>
+
+<div class="card-actions" id="card-actions" hidden role="toolbar" aria-label="Card actions">
+  <button type="button" class="btn btn-secondary btn-sm" data-act="ccw" title="Rotate left (Shift+R)" aria-label="Rotate left">&#8634;</button>
+  <button type="button" class="btn btn-secondary btn-sm" data-act="cw" title="Rotate right (R)" aria-label="Rotate right">&#8635;</button>
+  <button type="button" class="btn btn-secondary btn-sm" data-act="flip" title="Flip (F)">Flip</button>
+  <button type="button" class="btn btn-secondary btn-sm" data-act="zoom" title="Enlarge (Enter)">Enlarge</button>
+  <button type="button" class="btn btn-secondary btn-sm" data-act="return" title="Shuffle back into its deck">Return</button>
+</div>
+
+<dialog id="table-card-viewer"><button type="button" class="btn btn-secondary" data-close>Close</button><img alt="Enlarged card"><p></p></dialog>
+
+<script type="application/json" id="table-cards">{{ cards|tojson }}</script>
+
+<details class="custom-panel"><summary>Table settings</summary>
+<form method="post" action="{{ url_for('custom.edit_table', table_id=table.id) }}">{{ token() }}<label>Table name <input name="name" value="{{ table.name }}" maxlength="200" required></label><button class="btn btn-primary">Rename</button></form>
+{{ delete(url_for('custom.delete_table', table_id=table.id), 'Delete table') }}
+<p class="text-muted">Deleting the table shuffles its cards back into their decks.</p>
+</details>
+<script src="{{ url_for('static', filename='js/dealer_table.js') }}" defer></script>
+{% endblock %}

@@ -9,12 +9,13 @@
 {% if deck.back_file %}<img class="deck-back" src="{{ url_for('custom.card_image',deck_id=deck.id,filename=deck.back_file) }}" alt="Custom card back">{% endif %}
 </div>
 {% if not remaining and cards %}<p>Deck exhausted. Reshuffle to draw again.</p>{% endif %}
-<p class="text-muted">Cards appear in draw order. Drag to arrange; click or press Enter to enlarge. Positions save automatically.</p>
+{% if on_tables %}<p class="text-muted">{{ on_tables }} card{{ '' if on_tables == 1 else 's' }} from this deck {{ 'is' if on_tables == 1 else 'are' }} on a <a href="{{ url_for('custom.tables') }}">dealer's table</a>. Reshuffling gathers them back too.</p>{% endif %}
+<p class="text-muted">Cards appear in draw order. Drag to arrange; click or press Enter to enlarge; use &#8635; to rotate 90°. Positions save automatically.</p>
 <p id="tabletop-status" role="status"></p>
 <div class="tabletop" aria-label="Drawn cards">
-{% for card in drawn %}<figure class="table-card" data-position-url="{{ url_for('custom.position',deck_id=deck.id,card_id=card.id) }}" data-x="{{ card.x }}" data-y="{{ card.y }}" style="transform:translate({{ card.x }}%,{{ card.y }}px)">
-<button type="button" class="enlarge-card" aria-label="Enlarge {{ card.name or 'card ' ~ card.drawn_order }}"><img {% if card.reversed %}class="reversed"{% endif %} src="{{ url_for('custom.card_image',deck_id=deck.id,filename=card.image_file) }}" alt="{{ card.name or 'Card ' ~ card.drawn_order }}" draggable="false"></button>
-<figcaption>{{ card.drawn_order }}. {{ card.name or 'Unnamed card' }} · {{ 'Reversed' if card.reversed else 'Upright' }}</figcaption></figure>
+{% for card in drawn %}<figure class="table-card" data-position-url="{{ url_for('custom.position',deck_id=deck.id,card_id=card.id) }}" data-x="{{ card.x }}" data-y="{{ card.y }}" data-rotation="{{ card.rotation }}" data-rotate-url="{{ url_for('custom.rotate',deck_id=deck.id,card_id=card.id) }}" style="transform:translate({{ card.x }}%,{{ card.y }}px)">
+<button type="button" class="enlarge-card" style="--card-rotation:{{ card.rotation }}deg" aria-label="Enlarge {{ card.name or 'card ' ~ card.drawn_order }}"><img {% if card.reversed %}class="reversed"{% endif %} src="{{ url_for('custom.card_image',deck_id=deck.id,filename=card.image_file) }}" alt="{{ card.name or 'Card ' ~ card.drawn_order }}" draggable="false"></button>
+<figcaption>{{ card.drawn_order }}. {{ card.name or 'Unnamed card' }} · {{ 'Reversed' if card.reversed else 'Upright' }} <button type="button" class="rotate-card" aria-label="Rotate {{ card.name or 'card ' ~ card.drawn_order }} 90 degrees" title="Rotate 90°">&#8635;</button></figcaption></figure>
 {% else %}<p>Your tabletop is clear. Upload cards below, then draw a card.</p>{% endfor %}
 </div>
 <dialog id="card-viewer"><button type="button" class="btn btn-secondary" id="close-card-viewer">Close</button><img alt="Enlarged card"><p></p></dialog>

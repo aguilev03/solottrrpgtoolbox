@@ -52,7 +52,36 @@ def migrate(conn):
         );
         CREATE INDEX IF NOT EXISTS custom_cards_deck ON custom_cards(deck_id);
         CREATE INDEX IF NOT EXISTS custom_results_table ON custom_spark_results(table_id, id);
+        CREATE TABLE IF NOT EXISTS custom_dealer_tables (
+            id INTEGER PRIMARY KEY, name TEXT NOT NULL,
+            width INTEGER NOT NULL DEFAULT 2400, height INTEGER NOT NULL DEFAULT 1600
+        );
+        CREATE TABLE IF NOT EXISTS custom_table_saves (
+            id INTEGER PRIMARY KEY,
+            table_id INTEGER NOT NULL REFERENCES custom_dealer_tables(id) ON DELETE CASCADE,
+            name TEXT NOT NULL,
+            width INTEGER NOT NULL, height INTEGER NOT NULL,
+            zoom REAL NOT NULL DEFAULT 1, view_x REAL NOT NULL DEFAULT 0, view_y REAL NOT NULL DEFAULT 0,
+            created_at TEXT NOT NULL DEFAULT (datetime('now'))
+        );
     ''')
+    # Dealer's-table placement and free rotation live on the card row, so a card is
+    # always in exactly one place: its deck's pool, its deck's tabletop, or one table.
+    columns = {row[1] for row in conn.execute('PRAGMA table_info(custom_cards)')}
+    for column, ddl in (
+        ('rotation', 'INTEGER NOT NULL DEFAULT 0 CHECK(rotation IN (0,90,180,270))'),
+        ('table_id', 'INTEGER REFERENCES custom_dealer_tables(id) ON DELETE SET NULL'),
+        ('table_x', 'REAL NOT NULL DEFAULT 0'),
+        ('table_y', 'REAL NOT NULL DEFAULT 0'),
+        ('table_z', 'INTEGER NOT NULL DEFAULT 0'),
+        ('face_down', 'INTEGER NOT NULL DEFAULT 0 CHECK(face_down IN (0,1))'),
+        # A suspended table layout ("save instance") holds its cards here, out of every deck's pool.
+        ('save_id', 'INTEGER REFERENCES custom_table_saves(id) ON DELETE SET NULL'),
+    ):
+        if column not in columns:
+            conn.execute(f'ALTER TABLE custom_cards ADD COLUMN {column} {ddl}')
+    conn.execute('CREATE INDEX IF NOT EXISTS custom_cards_table ON custom_cards(table_id)')
+    conn.execute('CREATE INDEX IF NOT EXISTS custom_cards_save ON custom_cards(save_id)')
 
 
 @contextmanager
@@ -191,8 +220,10 @@ def deck(deck_id):
         conn.execute('BEGIN')
         deck = required(conn, 'custom_decks', deck_id)
         cards = conn.execute('SELECT * FROM custom_cards WHERE deck_id=? ORDER BY drawn_order IS NULL, drawn_order, id', (deck_id,)).fetchall()
-    drawn = [c for c in cards if c['drawn_order'] is not None]
-    return render_template('deck.html', deck=deck, cards=cards, drawn=drawn, remaining=len(cards)-len(drawn))
+    drawn = [c for c in cards if c['drawn_order'] is not None and c['table_id'] is None and c['save_id'] is None]
+    on_tables = sum(1 for c in cards if c['table_id'] is not None or c['save_id'] is not None)
+    remaining = sum(1 for c in cards if c['drawn_order'] is None)
+    return render_template('deck.html', deck=deck, cards=cards, drawn=drawn, remaining=remaining, on_tables=on_tables)
 
 
 @bp.post('/decks/<int:deck_id>/edit')
@@ -266,17 +297,37 @@ def card_image(deck_id, filename):
     return response
 
 
+def draw_next(conn, deck_id):
+    """Draw the top card of a deck inside the caller's IMMEDIATE transaction."""
+    deck = required(conn, 'custom_decks', deck_id)
+    card = conn.execute('SELECT * FROM custom_cards WHERE deck_id=? AND drawn_order IS NULL ORDER BY draw_rank LIMIT 1', (deck_id,)).fetchone()
+    if card is None:
+        abort(409, description='Deck exhausted. Reshuffle to draw again.')
+    order = conn.execute('SELECT coalesce(max(drawn_order),0)+1 FROM custom_cards WHERE deck_id=?', (deck_id,)).fetchone()[0]
+    reverse = int(rng.random() * 100 < deck['reversal_probability'])
+    conn.execute('UPDATE custom_cards SET drawn_order=?, reversed=?, rotation=0, face_down=0 WHERE id=?', (order, reverse, card['id']))
+    return deck, card, order, reverse
+
+
+def return_to_pool(conn, deck_id, card_ids):
+    """Put drawn cards back into a deck's undrawn pool at random positions."""
+    if not card_ids:
+        return
+    conn.executemany('UPDATE custom_cards SET drawn_order=NULL, reversed=0, rotation=0, face_down=0, x=0, y=0, '
+                     'table_id=NULL, save_id=NULL, table_x=0, table_y=0, table_z=0 WHERE id=? AND deck_id=?',
+                     [(card_id, deck_id) for card_id in card_ids])
+    pool = [r[0] for r in conn.execute('SELECT id FROM custom_cards WHERE deck_id=? AND drawn_order IS NULL', (deck_id,))]
+    rng.shuffle(pool)
+    start = conn.execute('SELECT coalesce(max(draw_rank),0)+1 FROM custom_cards WHERE deck_id=?', (deck_id,)).fetchone()[0]
+    # Move the pool above every existing rank first so UNIQUE(deck_id, draw_rank) never collides.
+    conn.executemany('UPDATE custom_cards SET draw_rank=? WHERE id=?', [(start + i, card_id) for i, card_id in enumerate(pool)])
+
+
 @bp.post('/decks/<int:deck_id>/draw')
 def draw(deck_id):
     with connection() as conn:
         conn.execute('BEGIN IMMEDIATE')
-        deck = required(conn, 'custom_decks', deck_id)
-        card = conn.execute('SELECT * FROM custom_cards WHERE deck_id=? AND drawn_order IS NULL ORDER BY draw_rank LIMIT 1', (deck_id,)).fetchone()
-        if card is None:
-            abort(409, description='Deck exhausted. Reshuffle to draw again.')
-        order = conn.execute('SELECT coalesce(max(drawn_order),0)+1 FROM custom_cards WHERE deck_id=?', (deck_id,)).fetchone()[0]
-        reverse = int(rng.random() * 100 < deck['reversal_probability'])
-        conn.execute('UPDATE custom_cards SET drawn_order=?, reversed=? WHERE id=?', (order, reverse, card['id']))
+        _, card, order, reverse = draw_next(conn, deck_id)
         result = {'id': card['id'], 'order': order, 'reversed': bool(reverse)}
     return done('custom.deck', result, deck_id=deck_id)
 
@@ -289,7 +340,8 @@ def reshuffle(deck_id):
         ids = [r[0] for r in conn.execute('SELECT id FROM custom_cards WHERE deck_id=?', (deck_id,))]
         rng.shuffle(ids)
         # Negative temporary ranks avoid collisions with UNIQUE during permutation.
-        conn.execute('UPDATE custom_cards SET draw_rank=-id, drawn_order=NULL, reversed=0, x=0, y=0 WHERE deck_id=?', (deck_id,))
+        conn.execute('UPDATE custom_cards SET draw_rank=-id, drawn_order=NULL, reversed=0, x=0, y=0, rotation=0, face_down=0, '
+                     'table_id=NULL, save_id=NULL, table_x=0, table_y=0, table_z=0 WHERE deck_id=?', (deck_id,))
         conn.executemany('UPDATE custom_cards SET draw_rank=? WHERE id=?', enumerate(ids))
     return done('custom.deck', deck_id=deck_id)
 
@@ -312,10 +364,31 @@ def position(deck_id, card_id):
     data = payload()
     x, y = number(data.get('x'), -80, 80), number(data.get('y'), -200, 200)
     with connection() as conn:
-        result = conn.execute('UPDATE custom_cards SET x=?,y=? WHERE id=? AND deck_id=? AND drawn_order IS NOT NULL', (x, y, card_id, deck_id))
+        result = conn.execute('UPDATE custom_cards SET x=?,y=? WHERE id=? AND deck_id=? AND drawn_order IS NOT NULL AND table_id IS NULL AND save_id IS NULL', (x, y, card_id, deck_id))
         if not result.rowcount:
             abort(404)
     return jsonify(ok=True)
+
+
+def rotation(value):
+    try:
+        result = int(value)
+    except (ValueError, TypeError):
+        raise ValueError('Rotation must be 0, 90, 180 or 270 degrees.')
+    if result not in (0, 90, 180, 270):
+        raise ValueError('Rotation must be 0, 90, 180 or 270 degrees.')
+    return result
+
+
+@bp.post('/decks/<int:deck_id>/cards/<int:card_id>/rotate')
+def rotate(deck_id, card_id):
+    angle = rotation(payload().get('rotation'))
+    with connection() as conn:
+        result = conn.execute('UPDATE custom_cards SET rotation=? WHERE id=? AND deck_id=? AND drawn_order IS NOT NULL '
+                              'AND table_id IS NULL AND save_id IS NULL', (angle, card_id, deck_id))
+        if not result.rowcount:
+            abort(404)
+    return done('custom.deck', {'ok': True, 'rotation': angle}, deck_id=deck_id)
 
 
 @bp.post('/decks/<int:deck_id>/cards/<int:card_id>/delete')
@@ -340,6 +413,253 @@ def delete_deck(deck_id):
     for filename in files + ([deck['back_file']] if deck['back_file'] else []):
         (storage() / filename).unlink(missing_ok=True)
     return done('custom.decks')
+
+
+# ---------------------------------------------------------------------------
+# Dealer's tables: one large, growable surface shared by every deck.
+# ---------------------------------------------------------------------------
+TABLE_MIN = (800, 600)
+TABLE_MAX = 20000
+
+
+def table_card(row):
+    return {
+        'id': row['id'], 'deck_id': row['deck_id'], 'deck_name': row['deck_name'],
+        'name': row['name'] or '', 'order': row['drawn_order'], 'reversed': bool(row['reversed']),
+        'rotation': row['rotation'], 'face_down': bool(row['face_down']),
+        'x': row['table_x'], 'y': row['table_y'], 'z': row['table_z'],
+        'image': url_for('custom.card_image', deck_id=row['deck_id'], filename=row['image_file']),
+        'back': url_for('custom.card_image', deck_id=row['deck_id'], filename=row['back_file']) if row['back_file'] else None,
+    }
+
+
+TABLE_CARD_QUERY = ('SELECT c.*, d.name AS deck_name, d.back_file FROM custom_cards c '
+                    'JOIN custom_decks d ON d.id=c.deck_id ')
+
+
+def deck_shelf(conn):
+    return [dict(r) for r in conn.execute(
+        'SELECT d.id, d.name, d.back_file, count(c.id) AS total, '
+        'sum(CASE WHEN c.id IS NOT NULL AND c.drawn_order IS NULL THEN 1 ELSE 0 END) AS remaining '
+        'FROM custom_decks d LEFT JOIN custom_cards c ON c.deck_id=d.id GROUP BY d.id ORDER BY d.name, d.id')]
+
+
+@bp.get('/tables')
+def tables():
+    with connection() as conn:
+        items = conn.execute('SELECT t.*, count(c.id) AS cards, '
+                             '(SELECT count(*) FROM custom_table_saves s WHERE s.table_id=t.id) AS saves '
+                             'FROM custom_dealer_tables t LEFT JOIN custom_cards c ON c.table_id=t.id '
+                             'GROUP BY t.id ORDER BY t.id DESC').fetchall()
+    return render_template('tables.html', tables=items)
+
+
+@bp.post('/tables')
+def create_table():
+    title = name(payload().get('name') or "Dealer's Table")
+    with connection() as conn:
+        item_id = conn.execute('INSERT INTO custom_dealer_tables(name) VALUES (?)', (title,)).lastrowid
+    return done('custom.dealer_table', {'id': item_id}, table_id=item_id)
+
+
+@bp.get('/tables/<int:table_id>')
+def dealer_table(table_id):
+    with connection() as conn:
+        conn.execute('BEGIN')
+        table = required(conn, 'custom_dealer_tables', table_id)
+        cards = [table_card(r) for r in conn.execute(TABLE_CARD_QUERY + 'WHERE c.table_id=? ORDER BY c.table_z, c.id', (table_id,))]
+        shelf = deck_shelf(conn)
+        saves = conn.execute('SELECT s.*, count(c.id) AS cards FROM custom_table_saves s LEFT JOIN custom_cards c ON c.save_id=s.id '
+                             'WHERE s.table_id=? GROUP BY s.id ORDER BY s.id DESC', (table_id,)).fetchall()
+    for deck in shelf:
+        deck['back'] = url_for('custom.card_image', deck_id=deck['id'], filename=deck['back_file']) if deck['back_file'] else None
+    return render_template('dealer_table.html', table=table, cards=cards, shelf=shelf, saves=saves)
+
+
+@bp.post('/tables/<int:table_id>/edit')
+def edit_table(table_id):
+    data = payload()
+    with connection() as conn:
+        conn.execute('BEGIN IMMEDIATE')
+        table = required(conn, 'custom_dealer_tables', table_id)
+        title = name(data.get('name')) if data.get('name') is not None else table['name']
+        width = int(number(data.get('width', table['width']), TABLE_MIN[0], TABLE_MAX))
+        height = int(number(data.get('height', table['height']), TABLE_MIN[1], TABLE_MAX))
+        conn.execute('UPDATE custom_dealer_tables SET name=?, width=?, height=? WHERE id=?', (title, width, height, table_id))
+        # Keep every card on the surface if the table shrinks.
+        conn.execute('UPDATE custom_cards SET table_x=min(table_x, ?), table_y=min(table_y, ?) WHERE table_id=?',
+                     (max(0, width - 120), max(0, height - 120), table_id))
+    return done('custom.dealer_table', {'ok': True, 'width': width, 'height': height, 'name': title}, table_id=table_id)
+
+
+def gather(conn, table_id=None, save_id=None):
+    """Shuffle every card on a table (or in a saved layout) back into its deck."""
+    column, value = ('table_id', table_id) if save_id is None else ('save_id', save_id)
+    by_deck = {}
+    for row in conn.execute(f'SELECT id, deck_id FROM custom_cards WHERE {column}=?', (value,)):
+        by_deck.setdefault(row['deck_id'], []).append(row['id'])
+    for deck_id, ids in by_deck.items():
+        return_to_pool(conn, deck_id, ids)
+
+
+@bp.post('/tables/<int:table_id>/clear')
+def clear_table(table_id):
+    with connection() as conn:
+        conn.execute('BEGIN IMMEDIATE')
+        required(conn, 'custom_dealer_tables', table_id)
+        gather(conn, table_id)
+    return done('custom.dealer_table', table_id=table_id)
+
+
+@bp.post('/tables/<int:table_id>/delete')
+def delete_table(table_id):
+    with connection() as conn:
+        conn.execute('BEGIN IMMEDIATE')
+        required(conn, 'custom_dealer_tables', table_id)
+        gather(conn, table_id)
+        for (save_id,) in conn.execute('SELECT id FROM custom_table_saves WHERE table_id=?', (table_id,)).fetchall():
+            gather(conn, save_id=save_id)
+        conn.execute('DELETE FROM custom_dealer_tables WHERE id=?', (table_id,))
+    return done('custom.tables')
+
+
+def suspend(conn, table, title, zoom=1.0, view_x=0.0, view_y=0.0):
+    """Move every card on the table into a new saved layout and clear the table."""
+    count = conn.execute('SELECT count(*) FROM custom_cards WHERE table_id=?', (table['id'],)).fetchone()[0]
+    if not count:
+        raise ValueError('The table is empty. Deal some cards before saving.')
+    save_id = conn.execute('INSERT INTO custom_table_saves(table_id, name, width, height, zoom, view_x, view_y) '
+                           'VALUES (?,?,?,?,?,?,?)',
+                           (table['id'], title, table['width'], table['height'], zoom, view_x, view_y)).lastrowid
+    conn.execute('UPDATE custom_cards SET save_id=?, table_id=NULL WHERE table_id=?', (save_id, table['id']))
+    return save_id, count
+
+
+def view_fields(data):
+    return (number(data.get('zoom', 1), 0.1, 4),
+            number(data.get('view_x', 0), 0, TABLE_MAX),
+            number(data.get('view_y', 0), 0, TABLE_MAX))
+
+
+@bp.post('/tables/<int:table_id>/saves')
+def save_table(table_id):
+    """Save instance: suspend the current layout under a name and clear the table."""
+    data = payload()
+    zoom, view_x, view_y = view_fields(data)
+    with connection() as conn:
+        conn.execute('BEGIN IMMEDIATE')
+        table = required(conn, 'custom_dealer_tables', table_id)
+        existing = conn.execute('SELECT count(*) FROM custom_table_saves WHERE table_id=?', (table_id,)).fetchone()[0]
+        title = name(data.get('name') or f'Save {existing + 1}')
+        save_id, count = suspend(conn, table, title, zoom, view_x, view_y)
+    return done('custom.dealer_table', {'id': save_id, 'name': title, 'cards': count}, table_id=table_id)
+
+
+@bp.post('/tables/<int:table_id>/saves/<int:save_id>/resume')
+def resume_table(table_id, save_id):
+    """Restore a saved layout. Cards currently on the table are auto-saved first."""
+    data = payload()
+    with connection() as conn:
+        conn.execute('BEGIN IMMEDIATE')
+        table = required(conn, 'custom_dealer_tables', table_id)
+        saved = conn.execute('SELECT * FROM custom_table_saves WHERE id=? AND table_id=?', (save_id, table_id)).fetchone()
+        if saved is None:
+            abort(404)
+        auto = None
+        if conn.execute('SELECT count(*) FROM custom_cards WHERE table_id=?', (table_id,)).fetchone()[0]:
+            zoom, view_x, view_y = view_fields(data)
+            title = name(data.get('autosave_name') or f'Auto-saved before resuming {saved["name"]}'[:200])
+            auto, _ = suspend(conn, table, title, zoom, view_x, view_y)
+        conn.execute('UPDATE custom_cards SET table_id=?, save_id=NULL WHERE save_id=?', (table_id, save_id))
+        conn.execute('UPDATE custom_dealer_tables SET width=?, height=? WHERE id=?', (saved['width'], saved['height'], table_id))
+        conn.execute('DELETE FROM custom_table_saves WHERE id=?', (save_id,))
+    view = {'zoom': saved['zoom'], 'x': round(saved['view_x']), 'y': round(saved['view_y'])}
+    if request.is_json or request.headers.get('Accept') == 'application/json':
+        return jsonify(ok=True, name=saved['name'], autosave_id=auto, view=view)
+    return redirect(url_for('custom.dealer_table', table_id=table_id, **view))
+
+
+@bp.post('/tables/<int:table_id>/saves/<int:save_id>/rename')
+def rename_save(table_id, save_id):
+    title = name(payload().get('name'))
+    with connection() as conn:
+        result = conn.execute('UPDATE custom_table_saves SET name=? WHERE id=? AND table_id=?', (title, save_id, table_id))
+        if not result.rowcount:
+            abort(404)
+    return done('custom.dealer_table', {'ok': True, 'name': title}, table_id=table_id)
+
+
+@bp.post('/tables/<int:table_id>/saves/<int:save_id>/delete')
+def discard_save(table_id, save_id):
+    """Delete a saved layout and shuffle its cards back into their decks."""
+    with connection() as conn:
+        conn.execute('BEGIN IMMEDIATE')
+        if conn.execute('SELECT 1 FROM custom_table_saves WHERE id=? AND table_id=?', (save_id, table_id)).fetchone() is None:
+            abort(404)
+        gather(conn, save_id=save_id)
+        conn.execute('DELETE FROM custom_table_saves WHERE id=?', (save_id,))
+    return done('custom.dealer_table', table_id=table_id)
+
+
+@bp.post('/tables/<int:table_id>/draw')
+def table_draw(table_id):
+    data = payload()
+    try:
+        deck_id = int(data.get('deck_id'))
+    except (TypeError, ValueError):
+        raise ValueError('Choose a deck to draw from.')
+    face_down = str(data.get('face_down', '0')).lower() in ('1', 'true', 'on', 'yes')
+    with connection() as conn:
+        conn.execute('BEGIN IMMEDIATE')
+        table = required(conn, 'custom_dealer_tables', table_id)
+        x = number(data.get('x', 40), 0, table['width'])
+        y = number(data.get('y', 40), 0, table['height'])
+        _, card, _, _ = draw_next(conn, deck_id)
+        z = conn.execute('SELECT coalesce(max(table_z),0)+1 FROM custom_cards WHERE table_id=?', (table_id,)).fetchone()[0]
+        conn.execute('UPDATE custom_cards SET table_id=?, table_x=?, table_y=?, table_z=?, face_down=? WHERE id=?',
+                     (table_id, x, y, z, int(face_down), card['id']))
+        result = table_card(conn.execute(TABLE_CARD_QUERY + 'WHERE c.id=?', (card['id'],)).fetchone())
+        result['remaining'] = conn.execute('SELECT count(*) FROM custom_cards WHERE deck_id=? AND drawn_order IS NULL', (deck_id,)).fetchone()[0]
+    return done('custom.dealer_table', result, table_id=table_id)
+
+
+def table_card_row(conn, table_id, card_id):
+    card = conn.execute('SELECT * FROM custom_cards WHERE id=? AND table_id=?', (card_id, table_id)).fetchone()
+    if card is None:
+        abort(404)
+    return card
+
+
+@bp.post('/tables/<int:table_id>/cards/<int:card_id>')
+def update_table_card(table_id, card_id):
+    data = payload()
+    with connection() as conn:
+        conn.execute('BEGIN IMMEDIATE')
+        table = required(conn, 'custom_dealer_tables', table_id)
+        card = table_card_row(conn, table_id, card_id)
+        x = number(data.get('x', card['table_x']), 0, table['width'])
+        y = number(data.get('y', card['table_y']), 0, table['height'])
+        angle = rotation(data.get('rotation', card['rotation']))
+        face_down = card['face_down']
+        if 'face_down' in data:
+            face_down = int(str(data.get('face_down')).lower() in ('1', 'true', 'on', 'yes'))
+        z = card['table_z']
+        if str(data.get('raise', '')).lower() in ('1', 'true'):
+            z = conn.execute('SELECT coalesce(max(table_z),0)+1 FROM custom_cards WHERE table_id=?', (table_id,)).fetchone()[0]
+        conn.execute('UPDATE custom_cards SET table_x=?, table_y=?, rotation=?, face_down=?, table_z=? WHERE id=?',
+                     (x, y, angle, face_down, z, card_id))
+    return jsonify(ok=True, x=x, y=y, rotation=angle, face_down=bool(face_down), z=z)
+
+
+@bp.post('/tables/<int:table_id>/cards/<int:card_id>/return')
+def return_table_card(table_id, card_id):
+    with connection() as conn:
+        conn.execute('BEGIN IMMEDIATE')
+        required(conn, 'custom_dealer_tables', table_id)
+        card = table_card_row(conn, table_id, card_id)
+        return_to_pool(conn, card['deck_id'], [card_id])
+        remaining = conn.execute('SELECT count(*) FROM custom_cards WHERE deck_id=? AND drawn_order IS NULL', (card['deck_id'],)).fetchone()[0]
+    return done('custom.dealer_table', {'ok': True, 'deck_id': card['deck_id'], 'remaining': remaining}, table_id=table_id)
 
 
 def parse_entries(text, is_json=False):

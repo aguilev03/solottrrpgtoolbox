@@ -456,7 +456,10 @@ Two independent, system-neutral tools are available from the home menu:
 
 - **Custom Card Decks**: saved image decks, optional backs and names, configurable
   reversals, transactional draws without replacement, persistent draggable
-  tabletops, card enlargement and full reshuffling.
+  tabletops, 90° card rotation, card enlargement and full reshuffling.
+- **Dealer's Tables**: one large, pannable, zoomable and auto-growing table for
+  dealing from several decks at once, with drag, rotate, flip and return-to-deck,
+  plus named saved layouts you can suspend and resume (e.g. one per dungeon room).
 - **Custom Spark Tables**: reusable text/JSON imports, editing, uniform random
   generation, optional sampling without replacement and saved recent results.
 
